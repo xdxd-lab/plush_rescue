@@ -1,0 +1,108 @@
+{
+  "version": "5.0.0",
+  "revision": "v5-qa-r1",
+  "source_commit": "129b61e36b3595f81e77e7f78d8f813bf543e94d",
+  "layout": "Original dist contents copied byte-for-byte to repository root.",
+  "files": [
+    {
+      "path": "assets/polar-portrait.png",
+      "bytes": 1521650,
+      "sha256": "c9bdb04f855f3e992256291518a5bf19b1182728d3ea8d651319c15dea28d1e1"
+    },
+    {
+      "path": "assets/pudding-portrait.png",
+      "bytes": 940032,
+      "sha256": "0b60d67daae70748cae28ca1313f18ce54771cd39e4f97d20a3f272e6b40a153"
+    },
+    {
+      "path": "boss-visuals.js",
+      "bytes": 10762,
+      "sha256": "0816b2c042202249fa48836224f4442c433f444426c8681f6c92029f31456861"
+    },
+    {
+      "path": "build-info.json",
+      "bytes": 156,
+      "sha256": "ac7a6a2f4eefc6d97a14a88e30a8af34770ab1c7920d8538f790e8e7a0a845db"
+    },
+    {
+      "path": "camera.js",
+      "bytes": 2938,
+      "sha256": "c477cae744d86cf12d24b087301c87894ee53f7974826db21465c7ebbf10dda9"
+    },
+    {
+      "path": "characters.js",
+      "bytes": 28959,
+      "sha256": "e635d81a9689f18b32e28bfb6b8d57bef7f7ab7c6451837068511b2ac770131a"
+    },
+    {
+      "path": "core.js",
+      "bytes": 20074,
+      "sha256": "2a805d1b1e3c8783b1c7a99850ec91e47071041e2be50563abc603e8742f8807"
+    },
+    {
+      "path": "crowd.js",
+      "bytes": 5140,
+      "sha256": "5b1222490eb6eba3d127093be40d03b63b8a44802107635a22be6599f3b86e36"
+    },
+    {
+      "path": "effects.js",
+      "bytes": 5327,
+      "sha256": "0fc31b61cb5a7594c25fc12ed11f17f4ca74cf7f0f7cc0ab3eba1af656d5b9a0"
+    },
+    {
+      "path": "index.html",
+      "bytes": 3870,
+      "sha256": "dfbf10d5ff828e81051132176ff2e72e71a95bef4f7e66a87adf5f4817ea4e89"
+    },
+    {
+      "path": "keyboard.js",
+      "bytes": 1380,
+      "sha256": "5029cce8a90b7506795753bb959aa5d3322485f19e16496a60e9a2ab7d41f3ba"
+    },
+    {
+      "path": "lighting.js",
+      "bytes": 1150,
+      "sha256": "65e3a24751674769fa358a1971a912c5b6d81cdb390183e88a4ec76d4b116f5f"
+    },
+    {
+      "path": "main.js",
+      "bytes": 22681,
+      "sha256": "d6490ef4c2a99d45bb441c32f4c51c4b9faa80185b5ca669a1af6cd54b551819"
+    },
+    {
+      "path": "maps.js",
+      "bytes": 45076,
+      "sha256": "b2128de63bf6a02dabc4b6f68a0303b290c6d3b34ada0472d20153400026eefd"
+    },
+    {
+      "path": "style.css",
+      "bytes": 14766,
+      "sha256": "bf82d873be60f2b54971abcd973e1d154b79d8446989d532ce97357a3c239e19"
+    },
+    {
+      "path": "vendor/THREE-LICENSE.txt",
+      "bytes": 1081,
+      "sha256": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc"
+    },
+    {
+      "path": "vendor/three.core.js",
+      "bytes": 1458113,
+      "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+    },
+    {
+      "path": "vendor/three.module.js",
+      "bytes": 662772,
+      "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+    },
+    {
+      "path": "weapon-visuals.js",
+      "bytes": 31110,
+      "sha256": "e27a995be4d031827f660f340f95d1c094debfc1f86312e13a662d881317b445"
+    },
+    {
+      "path": "weapons.js",
+      "bytes": 2066,
+      "sha256": "c90d851a097646455317cb5df273914b0b2cde73b0a6c24687ef78b6df25dbef"
+    }
+  ]
+}
