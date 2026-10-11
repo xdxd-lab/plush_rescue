@@ -1,3 +1,6 @@
+**[直接線上試玩](https://xdxd-lab.github.io/plush_rescue/)**
+點擊上方連結即可在瀏覽器遊玩，不需要下載或安裝。
+
 # 布偶救援隊 · Plush Rescue V5
 
 Standalone static GitHub Pages export. No build step, CDN, npm install, or server backend is required. `index.html` and all game modules/assets belong at the repository root.
