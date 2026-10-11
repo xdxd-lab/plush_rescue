@@ -1,4 +1,4 @@
-**[直接線上試玩](https://xdxd-lab.github.io/plush_rescue/)**
+**[https://xdxd-lab.github.io/plush_rescue/](https://xdxd-lab.github.io/plush_rescue/)**
 點擊上方連結即可在瀏覽器遊玩，不需要下載或安裝。
 
 # 布偶救援隊 · Plush Rescue V5
