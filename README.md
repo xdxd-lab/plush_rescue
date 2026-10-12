@@ -2,7 +2,7 @@
 
 點擊上方連結即可在瀏覽器遊玩，不需要下載或安裝。
 
-# 布偶救援隊 · Plush Rescue V6
+# 布偶救援隊 · Plush Rescue V7
 
 Standalone static GitHub Pages export. No build step, CDN, npm install, or server backend is required. `index.html` and all game modules/assets belong at the repository root.
 
@@ -30,7 +30,9 @@ Browser smoke check: choose each hero, start a run, move with WASD/arrows or the
 
 ## Version and provenance
 
-- Version: **6.0.0** / **v6-camera-r1**
+- Version: **7.0.0** / **v7-rescue-r1**
+- V7 change: rescued plush appearance only; rounded silhouettes, soft ears and clear expressions. V6 camera angles and gameplay are retained.
+- V7 verification: 31 focused Node regressions and 18 Mac Safari WebGL checks passed; physical-phone performance was not measured.
 - Original source commit: `129b61e36b3595f81e77e7f78d8f813bf543e94d`
 - V6 base export commit: `791e58ea29748ce2429733dd81207eba2565dd87`
 - V6 change: camera azimuth 32° → 60° and elevation 41° → 40°. Distance 29, landscape/portrait spans 25.6/28, character scale and gameplay are unchanged.

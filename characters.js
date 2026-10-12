@@ -109,6 +109,59 @@ function assets(THREE) {
   ],.048);
   g.whiskers=threadGeometry([[-.6,.18,.6,.35],[-.6,-.12,.56,-.25]],.035);
 
+  // Rescue-only shapes are baked once; never deform the shared worn/hero
+  // sphere or recolor their materials. Broad lower cheeks form one soft head.
+  function prepareRescueShapes(){
+    if(g.rescueHead)return;
+    g.rescueHead=g.ball.clone();
+    const cheeks=g.rescueHead.attributes.position;
+    for(let i=0;i<cheeks.count;i++){
+      const x=cheeks.getX(i),y=cheeks.getY(i),z=cheeks.getZ(i);
+      const fullness=1+.09*Math.exp(-Math.pow((y+.28)/.52,2));
+      cheeks.setXYZ(i,x*fullness,y,z*(1+.025*(1-y)));
+    }
+    g.rescueHead.computeVertexNormals();
+    g.rescueHead.computeBoundingSphere();
+
+    // Eyes, nose and mouth share one embroidery mesh per expression. Blush and
+    // the bow are also merged pairs, avoiding a batch for every tiny face part.
+    function bakedParts(parts){
+      const positions=[],normals=[],uvs=[];
+      for(const {geom,at,scale,turn=0} of parts){
+        const piece=g[geom].toNonIndexed();
+        piece.scale(...scale);piece.rotateZ(turn);piece.translate(...at);
+        positions.push(...piece.attributes.position.array);
+        normals.push(...piece.attributes.normal.array);uvs.push(...piece.attributes.uv.array);
+        piece.dispose();
+      }
+      const geometry=new THREE.BufferGeometry();
+      geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+      geometry.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+      geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+      geometry.computeBoundingSphere();return geometry;
+    }
+    g.rescueFaces=[0,1,2,3].map(type=>{
+      const pieces=[];
+      for(const s of [-1,1]){
+        const closed=type===1||type===3&&s>0;
+        pieces.push({geom:closed?'boldSmile':'bead',at:[s*.148,.888,.312],
+          scale:closed?[.045,.038,.024]:[.036,type===2?.042:.046,.019]});
+      }
+      pieces.push({geom:'bead',at:[0,.800,.365],scale:[type===2?.038:.029,.022,.016]});
+      if(type===2){
+        pieces.push({geom:'boldSmile',at:[0,.774,.351],scale:[.044,.036,.025],turn:Math.PI});
+      }else{
+        for(const s of [-1,1])pieces.push({geom:'boldSmile',at:[s*.030,.781,.351],scale:[.032,.027,.023],turn:Math.PI});
+      }
+      return bakedParts(pieces);
+    });
+    g.rescueBlush=bakedParts([-1,1].map(s=>({geom:'bead',at:[s*.254,.804,.280],scale:[.058,.032,.012]})));
+    g.rescueBow=bakedParts([
+      ...[-1,1].map(s=>({geom:'soft',at:[s*.075,0,0],scale:[.088,.061,.035],turn:-s*.28})),
+      {geom:'bead',at:[0,-.005,.023],scale:[.037,.042,.030]},
+    ]);
+  }
+
   // A subtle woven pile and a separate worn surface, generated locally. No
   // network images and no DOM requirement in Node geometry/gameplay tests.
   function fabricTexture(worn) {
@@ -153,7 +206,7 @@ function assets(THREE) {
     });
     mat.name=`plush-${surface}-${color.toString(16)}`;materials.set(key,mat);return mat;
   }
-  const result={g,material};caches.set(THREE,result);return result;
+  const result={g,material,prepareRescueShapes};caches.set(THREE,result);return result;
 }
 
 const PALETTES=[
@@ -167,28 +220,30 @@ export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=fals
   const polar=heroId==='polar';
   hero=hero||polar;
   type=((type|0)%4+4)%4;
-  const {g,material:m}=assets(THREE),p=PALETTES[type];
+  const {g,material:m,prepareRescueShapes}=assets(THREE),p=PALETTES[type];
   const root=new THREE.Group(),rig=new THREE.Group();root.add(rig);
   root.name=hero?(polar?'Snowball · polar rescue bear':'Pudding · golden rescue pup'):['Mochi · patchwork kitten','Mallow · patchwork bunny','Clover · patchwork bear','Cloud · patchwork puppy'][type];
   rig.name='Soft plush animation rig';
   const bodyParts=[],trimParts=[],bellyParts=[],patchParts=[],stitchParts=[],feet=[],arms=[],ears=[];
+  let restored=null;
   const wornOnly=new THREE.Group(),happyOnly=new THREE.Group();
   wornOnly.name='Worn fabric, loose threads and broken control band';happyOnly.name='Restored smile, ribbons and heart';
   rig.add(wornOnly,happyOnly);happyOnly.visible=false;
+  const baseParent=hero?rig:wornOnly;
   const bodyMat=m(hero?(polar?0xf0f6f3:0xffe3a0):p.worn,hero?'fabric':'worn');
   const trimMat=m(hero?(polar?0xd2e7e9:0xffdc90):p.trim,hero?'fabric':'worn');
   const bellyMat=m(hero?(polar?0xfffcf2:0xffe9af):0xc3c1b8,hero?'fabric':'worn');
   const threadMat=m(0x403947,'matte'),faceMat=m(0x473539,'matte'),creamMat=m(0xfff0d2,'fabric');
 
-  function part(name,geom,mat,x,y,z,sx,sy,sz,parent=rig) {
+  function part(name,geom,mat,x,y,z,sx,sy,sz,parent=baseParent) {
     const o=new THREE.Mesh(g[geom],mat);o.name=name;o.position.set(x,y,z);o.scale.set(sx,sy,sz);
     o.castShadow=geom==='ball'||geom==='ear'||geom==='tail'||geom==='box';o.receiveShadow=true;parent.add(o);return o;
   }
-  function plush(name,x,y,z,sx,sy,sz,category=bodyParts,parent=rig,geom='ball') {
+  function plush(name,x,y,z,sx,sy,sz,category=bodyParts,parent=baseParent,geom='ball') {
     const mat=category===trimParts?trimMat:category===bellyParts?bellyMat:bodyMat;
     const o=part(name,geom,mat,x,y,z,sx,sy,sz,parent);category.push(o);return o;
   }
-  function stitch(name,geometry,x,y,z,sx,sy,rotation=0,parent=rig){
+  function stitch(name,geometry,x,y,z,sx,sy,rotation=0,parent=baseParent){
     const o=part(name,geometry,threadMat,x,y,z,sx,sy,.65,parent);o.rotation.z=rotation;stitchParts.push(o);return o;
   }
   const body=plush('Broad bean-shaped stuffed body',0,.395,-.015,hero?(polar?.424:.37):.32,hero?.33:.30,hero?(polar?.337:.30):.265);
@@ -246,9 +301,9 @@ export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=fals
 
   // A raised muzzle keeps the face legible from the game's elevated camera.
   const faceY=hero?(polar?.805:.807):.762,faceZ=hero?(polar?.397:.361):.300;
-  if(polar)plush('Broad cream polar-bear snout',0,faceY+.014,faceZ-.012,.204,.129,.073,bellyParts,rig,'soft');
-  else plush('Cream left muzzle',-.066,faceY,faceZ,.115,.083,.038,bellyParts,rig,'soft');
-  if(!polar)plush('Cream right muzzle',.066,faceY,faceZ,.115,.083,.038,bellyParts,rig,'soft');
+  if(polar)plush('Broad cream polar-bear snout',0,faceY+.014,faceZ-.012,.204,.129,.073,bellyParts,baseParent,'soft');
+  else plush('Cream left muzzle',-.066,faceY,faceZ,.115,.083,.038,bellyParts,baseParent,'soft');
+  if(!polar)plush('Cream right muzzle',.066,faceY,faceZ,.115,.083,.038,bellyParts,baseParent,'soft');
   const nose=part('Tiny cocoa nose','soft',faceMat,0,faceY+.032,faceZ+(polar?.069:.048),hero?(polar?.062:.052):.037,hero?(polar?.038:.031):.027,.028);
   part('Embroidered nose stem','box',faceMat,0,faceY-.003,faceZ+(polar?.075:.052),hero?.017:.013,.044,.011);
   for(const s of [-1,1]){
@@ -353,9 +408,6 @@ export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=fals
       const eyeStitch=part('Crossed button-eye thread','buttonThread',m(0xc3b59b,'matte'),eyeX,eyeY,eyeZ+.023,r*.72,r*.72,.20,wornOnly);eyeStitch.rotation.z=s*.3;
       // Sad, gently sloping stitch brows reinforce that these are lost toys.
       const brow=part('Worried embroidered eyebrow','box',threadMat,s*.159,.980,.280,.072,.014,.012,wornOnly);brow.rotation.z=-s*.27;
-      const happy=part('Happy closed crescent eye','boldSmile',faceMat,eyeX,.868,.329,.054,.049,.038,happyOnly);
-      happy.rotation.z=0;
-      part('Rosy restored cheek','soft',m(0xf598ae,'fabric'),s*.266,.766,.268,.060,.033,.016,happyOnly);
     }
     // The forehead has a tangible, edge-stitched fabric patch, not a painted
     // rectangle. Angling it to the head keeps it visible from above.
@@ -391,22 +443,59 @@ export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=fals
     // A small crooked old ribbon is replaced by a larger clean bow.
     const bowPosition=type===0?[-.235,1.077,.233]:type===1?[.264,1.13,.11]:[0,.578,.280];
     const oldBow=bow(wornOnly,m(p.trim,'worn'),...bowPosition,.94);oldBow.rotation.z=-.24;
-    const newBow=bow(happyOnly,m(p.bow,'fabric'),...bowPosition,type===2?1.03:1.10);newBow.rotation.z=.10;
-    part('Stitched friendship heart','heart',m(type===2?0xf39990:p.bow,'fabric'),type===2?0:.092,.351,.298,.080,.080,.095,happyOnly);
     if(type===0){
       for(const s of [-1,1]){const whisker=part('Short kitten whisker stitches','whiskers',faceMat,s*.275,.805,.260,.067,.062,.4);whisker.rotation.z=-s*.08;}
     }
     let rescueAt=null;
+    function makeRestored(){
+      prepareRescueShapes();
+      const palette=[
+        {cloth:0xffdce7,lining:0xf1b1c5,bib:0xfff6ed,bow:0xde83ac},
+        {cloth:0xfff2df,lining:0xf1b1c5,bib:0xfffaf0,bow:0xde83ac},
+        {cloth:0xf1e1c9,lining:0xd8b896,bib:0xfff6ed,bow:0x85afc5},
+        {cloth:0xc9e3ed,lining:0xa3c6d7,bib:0xfff6ed,bow:0xde83ac},
+      ][type];
+      const cloth=m(palette.cloth,'fabric'),lining=m(palette.lining,'fabric'),bib=m(palette.bib,'fabric');
+      const limbs={feet:[],arms:[],ears:[]};
+      const add=(name,geom,mat,x,y,z,sx,sy,sz,parent=happyOnly)=>part(name,geom,mat,x,y,z,sx,sy,sz,parent);
+      add('Restored round bean body','soft',cloth,0,.383,-.018,.310,.282,.257);
+      const head=add('Restored seamless full-cheek head','rescueHead',cloth,0,.820,.014,type===1?.414:.420,type===2?.330:.340,.307);
+      head.castShadow=true;
+      for(const s of [-1,1]){
+        const foot=add('Restored short rounded foot','soft',cloth,s*.168,.105,.112,.145,.105,.164);limbs.feet.push(foot);
+        const arm=add('Restored cuddly round paw','soft',cloth,s*.302,.391,.059,.120,.143,.122);arm.rotation.z=-s*.30;limbs.arms.push(arm);
+        let ear;
+        if(type===0){
+          ear=add('Restored soft kitten ear','ear',cloth,s*.279,1.086,-.016,.136,.168,.151);ear.rotation.z=-s*.18;
+          add('Restored kitten ear lining','ear',lining,0,.015,.77,.52,.54,.12,ear);
+        }else if(type===1){
+          ear=add('Restored relaxed velvet bunny ear','soft',cloth,s*.219,1.176,-.037,.121,s<0?.326:.286,.094);ear.rotation.z=-s*(s<0?.20:.38);ear.rotation.x=s<0?-.06:.14;
+          add('Restored bunny ear lining','soft',lining,0,.045,.81,.57,.76,.17,ear);
+        }else if(type===2){
+          ear=add('Restored little teddy ear','soft',cloth,s*.310,1.070,-.021,.140,.149,.101);
+          add('Restored teddy ear lining','soft',lining,0,.03,.83,.60,.59,.18,ear);
+        }else{
+          ear=add('Restored soft drooping puppy ear','soft',cloth,s*.426,.789,-.006,.154,.224,.111);ear.rotation.z=s*.52;ear.rotation.y=-s*.12;
+          add('Restored puppy ear lining','soft',lining,0,-.05,.80,.56,.72,.17,ear);
+        }
+        limbs.ears.push({mesh:ear,z:ear.rotation.z,x:ear.rotation.x});
+      }
+      add('Restored soft tummy','soft',bib,0,.362,.224,.202,.203,.049);
+      add('Restored single soft muzzle','soft',bib,0,.790,.307,type===2?.151:.143,.092,.042);
+      add('Restored rosy cloth cheeks','rescueBlush',m(0xf1a5b5,'fabric'),0,0,0,1,1,1);
+      const face=new THREE.Mesh(g.rescueFaces[type],faceMat);face.name='Restored clear stitched expression';face.receiveShadow=true;happyOnly.add(face);
+      const bowAt=type===0?[-.238,1.082,.218]:type===1?[.272,1.177,.082]:[0,.563,.244];
+      add('Restored soft friendship bow','rescueBow',m(palette.bow,'fabric'),...bowAt,1,1,1).rotation.z=type===1?-.12:.10;
+      if(type===0)add('Restored curled kitten tail','tail',cloth,0,0,-.008,1,1,1);
+      else add('Restored cotton tail','soft',cloth,.10,.292,-.252,.111,.108,.132);
+      return limbs;
+    }
     root.userData.rescued=false;
-    root.userData.setRescued=()=>{
-      if(root.userData.rescued)return;
-      root.userData.rescued=true;rescueAt=null;
-      for(const o of bodyParts)o.material=m(p.happy,'fabric');
-      for(const o of trimParts)o.material=m(p.bright,'fabric');
-      for(const o of bellyParts)o.material=m(p.belly,'fabric');
-      for(const o of patchParts)o.material=m(p.bright,'fabric');
-      for(const o of stitchParts)o.material=m(p.belly,'matte');
-      wornOnly.visible=false;happyOnly.visible=true;
+    root.userData.setRescued=(value=true)=>{
+      value=Boolean(value);if(root.userData.rescued===value)return;
+      if(value&&!restored)restored=makeRestored();
+      root.userData.rescued=value;rescueAt=null;rig.scale.set(1,1,1);
+      wornOnly.visible=!value;happyOnly.visible=value;
     };
     root.userData.rescuePulse=time=>{
       if(!root.userData.rescued)return 1;
@@ -431,9 +520,10 @@ export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=fals
     const step=Math.sin(time*10.5),idle=Math.sin(time*2.2),pulse=root.userData.rescuePulse?.(time)||1;
     rig.position.y=Math.abs(step)*.030*speed+(idle+1)*.003*(1-speed);
     rig.rotation.z=step*.022*speed;rig.scale.set(pulse,2-pulse,pulse);
-    feet[0].rotation.x=step*.24*speed;feet[1].rotation.x=-step*.24*speed;
-    if(!hero){arms[0].rotation.x=-step*.12*speed;arms[1].rotation.x=step*.12*speed;}
-    for(const {mesh,z} of ears){mesh.rotation.x=step*.04*speed;mesh.rotation.z=z+step*.028*speed;}
+    const activeFeet=root.userData.rescued?restored.feet:feet,activeArms=root.userData.rescued?restored.arms:arms,activeEars=root.userData.rescued?restored.ears:ears;
+    activeFeet[0].rotation.x=step*.24*speed;activeFeet[1].rotation.x=-step*.24*speed;
+    if(!hero){activeArms[0].rotation.x=-step*.12*speed;activeArms[1].rotation.x=step*.12*speed;}
+    for(const {mesh,z,x=0} of activeEars){mesh.rotation.x=x+step*.04*speed;mesh.rotation.z=z+step*.028*speed;}
   };
   return root;
 }
