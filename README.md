@@ -2,7 +2,7 @@
 
 點擊上方連結即可在瀏覽器遊玩，不需要下載或安裝。
 
-# 布偶救援隊 · Plush Rescue V9
+# 布偶救援隊 · Plush Rescue V10
 
 Standalone static GitHub Pages export. No build step, CDN, npm install, or server backend is required. `index.html` and all game modules/assets belong at the repository root.
 
@@ -30,7 +30,11 @@ Browser smoke check: choose each hero, start a run, move with WASD/arrows or the
 
 ## Version and provenance
 
-- Version: **9.0.0** / **v9-matrix-r1**
+- Version: **10.0.0** / **v10-crowd-hud-r1**
+- V10 change: cache crowd part/batch discovery with topology/material/visibility invalidation; avoid redundant permanent-HUD writes; place wrapping diagnostics below equipment and list ground mines separately.
+- V10 base commit: `a51197577912dec4e805989d63f37ef0ffb6240f`
+- V10 verification: exact character/instance-buffer comparisons, baseline-equivalent HUD transitions, deterministic mine/count scenarios and numeric bottom-layout checks. Browser rendering and phone FPS remain unverified. Enemy spawning, limits, combat, camera and shadows are unchanged.
+- V10 count clarification: enemy count includes ordinary enemies and bosses; mines are the separate game.bombs collection and never contribute to enemy count.
 - V9 change: bake authored static character-local transforms and update animated local transforms only when changed; keep required descendant world transforms.
 - V9 verification: exact matrix/instance comparisons across movement, rescue, pooling, heroes and weapon swaps. Cloud Node CPU microbenchmarks showed 7–13% less time in the measured character/matrix segment; this is not a phone FPS measurement. Browser/device verification remains unavailable.
 - V9 base commit: `708ef19d18adbdec88faca48387328c5c79d8800`

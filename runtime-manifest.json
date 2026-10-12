@@ -1,8 +1,8 @@
 {
-  "version": "9.0.0",
-  "revision": "v9-matrix-r1",
-  "source_commit": "708ef19d18adbdec88faca48387328c5c79d8800",
-  "layout": "Static V9 export based on V8. Bake authored static plush local matrices; update changed animated local matrices; preserve normal world propagation.",
+  "version": "10.0.0",
+  "revision": "v10-crowd-hud-r1",
+  "source_commit": "a51197577912dec4e805989d63f37ef0ffb6240f",
+  "layout": "Static V10 export based on V9; crowd descriptor cache, guarded HUD updates, bottom diagnostics with separate mine count.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -21,8 +21,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 298,
-      "sha256": "d6790292621c7698db00edd2e027761a4b9162dfa624c58f60a730232fb7b762"
+      "bytes": 351,
+      "sha256": "565b2e14a66d4c67b91dc35f6dcc32573c72e3e89eca8f849ee966eb66e08de4"
     },
     {
       "path": "camera.js",
@@ -41,8 +41,8 @@
     },
     {
       "path": "crowd.js",
-      "bytes": 5285,
-      "sha256": "727e4aa6e53edde5826888c6ca996896ac87b12b5314adb5fefa4f3a9ffe807a"
+      "bytes": 8859,
+      "sha256": "616a6dbff523f30d4046ec7357960ec322d97f0ed71ddafef81d1f6faba69a5a"
     },
     {
       "path": "effects.js",
@@ -51,8 +51,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 3907,
-      "sha256": "cf2c0da0eec060c49373bb438ba9f98ed78504b7d54eaf0e46f0cdaabb142077"
+      "bytes": 3912,
+      "sha256": "917c34ba2a75a1ff4c8b2c4ccfafdf7b3ddc22bd312d81047ef5b2f63f92b0b4"
     },
     {
       "path": "keyboard.js",
@@ -66,8 +66,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 23793,
-      "sha256": "828c6e08eca0648b0cc0820a4c24519bc28a8e16eaf8d760d910bea8f02403ae"
+      "bytes": 25365,
+      "sha256": "2bb76b89187546e206b08e5dec8dc0584367750b148264eaeb0f8494d166e779"
     },
     {
       "path": "maps.js",
@@ -76,8 +76,8 @@
     },
     {
       "path": "style.css",
-      "bytes": 14766,
-      "sha256": "bf82d873be60f2b54971abcd973e1d154b79d8446989d532ce97357a3c239e19"
+      "bytes": 15428,
+      "sha256": "b0b345db14c86fe6ab5562f440d2ebf461a9a9c9d677d868fdbffc1e853c7329"
     },
     {
       "path": "vendor/THREE-LICENSE.txt",

@@ -7,6 +7,11 @@ export function createCrowd(THREE, scene, limits) {
   }
 
   const batches = new Map();
+  // Object3D topology changes are rare; animate and visibility changes are not.
+  // Keep preorder descriptors and invalidate them on Three's child events.
+  // Removed roots are released each sync, so this does not retain discarded pools.
+  const roots = new Map();
+  let generation = 0;
   let disposed = false;
   let instances = 0, capacity = 0, visibleBatches = 0, uploadBytes = 0;
 
@@ -40,14 +45,79 @@ export function createCrowd(THREE, scene, limits) {
     scene.add(mesh);
   }
 
-  function collect(part) {
-    if (!part.isMesh) return;
-    const key = keyFor(part);
-    let batch = batches.get(key);
-    if (!batch) {
-      batch = {geometry: part.geometry, material: part.material, mesh: null,
-        matrices: [], count: 0, castShadow: false};
-      batches.set(key, batch);
+  function release(record) {
+    for (const {part} of record.parts) {
+      part.removeEventListener('childadded', record.invalidate);
+      part.removeEventListener('childremoved', record.invalidate);
+    }
+  }
+
+  function descriptors(root) {
+    let record = roots.get(root);
+    if (!record) {
+      record = {parts: [], dirty: true, generation: 0};
+      record.invalidate = () => { record.dirty = true; };
+      roots.set(root, record);
+    }
+    record.generation = generation;
+    if (!record.dirty) {
+      // Also accept direct edits/reordering of Object3D.children, which do not
+      // dispatch Three's child events. Reference checks need no UUID strings,
+      // recursive traversal, or allocations on an unchanged frame.
+      for (const descriptor of record.parts) {
+        const children = descriptor.part.children, previous = descriptor.children;
+        if (children.length !== previous.length) { record.dirty = true; break; }
+        for (let i = 0; i < children.length; i++) {
+          if (children[i] !== previous[i]) { record.dirty = true; break; }
+        }
+        if (record.dirty) break;
+      }
+      if (!record.dirty) return record.parts;
+    }
+    release(record);
+    record.parts.length = 0;
+    function visit(part) {
+      const descriptor = {part, children: part.children.slice(), end: 0, geometry: null, geometryUUID: null,
+        material: null, materialUUID: null, members: null, batch: null};
+      record.parts.push(descriptor);
+      part.addEventListener('childadded', record.invalidate);
+      part.addEventListener('childremoved', record.invalidate);
+      for (const child of part.children) visit(child);
+      descriptor.end = record.parts.length;
+    }
+    visit(root);
+    record.dirty = false;
+    return record.parts;
+  }
+
+  function collect(descriptor) {
+    const part = descriptor.part, geometry = part.geometry, material = part.material;
+    let changed = descriptor.geometry !== geometry || descriptor.geometryUUID !== geometry.uuid ||
+      descriptor.material !== material;
+    if (Array.isArray(material)) {
+      const members = descriptor.members;
+      if (!members || members.length !== material.length * 2) changed = true;
+      else for (let i = 0; i < material.length; i++) {
+        if (members[i * 2] !== material[i] || members[i * 2 + 1] !== material[i].uuid) {
+          changed = true;
+          break;
+        }
+      }
+    } else if (descriptor.materialUUID !== material.uuid) changed = true;
+    let batch = descriptor.batch;
+    if (changed || !batch) {
+      const key = keyFor(part);
+      batch = batches.get(key);
+      if (!batch) {
+        batch = {geometry, material, mesh: null, matrices: [], count: 0, castShadow: false};
+        batches.set(key, batch);
+      }
+      descriptor.geometry = geometry;
+      descriptor.geometryUUID = geometry.uuid;
+      descriptor.material = material;
+      descriptor.materialUUID = Array.isArray(material) ? null : material.uuid;
+      descriptor.members = Array.isArray(material) ? material.flatMap(m => [m, m.uuid]) : null;
+      descriptor.batch = batch;
     }
     if (batch.count >= maxInstances) {
       throw new RangeError(`Crowd batch exceeds its ${maxInstances}-instance limit.`);
@@ -69,13 +139,26 @@ export function createCrowd(THREE, scene, limits) {
       batch.count = 0;
       batch.castShadow = false;
     }
+    generation++;
     for (const collection of collections) {
       for (const {mesh} of collection.values()) {
         // Changed local transforms set matrixWorldNeedsUpdate themselves.
         // Never force the whole tree merely because simulation advanced.
         mesh.updateMatrixWorld();
-        mesh.traverseVisible(collect);
+        const parts = descriptors(mesh);
+        for (let i = 0; i < parts.length;) {
+          const descriptor = parts[i], part = descriptor.part;
+          if (part.visible === false) { i = descriptor.end; continue; }
+          if (part.isMesh) collect(descriptor);
+          i++;
+        }
       }
+    }
+
+    for (const [root, record] of roots) {
+      if (record.generation === generation) continue;
+      release(record);
+      roots.delete(root);
     }
 
     instances = visibleBatches = 0;
@@ -105,6 +188,8 @@ export function createCrowd(THREE, scene, limits) {
   // Reset visibility without uploading zero matrices; keep bounded allocations
   // reusable across map changes and repeated games.
   function clear() {
+    for (const record of roots.values()) release(record);
+    roots.clear();
     for (const batch of batches.values()) {
       batch.count = batch.matrices.length = 0;
       if (!batch.mesh) continue;

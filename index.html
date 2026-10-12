@@ -5,7 +5,7 @@
 <title>布偶救援隊 · Plush Rescue</title><link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main id="game" data-build="v9-matrix-r1">
+<main id="game" data-build="v10-crowd-hud-r1">
 <canvas id="world" tabindex="-1" aria-label="布偶救援隊 3D 遊戲場景"></canvas><div id="vignette"></div>
 <header id="hud">
  <div class="hero-panel"><div class="portrait"><img id="heroPortrait" src="assets/pudding-portrait.png" alt="戴著棕帽與圓墨鏡的布丁狗"></div><div class="health"><div id="hearts">♥ ♥ ♥ ♥ ♥</div><div class="health-track"><i id="healthFill"></i></div></div></div>
@@ -25,8 +25,8 @@
   </div>
   <div id="magicMeter" class="magic-meter" role="progressbar" aria-label="副手魔力" aria-valuemin="0" aria-valuenow="0" aria-valuemax="12"><span id="magicLabel">魔力 0 / 12</span><div class="magic-track"><i id="magicFill"></i></div></div>
  </div>
+ <output id="stats" hidden></output>
 </footer>
-<output id="stats" hidden></output>
 <section id="overlay" class="shown" aria-hidden="false">
  <div class="dialog" id="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle" data-state="ready">
   <div class="eyebrow">A LITTLE LIGHT GOES A LONG WAY</div><h1 id="dialogTitle">布偶救援隊</h1><p class="lead">把失去顏色的朋友，帶回溫暖。</p><div class="intro-icons">✦ &nbsp; ♡ &nbsp; ✦</div>
