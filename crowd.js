@@ -71,7 +71,9 @@ export function createCrowd(THREE, scene, limits) {
     }
     for (const collection of collections) {
       for (const {mesh} of collection.values()) {
-        mesh.updateMatrixWorld(true);
+        // Changed local transforms set matrixWorldNeedsUpdate themselves.
+        // Never force the whole tree merely because simulation advanced.
+        mesh.updateMatrixWorld();
         mesh.traverseVisible(collect);
       }
     }

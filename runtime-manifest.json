@@ -1,8 +1,8 @@
 {
-  "version": "8.0.0",
-  "revision": "v8-art-touch-r1",
-  "source_commit": "6ea5194842d64e205b4569091f8eb88aeed727c4",
-  "layout": "Static GitHub Pages export based on V7; worn plush art, localized modern facade colours, fullscreen touch with UI priority.",
+  "version": "9.0.0",
+  "revision": "v9-matrix-r1",
+  "source_commit": "708ef19d18adbdec88faca48387328c5c79d8800",
+  "layout": "Static V9 export based on V8. Bake authored static plush local matrices; update changed animated local matrices; preserve normal world propagation.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -21,8 +21,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 262,
-      "sha256": "adf5f184e86878ccee11c481cdffe4af12f2000fb143ace7514f3127b8bc1f1f"
+      "bytes": 298,
+      "sha256": "d6790292621c7698db00edd2e027761a4b9162dfa624c58f60a730232fb7b762"
     },
     {
       "path": "camera.js",
@@ -31,8 +31,8 @@
     },
     {
       "path": "characters.js",
-      "bytes": 34363,
-      "sha256": "f6629fefed258cca1454bd7083b8bd9b8de8ccbf0a9f12639a2aaeb6059a7313"
+      "bytes": 36635,
+      "sha256": "cd2aee11aeee42cd73734446ca8d768aeb4cb263be8016778958977dd6d50000"
     },
     {
       "path": "core.js",
@@ -41,8 +41,8 @@
     },
     {
       "path": "crowd.js",
-      "bytes": 5140,
-      "sha256": "5b1222490eb6eba3d127093be40d03b63b8a44802107635a22be6599f3b86e36"
+      "bytes": 5285,
+      "sha256": "727e4aa6e53edde5826888c6ca996896ac87b12b5314adb5fefa4f3a9ffe807a"
     },
     {
       "path": "effects.js",
@@ -51,8 +51,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 3910,
-      "sha256": "77eb9521a4b308e8fd7bbb6b7e26ac0e1e0f6bf7d34425bd1d7e41d73db8636c"
+      "bytes": 3907,
+      "sha256": "cf2c0da0eec060c49373bb438ba9f98ed78504b7d54eaf0e46f0cdaabb142077"
     },
     {
       "path": "keyboard.js",
@@ -66,8 +66,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 23796,
-      "sha256": "ec8317f9c69bead34a0813fece5e88c41a5edb9d53cb197532376a631f2619c2"
+      "bytes": 23793,
+      "sha256": "828c6e08eca0648b0cc0820a4c24519bc28a8e16eaf8d760d910bea8f02403ae"
     },
     {
       "path": "maps.js",

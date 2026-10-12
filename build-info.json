@@ -1,1 +1,1 @@
-{"version":"8.0.0","revision":"v8-art-touch-r1","validation_at_build":"44-cloud-node-touch-regressions-and-17-cloud-node-art-scope-checks-passed; cloud-browser-launch-blocked","built_at":"2026-10-12T18:05:40Z","publication":"user-approved-github-pages-release"}
+{"version":"9.0.0","revision":"v9-matrix-r1","source_commit":"708ef19d18adbdec88faca48387328c5c79d8800","validation_at_build":"exact-transform-regressions-and-cloud-node-input-art-checks; browser-launch-blocked","built_at":"2026-10-12T18:27:06Z","publication":"user-approved-github-pages-release"}

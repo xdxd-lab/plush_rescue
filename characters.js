@@ -2,6 +2,37 @@
 // cached per THREE namespace so the crowd renderer can instance every part.
 const caches = new WeakMap();
 
+// Keep Three's normal world-matrix propagation, but compose a character's local
+// matrix only when its position, quaternion or scale actually changed. Static
+// decorations are baked once; this check is installed on live nodes only.
+// This is deliberately local: a moving ancestor still invalidates every descendant's
+// world matrix. A shared method avoids a closure per decorative mesh.
+const localTransform = Symbol('plush local transform');
+const originalLocalUpdate = Symbol('plush original local update');
+function updateChangedLocalMatrix() {
+  const p=this.position,q=this.quaternion,s=this.scale,c=this[localTransform];
+  // Preserve Three's optional pivot semantics; these models do not use pivots.
+  if(this.pivot!==null){this[originalLocalUpdate].call(this);c.fill(NaN);return;}
+  if(p.x===c[0]&&p.y===c[1]&&p.z===c[2]&&q.x===c[3]&&q.y===c[4]&&
+     q.z===c[5]&&q.w===c[6]&&s.x===c[7]&&s.y===c[8]&&s.z===c[9])return;
+  this.matrix.compose(p,q,s);
+  c[0]=p.x;c[1]=p.y;c[2]=p.z;c[3]=q.x;c[4]=q.y;c[5]=q.z;
+  c[6]=q.w;c[7]=s.x;c[8]=s.y;c[9]=s.z;
+  this.matrixWorldNeedsUpdate=true;
+}
+function cacheLocalTransforms(root, dynamic) {
+  const live=new Set(dynamic);
+  root.traverse(node=>{
+    if(node[localTransform])return;
+    node.updateMatrix();
+    if(!live.has(node)){node.matrixAutoUpdate=false;return;}
+    node[localTransform]=new Float64Array(10).fill(NaN);
+    node[originalLocalUpdate]=node.updateMatrix;
+    node.updateMatrix=updateChangedLocalMatrix;
+    node.updateMatrix();
+  });
+}
+
 function assets(THREE) {
   if (caches.has(THREE)) return caches.get(THREE);
 
@@ -498,7 +529,7 @@ export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=fals
     root.userData.rescued=false;
     root.userData.setRescued=(value=true)=>{
       value=Boolean(value);if(root.userData.rescued===value)return;
-      if(value&&!restored)restored=makeRestored();
+      if(value&&!restored){restored=makeRestored();cacheLocalTransforms(happyOnly,[...restored.feet,...restored.arms,...restored.ears.map(e=>e.mesh)]);}
       root.userData.rescued=value;rescueAt=null;rig.scale.set(1,1,1);
       wornOnly.visible=!value;happyOnly.visible=value;
     };
@@ -530,5 +561,16 @@ export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=fals
     if(!hero){activeArms[0].rotation.x=-step*.12*speed;activeArms[1].rotation.x=step*.12*speed;}
     for(const {mesh,z,x=0} of activeEars){mesh.rotation.x=x+step*.04*speed;mesh.rotation.z=z+step*.028*speed;}
   };
+  // Decorative local transforms are authored once. Keep only the root, rig
+  // and animated joints live. Newly attached weapon/boss nodes retain Three's
+  // defaults. Future edits to a baked decoration must call updateMatrix().
+  const live=[root,rig,...feet,...arms,...ears.map(e=>e.mesh)];
+  // Keep the exported muzzle path and original weapon mount writable too.
+  if(hero){
+    const muzzle=root.getObjectByName('Soft glowing rescue-light core');
+    for(let node=muzzle;node&&node!==root;node=node.parent)live.push(node);
+  }
+  if(restored)live.push(...restored.feet,...restored.arms,...restored.ears.map(e=>e.mesh));
+  cacheLocalTransforms(root,live);
   return root;
 }

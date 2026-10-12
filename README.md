@@ -2,7 +2,7 @@
 
 點擊上方連結即可在瀏覽器遊玩，不需要下載或安裝。
 
-# 布偶救援隊 · Plush Rescue V8
+# 布偶救援隊 · Plush Rescue V9
 
 Standalone static GitHub Pages export. No build step, CDN, npm install, or server backend is required. `index.html` and all game modules/assets belong at the repository root.
 
@@ -30,7 +30,11 @@ Browser smoke check: choose each hero, start a run, move with WASD/arrows or the
 
 ## Version and provenance
 
-- Version: **8.0.0** / **v8-art-touch-r1**
+- Version: **9.0.0** / **v9-matrix-r1**
+- V9 change: bake authored static character-local transforms and update animated local transforms only when changed; keep required descendant world transforms.
+- V9 verification: exact matrix/instance comparisons across movement, rescue, pooling, heroes and weapon swaps. Cloud Node CPU microbenchmarks showed 7–13% less time in the measured character/matrix segment; this is not a phone FPS measurement. Browser/device verification remains unavailable.
+- V9 base commit: `708ef19d18adbdec88faca48387328c5c79d8800`
+- V9 maintenance: future edits to baked decorative position/rotation/scale must explicitly call updateMatrix(), or keep that node dynamic. Gameplay, enemy counts, touch, camera, shaders and shadows are unchanged.
 - V8 change: clearer worn-plush expressions, localized bright modern facades across three maps, and fullscreen non-interactive drag movement with UI priority.
 - V8 verification: 44 cloud Node input/event regressions and 17 cloud Node model/scope checks passed. Cloud Chromium launch was blocked by the execution environment; these are not real-browser or phone FPS results.
 - V8 base commit: `6ea5194842d64e205b4569091f8eb88aeed727c4`
