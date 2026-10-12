@@ -210,10 +210,10 @@ function assets(THREE) {
 }
 
 const PALETTES=[
-  {worn:0xaaa6ad,trim:0x736579,patch:0x736b85,happy:0xffd7e5,bright:0xf78cb8,belly:0xfff4ec,bow:0xf181b6},
-  {worn:0xb1acae,trim:0x956f85,patch:0x896b83,happy:0xfff2df,bright:0xf6acc7,belly:0xfffcf2,bow:0xf989b0},
-  {worn:0x9daaa6,trim:0x547f74,patch:0x637e79,happy:0xbde5d4,bright:0x6dbfae,belly:0xf6f2d6,bow:0xf5a15f},
-  {worn:0xa4a9b4,trim:0x667490,patch:0x737087,happy:0xc6d4ff,bright:0x929feb,belly:0xfff4e8,bow:0xeb91c4},
+  {worn:0xb9b0b5,trim:0x83778b,patch:0x948b9d,happy:0xffd7e5,bright:0xf78cb8,belly:0xfff4ec,bow:0xf181b6},
+  {worn:0xc1b7ad,trim:0x9a7f8e,patch:0xa08a95,happy:0xfff2df,bright:0xf6acc7,belly:0xfffcf2,bow:0xf989b0},
+  {worn:0xaab8bd,trim:0x61737f,patch:0x85969f,happy:0xbde5d4,bright:0x6dbfae,belly:0xf6f2d6,bow:0xf5a15f},
+  {worn:0xb0b4c2,trim:0x778397,patch:0x9094aa,happy:0xc6d4ff,bright:0x929feb,belly:0xfff4e8,bow:0xeb91c4},
 ];
 
 export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=false}={}) {
@@ -307,7 +307,11 @@ export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=fals
   const nose=part('Tiny cocoa nose','soft',faceMat,0,faceY+.032,faceZ+(polar?.069:.048),hero?(polar?.062:.052):.037,hero?(polar?.038:.031):.027,.028);
   part('Embroidered nose stem','box',faceMat,0,faceY-.003,faceZ+(polar?.075:.052),hero?.017:.013,.044,.011);
   for(const s of [-1,1]){
-    const smile=part('Friendly puppy-mouth embroidery','boldSmile',faceMat,s*(hero?.044:.035),faceY-.020,faceZ+(polar?.076:.053),hero?.047:.037,hero?.031:.026,.027);smile.rotation.z=Math.PI;
+    if(hero){
+      const smile=part('Friendly puppy-mouth embroidery','boldSmile',faceMat,s*.044,faceY-.020,faceZ+(polar?.076:.053),.047,.031,.027);smile.rotation.z=Math.PI;
+    }else if(s<0){
+      part('Small tired mouth embroidery','boldSmile',faceMat,0,faceY-.045,faceZ+.053,.050,.019,.027);
+    }
     const blush=part('Soft cheek blush','soft',m(hero?(polar?0xefc3c8:0xeaaa78):p.patch,hero?'fabric':'worn'),s*(hero?.304:.267),faceY-.016,hero?.291:.253,hero?.062:.057,.032,.012);
     if(!hero)patchParts.push(blush);
   }
@@ -399,25 +403,26 @@ export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=fals
     root.userData.height=polar?1.39:1.46;root.userData.radius=polar?.51:.49;
     root.userData.heroId=polar?'polar':'pudding';
   }else{
-    // Mismatched inset button eyes: different sizes, hues and stitching.
+    // Lost, mismatched buttons keep a quiet linen edge around each dark centre.
+    // The clear eye line stays separate from the smaller temple patch.
     for(const s of [-1,1]){
-      const eyeY=.877+(s>0?.012:0),eyeX=s*.147,eyeZ=.318,r=s<0?.080:.068;
-      const button=m(s<0?0x443d49:0x595343,'plastic');
-      part('Mismatched button-eye edge','ring',m(s<0?0x786d82:0x9b9072,'matte'),eyeX,eyeY,eyeZ,r,r,.12,wornOnly);
+      const eyeY=.884+(s>0?.010:0),eyeX=s*.147,eyeZ=.321,r=s<0?.079:.071;
+      const button=m(s<0?0x443d49:0x595343,'matte');
+      part('Mismatched button-eye edge','ring',m(0xc3b59b,'matte'),eyeX,eyeY,eyeZ,r,r,.12,wornOnly);
       part('Mismatched button-eye center','disc',button,eyeX,eyeY,eyeZ+.006,r*.86,r*.86,.022,wornOnly);
       const eyeStitch=part('Crossed button-eye thread','buttonThread',m(0xc3b59b,'matte'),eyeX,eyeY,eyeZ+.023,r*.72,r*.72,.20,wornOnly);eyeStitch.rotation.z=s*.3;
       // Sad, gently sloping stitch brows reinforce that these are lost toys.
-      const brow=part('Worried embroidered eyebrow','box',threadMat,s*.159,.980,.280,.072,.014,.012,wornOnly);brow.rotation.z=-s*.27;
+      const brow=part('Worried embroidered eyebrow','box',threadMat,s*.159,.989,.278,.080,.014,.012,wornOnly);brow.rotation.z=-s*.20;
     }
     // The forehead has a tangible, edge-stitched fabric patch, not a painted
     // rectangle. Angling it to the head keeps it visible from above.
-    const patch=part('Sewn forehead fabric patch','box',m(p.patch,'worn'),-.282,.999,.263,.213,.228,.032);patch.rotation.set(-.24,-.37,.21);patchParts.push(patch);
+    const patch=part('Sewn forehead fabric patch','box',m(p.patch,'worn'),-.332,1.007,.136,.135,.169,.028);patch.rotation.set(-.24,-.60,.12);patchParts.push(patch);
     const patchThread=part('Forehead patch perimeter stitches','patchSeam',threadMat,0,0,.59,.84,.85,.23,patch);stitchParts.push(patchThread);
     // Rear and three-quarter enemies still show handmade damage instead of
     // becoming plain gray spheres when they turn away from the camera.
     const backPatch=part('Large rear-head cloth patch','box',m(p.patch,'worn'),.147,.903,-.287,.195,.252,.029);backPatch.rotation.set(.18,Math.PI-.24,-.22);patchParts.push(backPatch);
     const backThread=part('Rear-head patch perimeter stitches','patchSeam',threadMat,0,0,.60,.84,.85,.30,backPatch);stitchParts.push(backThread);
-    stitch('Repaired side-of-head ladder seam','seam',.294,.961,.237,.131,.201,-.45);
+    stitch('Repaired side-of-head ladder seam','seam',.319,.962,.199,.112,.173,-.45);
     stitch('Cross-stitch on left paw','cross',-.321,.40,.181,.061,.061,.12);
     // Real torn fabric, pale stuffing and little outward frays. These all
     // disappear when rescued, along with the damaged control band.
@@ -441,8 +446,8 @@ export function makePlush(THREE,{hero=false,heroId='pudding',type=0,rescued=fals
       return group;
     }
     // A small crooked old ribbon is replaced by a larger clean bow.
-    const bowPosition=type===0?[-.235,1.077,.233]:type===1?[.264,1.13,.11]:[0,.578,.280];
-    const oldBow=bow(wornOnly,m(p.trim,'worn'),...bowPosition,.94);oldBow.rotation.z=-.24;
+    const bowPosition=type===0?[-.272,1.107,.150]:type===1?[.264,1.13,.11]:[0,.578,.280];
+    const oldBow=bow(wornOnly,m(p.trim,'worn'),...bowPosition,.78);oldBow.rotation.z=-.24;
     if(type===0){
       for(const s of [-1,1]){const whisker=part('Short kitten whisker stitches','whiskers',faceMat,s*.275,.805,.260,.067,.062,.4);whisker.rotation.z=-s*.08;}
     }

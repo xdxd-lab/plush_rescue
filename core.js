@@ -200,8 +200,8 @@ export class Game{
 }
 export class Stick{
  constructor(){this.id=null;this.x=0;this.z=0;this.origin={x:0,y:0};}
- begin(id,x,y,width){if(this.id!==null||x>width*.5)return false;this.id=id;this.origin={x,y};this.x=this.z=0;return true;}
- move(id,x,y){if(id!==this.id)return false;let dx=x-this.origin.x,dy=y-this.origin.y,len=Math.hypot(dx,dy),scale=Math.max(48,len);this.x=dx/scale;this.z=dy/scale;return true;}
- end(id){if(id===this.id)this.reset();}
+ begin(id,x,y){if(this.id!==null)return false;this.id=id;this.origin={x,y};this.x=this.z=0;return true;}
+ move(id,x,y){if(this.id===null||id!==this.id)return false;let dx=x-this.origin.x,dy=y-this.origin.y,len=Math.hypot(dx,dy),scale=Math.max(48,len);this.x=dx/scale;this.z=dy/scale;return true;}
+ end(id){if(this.id===null||id!==this.id)return false;this.reset();return true;}
  reset(){this.id=null;this.x=this.z=0;}
 }

@@ -43,9 +43,31 @@ function reset(){renderDirty=true;crowd.clear();weaponVisuals.clear();bossVisual
 function resize(){let w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio,quality==='high'?2:quality==='balanced'?1.6:1));fitGameCamera(camera,w,h);}
 function setQuality(v){quality=v;renderer.shadowMap.enabled=v!=='low';renderer.shadowMap.needsUpdate=true;resize();}
 function updateStick(){const el=$('#stick');el.style.display=stick.id===null?'none':'block';el.style.left=stick.origin.x+'px';el.style.top=stick.origin.y+'px';$('#knob').style.transform=`translate(${stick.x*34}px,${stick.z*34}px)`;}
-canvas.addEventListener('pointerdown',e=>{if(game.status!=='running')return;if(stick.begin(e.pointerId,e.clientX,e.clientY,innerWidth)){canvas.setPointerCapture(e.pointerId);updateStick();$('#moveHint').style.opacity='.15';}});
-canvas.addEventListener('pointermove',e=>{if(stick.move(e.pointerId,e.clientX,e.clientY))updateStick();});for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{stick.end(e.pointerId);updateStick();});
-function clearInput(){stick.reset();keys.clear();updateStick();}
+// A gesture can start on any non-interactive part of the game, including HUD
+// readouts. Native buttons/inputs keep their own pointer and click behaviour.
+document.addEventListener('pointerdown',e=>{
+ if(game.status!=='running'||overlay.classList.contains('shown')||e.defaultPrevented||e.button!==0||!$('#game').contains(e.target)||isInteractiveTarget(e.target))return;
+ if(stick.begin(e.pointerId,e.clientX,e.clientY)){
+  // A browser may revoke a pointer before capture (for example on app switch).
+  // Never retain movement ownership when capture could not be established.
+  try{canvas.setPointerCapture(e.pointerId);}catch{stick.reset();updateStick();return;}
+  e.preventDefault();updateStick();$('#moveHint').style.opacity='.15';
+ }
+},{passive:false});
+document.addEventListener('pointermove',e=>{
+ if(e.pointerId!==stick.id)return;
+ if(game.status!=='running'||(e.pointerType==='mouse'&&(e.buttons&1)===0)){clearInput();return;}
+ if(stick.move(e.pointerId,e.clientX,e.clientY)){e.preventDefault();updateStick();}
+},{passive:false});
+for(const type of ['pointerup','pointercancel','lostpointercapture'])document.addEventListener(type,e=>{
+ // Ignore loss of the original target's implicit capture when it transfers
+ // to the canvas; only losing our canvas capture cancels the drag.
+ if(type==='lostpointercapture'&&e.target!==canvas)return;
+ if(!stick.end(e.pointerId))return;
+ if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
+ updateStick();
+});
+function clearInput(){const id=stick.id;stick.reset();if(id!==null&&canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);keys.clear();updateStick();}
 function pause(){game.pause();clearInput();syncOverlay();}
 window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('resize',()=>{clearInput();resize();});
 window.addEventListener('keydown',e=>{const action=routeKeyDown(e,game.status,keys);if(action==='pause')pause();else if(action==='resume'){game.resume();syncOverlay();}else if(action==='stats'){showStats=!showStats;$('#stats').hidden=!showStats;}});
@@ -61,7 +83,7 @@ document.addEventListener('keydown',e=>{
  else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
 });
 document.addEventListener('focusin',e=>{if(isInteractiveTarget(e.target))keys.clear();});$('#pause').onclick=pause;
-$('#stowTwoHanded').onclick=()=>{if(game.status!=='running'||!game.twoHandedWeapon)return;clearInput();game.toggleTwoHanded();renderDirty=true;syncHud();canvas.focus({preventScroll:true});};
+$('#stowTwoHanded').onclick=()=>{if(game.status!=='running'||!game.twoHandedWeapon)return;keys.clear();game.toggleTwoHanded();renderDirty=true;syncHud();canvas.focus({preventScroll:true});};
 function input(){return screenToWorldAt({x:stick.x+(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0),z:stick.z+(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0)},camera,game.player,innerWidth,innerHeight);}
 function syncHud(){
  const p=game.player;
@@ -186,4 +208,4 @@ function loop(now){
  if(showStats)$('#stats').textContent=`${fps} FPS · ${game.enemies.length} 敵 / ${game.rescued.length} 自由 / ${game.bullets.length} 光束 · ${renderer.info.render.calls} calls · ${quality}`;
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v7-rescue-r1',get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v8-art-touch-r1',get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};

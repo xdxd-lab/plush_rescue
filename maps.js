@@ -229,17 +229,19 @@ export function buildMap(THREE, scene, index = 0) {
     for (let j = 0; j < 3; j++) box(x, .83 + j * .16, z -.35, r * 1.5, .125, .075, '#aa9471', 'wood');
     cloth(x - .44, .75, z + .39, .46, .63, '#a7b0a0'); yarn(x + .47, .85, z + .02, .25, '#be9a89'); foliage(x + r * .74, .14, z + .37, .45, 8, true);
   };
-  const shop = (x, z, w, d, h, tint = '#b8ad94') => {
-    box(x, h * .5, z, w, h, d, tint, 'stone'); box(x, .19, z + d * .5, w + .13, .34, .2, '#87948b', 'stone');
-    box(x, h + .12, z, w + .25, .26, d + .3, '#7c9590', 'wood');
+  // A few surviving painted facades reuse every old wall/window instance.
+  // Colour-only choices still merge into the same static surface batches.
+  const shop = (x, z, w, d, h, tint = '#b8ad94', modern = false) => {
+    box(x, h * .5, z, w, h, d, tint, 'stone'); box(x, .19, z + d * .5, w + .13, .34, .2, modern?'#a6b3bd':'#87948b', 'stone');
+    box(x, h + .12, z, w + .25, .26, d + .3, modern?'#abb8c3':'#7c9590', 'wood');
     for (let row = 0; row < 2; row++) for (let col = 0; col < Math.floor(w / 1.8); col++) {
       const xx = x + (col - (Math.floor(w / 1.8) - 1) * .5) * 1.8, yy = 1.4 + row * 1.67;
       if (yy + .6 > h) continue;
-      box(xx, yy, z + d * .5 + .08, 1.04, 1.24, .16, '#737c68', 'wood'); box(xx, yy, z + d * .5 + .175, .82, 1.0, .03, '#536d70');
-      box(xx, yy, z + d * .5 + .2, .055, 1.02, .035, '#c6c3a6', 'wood'); box(xx, yy, z + d * .5 + .2, .83, .06, .035, '#c6c3a6', 'wood'); box(xx, yy -.64, z + d * .5 + .22, 1.17, .1, .32, '#a29679', 'wood');
+      box(xx, yy, z + d * .5 + .08, 1.04, 1.24, .16, modern?'#d9e3ea':'#737c68', 'wood'); box(xx, yy, z + d * .5 + .175, .82, 1.0, .03, modern?'#8fbfd7':'#536d70');
+      box(xx, yy, z + d * .5 + .2, .055, 1.02, .035, modern?'#edf0ec':'#c6c3a6', 'wood'); box(xx, yy, z + d * .5 + .2, .83, .06, .035, modern?'#edf0ec':'#c6c3a6', 'wood'); box(xx, yy -.64, z + d * .5 + .22, 1.17, .1, .32, modern?'#b8c3cb':'#a29679', 'wood');
       if (col % 2 === 0) { box(xx, yy -.82, z + d * .5 + .31, .99, .3, .37, '#8b7153', 'wood'); foliage(xx, yy -.57, z + d * .5 + .34, .56, 10, true); }
     }
-    for (let j = 0; j < Math.floor(w / .5); j++) box(x - w * .5 + .25 + j * .5, h + .26, z + d * .5, .45, .11, .55, '#9aa499', 'stone');
+    for (let j = 0; j < Math.floor(w / .5); j++) box(x - w * .5 + .25 + j * .5, h + .26, z + d * .5, .45, .11, .55, modern?'#d5dde1':'#9aa499', 'stone');
   };
 
   // These interior islands put readable silhouettes inside the opening camera.
@@ -303,9 +305,9 @@ export function buildMap(THREE, scene, index = 0) {
       const base = [x + Math.sin(a) * .18, .65, z + Math.cos(a) * .18], tip = [x + Math.sin(a) * reach, high, z + Math.cos(a) * reach]; rod(base, [base[0], 1.01, base[2]], .055, '#607c46'); giantLeaf(base, tip, 1.00 + j % 2 * .30, j % 3 ? '#729759' : '#4e7951', -a);
     }
     // Three close glasshouse ribs, a crown beam and several surviving glass panes.
-    const glass = mat('#abd4c7', '', { transparent: true, opacity: .12, depthWrite: false, roughness: .17, side: THREE.DoubleSide });
+    const glass = mat('#bbd9e8', '', { transparent: true, opacity: .12, depthWrite: false, roughness: .17, side: THREE.DoubleSide });
     for (let row = 0; row < 3; row++) { const zz = z -.83 + row * .83;
-      for (let j = 0; j < 18; j++) { const a = j / 18 * Math.PI, b = (j + 1) / 18 * Math.PI; rod([x + Math.cos(a) * 2.17, .64 + Math.sin(a) * 3.1, zz], [x + Math.cos(b) * 2.17, .64 + Math.sin(b) * 3.1, zz], .042, '#74988b'); }
+      for (let j = 0; j < 18; j++) { const a = j / 18 * Math.PI, b = (j + 1) / 18 * Math.PI; rod([x + Math.cos(a) * 2.17, .64 + Math.sin(a) * 3.1, zz], [x + Math.cos(b) * 2.17, .64 + Math.sin(b) * 3.1, zz], .042, row===2?'#d4dcdf':'#74988b'); }
       for (const side of [-1, 1]) cyl(x + side * 2.17, .57, zz, .085, .15, '#b2baa0', 'stone');
     }
     for (const a of [.34, .76, 1.57, 2.37, 2.80]) rod([x + Math.cos(a) * 2.17, .64 + Math.sin(a) * 3.1, z -.85], [x + Math.cos(a) * 2.17, .64 + Math.sin(a) * 3.1, z + .85], .034, '#759a8b');
@@ -381,7 +383,7 @@ export function buildMap(THREE, scene, index = 0) {
     dogGarden(-3, -.7, 2.3); planter(6, -4.5, 1.5); rackIsland(-6.3, 5.4, 1.8); rackIsland(6.4, 5.3, 1.8); tree(-11, -8, 1.6); cratePile(1.9, 9.9, 1.45);
     fence(-6.3, 6.5, 1.9); fence(6.4, 6.4, 1.9);
     group.userData.landmarks = [{ name: 'dog garden', x: -3, z: -.7, height: 3.23 }, { name: 'left wooden market rack', x: -6.3, z: 5.4, height: 3.10 }, { name: 'right wooden market rack', x: 6.4, z: 5.3, height: 3.10 }, { name: 'foreground crate pile', x: 1.9, z: 9.9, height: 2.34 }];
-    shop(-12, -21.7, 9, 4.7, 4.7, '#baae94'); shop(-1, -22, 9, 5, 4.1, '#b0a28d'); shop(11, -22, 10, 5, 5.1, '#aab7a2');
+    shop(-12, -21.7, 9, 4.7, 4.7, '#baae94'); shop(-1, -22, 9, 5, 4.1, '#efede4', true); shop(11, -22, 10, 5, 5.1, '#d6dee3', true);
     shop(-22, -9, 4, 10, 3.5, '#b7ae99');
     // Low perimeter market stalls are intentionally layered rather than solid walls.
     for (let side of [-1, 1]) for (let j = 0; j < 4; j++) {
@@ -398,11 +400,13 @@ export function buildMap(THREE, scene, index = 0) {
     nursery(-3, -.5, 2.45); pottingIsland(-6.5, 5.5, 1.8, true); pottingIsland(6, 3.7, 1.8, true); planter(7, -6, 1.9); pottingIsland(1.7, 9.8, 1.55); tree(-11, -9, 1.6);
     group.userData.landmarks = [{ name: 'giant-leaf glass nursery', x: -3, z: -.5, height: 3.8 }, { name: 'vine potting rack', x: -6.5, z: 5.5, height: 2.95 }, { name: 'hanging pot trellis', x: 6, z: 3.7, height: 2.95 }, { name: 'foreground terracotta bench', x: 1.7, z: 9.8, height: 2.9 }];
     box(0, .25, -21, 29, .5, 6, '#919c82', 'stone');
-    for (let side of [-1, 1]) box(0, 1.0, -21 + side * 2.8, 29, 1.5, .22, '#9eaa90', 'stone');
+    for (let side of [-1, 1]) box(0, 1.0, -21 + side * 2.8, 29, 1.5, .22, side===1?'#dddcd1':'#9eaa90', 'stone');
     const glass = mat('#a1c9b9', '', { transparent: true, opacity: .19, depthWrite: false, roughness: .2, side: THREE.DoubleSide });
+    const blueGlass = mat('#beddee', '', { transparent: true, opacity: .19, depthWrite: false, roughness: .2, side: THREE.DoubleSide });
     for (let j = 0; j < 10; j++) {
-      const x = -14.4 + j * 3.2; rod([x, .5, -18.2], [x, 5.3, -18.2], .065, p.metal); rod([x, .5, -23.8], [x, 5.3, -23.8], .065, p.metal); rod([x, 5.3, -18.2], [x, 7, -21], .065, p.metal); rod([x, 7, -21], [x, 5.3, -23.8], .065, p.metal);
-      if (j < 9 && j !== 4 && j !== 7) { put(boxG, glass, x + 1.58, 3.25, -18.2, 3.07, 3.98, .015, 0, 0, 0, false); if (j % 2) put(boxG, glass, x + 1.58, 6.15, -19.6, 3.07, .015, 3.2, -.55, 0, 0, false); }
+      const x = -14.4 + j * 3.2, frameColor=j>=5&&j<=7?'#d8dfe5':p.metal, pane=j===5||j===6?blueGlass:glass;
+      rod([x, .5, -18.2], [x, 5.3, -18.2], .065, frameColor); rod([x, .5, -23.8], [x, 5.3, -23.8], .065, frameColor); rod([x, 5.3, -18.2], [x, 7, -21], .065, frameColor); rod([x, 7, -21], [x, 5.3, -23.8], .065, frameColor);
+      if (j < 9 && j !== 4 && j !== 7) { put(boxG, pane, x + 1.58, 3.25, -18.2, 3.07, 3.98, .015, 0, 0, 0, false); if (j % 2) put(boxG, pane, x + 1.58, 6.15, -19.6, 3.07, .015, 3.2, -.55, 0, 0, false); }
       foliage(x, 1.04, -18.1, 1.1, 14, true);
     }
     for (let y of [1.9, 3.6, 5.3]) rod([-14.4, y, -18.2], [14.4, y, -18.2], .05, p.metal); rod([-14.4, 7, -21], [14.4, 7, -21], .07, p.metal);
@@ -419,11 +423,11 @@ export function buildMap(THREE, scene, index = 0) {
     carousel(-2.8, 0, 2.65);
     // The close moon-ticket kiosk is part of the first encounter, not a distant skyline.
     const kx = 5.8, kz = 1.8; collider(kx, kz, 1.8); cyl(kx, .14, kz, 1.8, .28, '#6a7486', 'stone');
-    box(kx, 1.22, kz, 2.17, 2.2, 2.10, '#93899b', 'wood'); box(kx, 1.55, kz+1.07, 1.61, 1.1, .07, '#334965'); box(kx, .97, kz+1.26, 1.88, .13, .4, '#ad967e', 'wood');
-    for (const dx of [-.77,.77]) box(kx+dx, 1.61, kz+1.14, .085, 1.18, .08, '#c4b89c', 'wood'); box(kx, 2.16, kz+1.15, 1.67, .09, .08, '#c4b89c', 'wood');
-    for (let j = 0; j < 7; j++) box(kx-1 + j*.333, 2.47, kz, .32, .19, 2.63, j%2 ? '#a7819b' : '#c8b9a0', 'cloth');
-    box(kx, 2.88, kz+.04, 1.94, .52, .16, '#546682', 'wood'); moonSign(kx, 3.39, kz+.14, .41);
-    for (let j = 0; j < 5; j++) ellipsoid(kx-.62+j*.3, 2.89, kz+.14, .067, .12, .02, '#d4bd86'); cloth(kx+.53, .66, kz+1.36, .58, .45, '#a68d9b');
+    box(kx, 1.22, kz, 2.17, 2.2, 2.10, '#e9e7dd', 'wood'); box(kx, 1.55, kz+1.07, 1.61, 1.1, .07, '#78a7c5'); box(kx, .97, kz+1.26, 1.88, .13, .4, '#b8c3cb', 'wood');
+    for (const dx of [-.77,.77]) box(kx+dx, 1.61, kz+1.14, .085, 1.18, .08, '#e7eaed', 'wood'); box(kx, 2.16, kz+1.15, 1.67, .09, .08, '#e7eaed', 'wood');
+    for (let j = 0; j < 7; j++) box(kx-1 + j*.333, 2.47, kz, .32, .19, 2.63, j%2 ? '#9bbbd4' : '#e8e4d8', 'cloth');
+    box(kx, 2.88, kz+.04, 1.94, .52, .16, '#c98d63', 'wood'); moonSign(kx, 3.39, kz+.14, .41);
+    for (let j = 0; j < 5; j++) ellipsoid(kx-.62+j*.3, 2.89, kz+.14, .067, .12, .02, '#f7e7c9'); cloth(kx+.53, .66, kz+1.36, .58, .45, '#a68d9b');
     candyCart(-6.5, 5.5, 1.65); rocketRide(1.8, 9.1, 1.55); tree(-11, -8, 1.3); planter(8, -7, 1.6);
     group.userData.landmarks = [{ name: 'striped illuminated carousel', x: -2.8, z: 0, height: 3.55 }, { name: 'moon ticket kiosk', x: kx, z: kz, height: 3.8 }, { name: 'cotton candy cart', x: -6.5, z: 5.5, height: 3.1 }, { name: 'foreground spring rocket', x: 1.8, z: 9.1, height: 1.45 }];
     // Low warm festoons connect two collidable kiosks above the walkable lane.
@@ -432,7 +436,7 @@ export function buildMap(THREE, scene, index = 0) {
     const wx = 7, wz = -23, wy = 6; rod([wx - 3, 0, wz + .7], [wx, wy, wz], .13, '#7a8281'); rod([wx + 3, 0, wz + .7], [wx, wy, wz], .13, '#7a8281');
     put(torusG, mat('#a88d9b'), wx, wy, wz, 4.4, 4.4, 4.4);
     for (let j = 0; j < 10; j++) { const a = j * Math.PI * 2 / 10, x = wx + Math.cos(a) * 4.4, y = wy + Math.sin(a) * 4.4; rod([wx, wy, wz], [x, y, wz], .03, '#a69b9e'); box(x, y -.37, wz, .87, .65, .77, j % 2 ? '#b99687' : '#8ea397', 'wood'); box(x, y + .10, wz, .98, .10, .88, '#c5ae98', 'cloth'); }
-    shop(-12, -22, 8, 4, 3.6, '#bda995');
+    shop(-12, -22, 8, 4, 3.6, '#e8e5de', true);
     for (let side of [-1, 1]) for (let j = 0; j < 5; j++) { const x = side * 19.6, z = -13 + j * 6.7; fence(x, z, 4.6, Math.PI / 2); crate(x + side * .2, z + 2.0, 1.24); yarn(x - side * .55, .49, z + 1.2, .45, j % 2 ? '#bea18e' : '#96a6a3'); foliage(x - side * .7, .09, z - 1.8, .8, 12, true); }
     lamp(7.20, 2.35, .90, true);
     for (let side of [-1, 1]) cyl(side * 19.3, 2.6, -15.5, .1, 5.2, '#8c8174');
@@ -456,7 +460,7 @@ export function buildMap(THREE, scene, index = 0) {
     inst.instanceMatrix.needsUpdate = true; inst.instanceColor.needsUpdate = true;
     inst.castShadow = b.shadow; inst.receiveShadow = true; inst.computeBoundingSphere(); group.add(inst); instanceCount += b.matrices.length;
   }
-  group.userData.artVersion = 'weathered-toy-courtyard-v2'; group.userData.artRevision = 'distinct-toy-worlds-r2'; group.userData.instanceCount = instanceCount; group.userData.staticBatches = merged.size;
+  group.userData.artVersion = 'weathered-toy-courtyard-v2'; group.userData.artRevision = 'local-modern-facades-r1'; group.userData.instanceCount = instanceCount; group.userData.staticBatches = merged.size;
   return {
     group, obstacles, lighting, bounds: 18, spawn: { x: 0, z: 4 },
     dispose() {
