@@ -1,8 +1,8 @@
 import * as THREE from './vendor/three.module.js';
-// V3 doubles the framing at the unchanged V2 viewpoint. Every projected mesh
-// dimension is exactly half, preserving perspective ratios and viewing angles.
+// V6 rotates the view to 60 degrees azimuth and 40 degrees elevation.
+// V3 framing spans and camera distance remain unchanged.
 // Orthographic comparison is available with ?camera=ortho.
-export const CAMERA=Object.freeze({azimuth:32*Math.PI/180,elevation:41*Math.PI/180,distance:29,landscapeSpan:25.6,portraitSpan:28});
+export const CAMERA=Object.freeze({azimuth:60*Math.PI/180,elevation:40*Math.PI/180,distance:29,landscapeSpan:25.6,portraitSpan:28});
 export function screenToWorldInput({x=0,z=0},azimuth=CAMERA.azimuth,elevation=CAMERA.elevation){
  const c=Math.cos(azimuth),s=Math.sin(azimuth),strength=Math.hypot(x,z);
  if(strength===0)return {x:0,z:0};

@@ -1,8 +1,8 @@
 {
-  "version": "5.0.0",
-  "revision": "v5-qa-r1",
-  "source_commit": "129b61e36b3595f81e77e7f78d8f813bf543e94d",
-  "layout": "Original dist contents copied byte-for-byte to repository root.",
+  "version": "6.0.0",
+  "revision": "v6-camera-r1",
+  "source_commit": "791e58ea29748ce2429733dd81207eba2565dd87",
+  "layout": "Based on the V5 static export; V6 changes camera azimuth/elevation and version metadata only.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -21,13 +21,13 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 156,
-      "sha256": "ac7a6a2f4eefc6d97a14a88e30a8af34770ab1c7920d8538f790e8e7a0a845db"
+      "bytes": 164,
+      "sha256": "0b803c884d51eff2dfd8b2d2a7752dc0694710aa235ccdd5451efaa781cd96eb"
     },
     {
       "path": "camera.js",
-      "bytes": 2938,
-      "sha256": "c477cae744d86cf12d24b087301c87894ee53f7974826db21465c7ebbf10dda9"
+      "bytes": 2909,
+      "sha256": "7d9e02a29448d1d863c319b0ca3193907fdb1028cd8db1b69c3df65be7cea24d"
     },
     {
       "path": "characters.js",
@@ -51,8 +51,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 3870,
-      "sha256": "dfbf10d5ff828e81051132176ff2e72e71a95bef4f7e66a87adf5f4817ea4e89"
+      "bytes": 3874,
+      "sha256": "cc7b95bf6fbc01819259b92a521a186fa23a2a42f867eb0c18e0afbb0ce0a4ee"
     },
     {
       "path": "keyboard.js",
@@ -66,8 +66,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 22681,
-      "sha256": "d6490ef4c2a99d45bb441c32f4c51c4b9faa80185b5ca669a1af6cd54b551819"
+      "bytes": 22685,
+      "sha256": "1f17d59e1afb368a5972f92c1653a49db67dbfcd1d05533fbaa255e16522fe34"
     },
     {
       "path": "maps.js",

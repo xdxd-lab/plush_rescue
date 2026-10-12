@@ -2,7 +2,7 @@
 
 點擊上方連結即可在瀏覽器遊玩，不需要下載或安裝。
 
-# 布偶救援隊 · Plush Rescue V5
+# 布偶救援隊 · Plush Rescue V6
 
 Standalone static GitHub Pages export. No build step, CDN, npm install, or server backend is required. `index.html` and all game modules/assets belong at the repository root.
 
@@ -24,16 +24,18 @@ python3 verify-export.py
 python3 -m http.server 8000
 ```
 
-Then visit `http://localhost:8000/`. Do not open `index.html` through `file://`; JavaScript modules need HTTP. The verifier checks original runtime SHA-256 hashes, JavaScript syntax when Node.js is available, and relative asset/import resolution under a non-root repository URL. It includes both dynamically selected hero portraits.
+Then visit `http://localhost:8000/`. Do not open `index.html` through `file://`; JavaScript modules need HTTP. The verifier checks recorded runtime SHA-256 hashes, JavaScript syntax when Node.js is available, and relative asset/import resolution under a non-root repository URL. It includes both dynamically selected hero portraits.
 
-Browser smoke check: choose each hero, start a run, move with WASD/arrows or the touch stick, pause/resume, open settings, and restart. This version’s automated tests passed 124 Node tests and 14 DOM/renderer-stub checks. Real browser/WebGL rendering has not been revalidated for this export.
+Browser smoke check: choose each hero, start a run, move with WASD/arrows or the touch stick, pause/resume, open settings, and restart. The V5 baseline passed 124 Node tests and 14 DOM/renderer-stub checks; those original suites are not included in this minimal export. V6 received focused camera numerical and JavaScript syntax checks. Real browser/WebGL rendering has not been revalidated for this export.
 
 ## Version and provenance
 
-- Version: **5.0.0** / **v5-qa-r1**
+- Version: **6.0.0** / **v6-camera-r1**
 - Original source commit: `129b61e36b3595f81e77e7f78d8f813bf543e94d`
-- Runtime files: copied byte-for-byte from that commit’s `dist/` directory, without changing gameplay or presentation.
-- `runtime-manifest.json` records every original runtime file’s size and SHA-256 hash.
+- V6 base export commit: `791e58ea29748ce2429733dd81207eba2565dd87`
+- V6 change: camera azimuth 32° → 60° and elevation 41° → 40°. Distance 29, landscape/portrait spans 25.6/28, character scale and gameplay are unchanged.
+- Runtime files: based on the original export, with only the camera angles and version metadata updated.
+- `runtime-manifest.json` records every current runtime file’s size and SHA-256 hash.
 - Vendored Three.js licensing is retained in `vendor/THREE-LICENSE.txt`.
 - Character artwork and other project assets are included as provided; no additional redistribution license is implied.
 
