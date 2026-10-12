@@ -1,8 +1,8 @@
 {
-  "version": "10.0.0",
-  "revision": "v10-crowd-hud-r1",
-  "source_commit": "a51197577912dec4e805989d63f37ef0ffb6240f",
-  "layout": "Static V10 export based on V9; crowd descriptor cache, guarded HUD updates, bottom diagnostics with separate mine count.",
+  "version": "11.0.0",
+  "revision": "v11-boss-rescue-r1",
+  "source_commit": "8a2c6ac5751e9c4b72d2bb0d02c2611caeb59f54",
+  "layout": "Static V11 export based on V10; preserved rescued boss size and status-independent diagnostics text.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -16,13 +16,13 @@
     },
     {
       "path": "boss-visuals.js",
-      "bytes": 10762,
-      "sha256": "0816b2c042202249fa48836224f4442c433f444426c8681f6c92029f31456861"
+      "bytes": 11062,
+      "sha256": "31585122b31ac4e198f52ae2fae7ec0e030fb82fc43fbd7c33c9467f68e57aef"
     },
     {
       "path": "build-info.json",
-      "bytes": 351,
-      "sha256": "565b2e14a66d4c67b91dc35f6dcc32573c72e3e89eca8f849ee966eb66e08de4"
+      "bytes": 340,
+      "sha256": "a67ec5b88f711b954c8ad8f0fb7602f4be0d3e55bf4b2f7d47d2ec9dd85fe8f2"
     },
     {
       "path": "camera.js",
@@ -51,8 +51,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 3912,
-      "sha256": "917c34ba2a75a1ff4c8b2c4ccfafdf7b3ddc22bd312d81047ef5b2f63f92b0b4"
+      "bytes": 3914,
+      "sha256": "3a5878516742f4db868bde02da4e49c3020d34ea1b7ed63ca26a2efad18ccc94"
     },
     {
       "path": "keyboard.js",
@@ -66,8 +66,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 25365,
-      "sha256": "2bb76b89187546e206b08e5dec8dc0584367750b148264eaeb0f8494d166e779"
+      "bytes": 25303,
+      "sha256": "03d5b19d23c4964f9827de8ab86f0e5d573d3e5d80d96edae28a7235dab3371e"
     },
     {
       "path": "maps.js",

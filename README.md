@@ -2,7 +2,7 @@
 
 點擊上方連結即可在瀏覽器遊玩，不需要下載或安裝。
 
-# 布偶救援隊 · Plush Rescue V10
+# 布偶救援隊 · Plush Rescue V11
 
 Standalone static GitHub Pages export. No build step, CDN, npm install, or server backend is required. `index.html` and all game modules/assets belong at the repository root.
 
@@ -30,7 +30,10 @@ Browser smoke check: choose each hero, start a run, move with WASD/arrows or the
 
 ## Version and provenance
 
-- Version: **10.0.0** / **v10-crowd-hud-r1**
+- Version: **11.0.0** / **v11-boss-rescue-r1**
+- V11 change: rescued mini/big bosses retain their original radius-based size with the cute rescued model; ordinary dolls and the existing rescue lifetime/final fade are retained. Diagnostics no longer append menu/pause/end labels that wrap and shift the footer.
+- V11 base commit: `8a2c6ac5751e9c4b72d2bb0d02c2611caeb59f54`
+- V11 verification: gameplay rescue metadata, boss/ordinary transforms, shared active-boss scaling, pooling, contact-shadow invariants and status-independent diagnostics checked in cloud Node tests. Real-browser visuals remain unverified. Hurt blinking, shadows and gameplay are unchanged.
 - V10 change: cache crowd part/batch discovery with topology/material/visibility invalidation; avoid redundant permanent-HUD writes; place wrapping diagnostics below equipment and list ground mines separately.
 - V10 base commit: `a51197577912dec4e805989d63f37ef0ffb6240f`
 - V10 verification: exact character/instance-buffer comparisons, baseline-equivalent HUD transitions, deterministic mine/count scenarios and numeric bottom-layout checks. Browser rendering and phone FPS remain unverified. Enemy spawning, limits, combat, camera and shadows are unchanged.

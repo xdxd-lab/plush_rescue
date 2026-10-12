@@ -4,6 +4,13 @@ import {makePlush} from './characters.js';
 // retains both species so a second mini/big can appear without constructing
 // meshes in sync. The four model trees share every geometry and material.
 export const BOSS_VISUAL_LIMITS=Object.freeze({bosses:2,hazards:8});
+// Keep the world size when a boss becomes the ordinary species' cute rescued model.
+export function bossVisualRadius(entity){
+  return Number.isFinite(entity.radius)&&entity.radius>0?entity.radius:entity.boss==='big'?1.5:1;
+}
+export function bossVisualScale(entity,modelRadius){
+  return bossVisualRadius(entity)/modelRadius;
+}
 const EMPTY=Object.freeze([]);
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 
@@ -122,8 +129,8 @@ export function createBossVisuals(THREE,scene){
       const big=enemy.boss==='big',model=big?slot.big:slot.mini;
       slot.mini.visible=!big;slot.big.visible=big;
       slot.group.position.set(enemy.x,0,enemy.z);slot.group.rotation.y=enemy.angle||0;
-      const radius=Number.isFinite(enemy.radius)&&enemy.radius>0?enemy.radius:big?1.5:1;
-      const scale=radius/model.userData.radius;slot.group.scale.setScalar(scale);
+      const radius=bossVisualRadius(enemy);
+      const scale=bossVisualScale(enemy,model.userData.radius);slot.group.scale.setScalar(scale);
       model.userData.animate(time+(Number.isFinite(enemy.id)?enemy.id:0),.65);
       slot.group.userData.boss=enemy.boss;slot.group.userData.entityId=enemy.id;
       slot.group.userData.radius=radius;slot.group.userData.hp=enemy.hp;slot.group.userData.maxHp=enemy.maxHp;
