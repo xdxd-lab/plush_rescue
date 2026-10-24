@@ -1,5 +1,7 @@
 import {WEAPONS,MAIN_WEAPONS,OFFHAND_WEAPONS,weaponMultiplier} from './weapons.js';
 export const LIMITS={enemies:90,bullets:100,rescued:24,particles:100,drops:16,bombs:12,bosses:2,hazards:8,duration:1200};
+// Tap-to-pick range around the player, in world units (proximity pickup is 0.95).
+export const TAP_PICKUP_RANGE=6;
 export const PROJECTILE=Object.freeze({speed:16,life:1.2});
 export const SPAWN_MULTIPLIER=4;
 export const ENEMY_HP_MULTIPLIER=4;
@@ -70,15 +72,28 @@ export class Game{
  }
  stowTwoHanded(){if(this.status!=='running'&&this.status!=='paused')return false;if(!this.twoHanded)return false;this.twoHanded=null;this.burstLeft=0;return true;}
  toggleTwoHanded(){if((this.status!=='running'&&this.status!=='paused')||!this.twoHandedWeapon)return false;this.twoHanded=this.twoHanded?null:this.twoHandedWeapon;this.burstLeft=0;return true;}
+ // Applies one drop already removed from this.drops. Returns true when it opened
+ // the pickup comparison, so serialized pickups stop until the player decides.
+ takeDrop(drop){
+  if(drop.kind==='upgrade'){this.applyUpgrade(drop.upgradeId);this.events.push({kind:'skill',x:drop.x,z:drop.z,upgradeId:drop.upgradeId});return false;}
+  const levelChange=this.strengthenWeapon(drop.weaponId);
+  if(this.autoEquip){this.equipWeapon(drop.weaponId);return false;}
+  this.pendingPickup={...drop,levelChange,slot:WEAPONS[drop.weaponId].slot};this.status='pickup';return true;
+ }
  collectDrops(){
   if(this.status!=='running')return;
   for(let i=0;i<this.drops.length;){const drop=this.drops[i];if(Math.hypot(drop.x-this.player.x,drop.z-this.player.z)>.95){i++;continue;}
    this.drops.splice(i,1);
-   if(drop.kind==='upgrade'){this.applyUpgrade(drop.upgradeId);this.events.push({kind:'skill',x:drop.x,z:drop.z,upgradeId:drop.upgradeId});continue;}
-   const levelChange=this.strengthenWeapon(drop.weaponId);
-   if(this.autoEquip){this.equipWeapon(drop.weaponId);continue;}
-   this.pendingPickup={...drop,levelChange,slot:WEAPONS[drop.weaponId].slot};this.status='pickup';return;
+   if(this.takeDrop(drop))return;
   }
+ }
+ // A deliberate tap on a visible drop near the player; proximity pickup stays as is.
+ tapPickup(id){
+  if(this.status!=='running')return false;
+  const index=this.drops.findIndex(drop=>drop.id===id);if(index<0)return false;
+  const drop=this.drops[index];
+  if(Math.hypot(drop.x-this.player.x,drop.z-this.player.z)>TAP_PICKUP_RANGE)return false;
+  this.drops.splice(index,1);this.takeDrop(drop);return true;
  }
  resolvePickup(replace){if(this.status!=='pickup'||!this.pendingPickup)return false;const pickup=this.pendingPickup;this.pendingPickup=null;if(replace===true)this.equipWeapon(pickup.weaponId);this.continueChoices();return true;}
  rescueEnemy(enemy){

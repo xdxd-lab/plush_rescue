@@ -1,8 +1,8 @@
 {
-  "version": "12.0.0",
-  "revision": "v12-commercial-ui-r1",
-  "source_commit": "cbfa10e",
-  "layout": "Static V12 export based on V11 (cbfa10e); commercial HUD/dialog redesign, local records, boss countdown, event feedback, SVG icons and 256px portraits.",
+  "version": "12.1.0",
+  "revision": "v12.1-tap-pickup-r1",
+  "source_commit": "4d097de",
+  "layout": "Static V12.1 export based on V12 (4d097de); two-finger tap-to-pick, remembered settings, commercial HUD/dialog redesign, SVG icons and 256px portraits.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -21,8 +21,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 260,
-      "sha256": "b0e2452e8c310d0f16900e22676d58a4bf0fbe50e420fd6047efc58bd13fee84"
+      "bytes": 233,
+      "sha256": "7875c34708c4f6bbdcd48e131e20df262a0a7761855513e13fc41c0e2179a290"
     },
     {
       "path": "camera.js",
@@ -36,8 +36,8 @@
     },
     {
       "path": "core.js",
-      "bytes": 20113,
-      "sha256": "8460ab92928f03d62de9e8057811ad02bd2a9dcd44023610e02c541d2fabfe76"
+      "bytes": 20866,
+      "sha256": "233ee34c45fc9f537f4f71b1af9d9cebdd50c435aab5381399a49f517ccc0c07"
     },
     {
       "path": "crowd.js",
@@ -51,8 +51,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 11211,
-      "sha256": "7ee770a3b4c7e5335bcde48397f7f4bbb90af255979a661e269471fe25c3d228"
+      "bytes": 11291,
+      "sha256": "509ea0031807c960f5e7b46691b22898538b0c205895d3493f4a0adc4ad100eb"
     },
     {
       "path": "keyboard.js",
@@ -66,8 +66,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 32092,
-      "sha256": "dd3ed218465a3315bd0f865f45776c5007474a5a20391a512a1ffd7e967baac6"
+      "bytes": 35001,
+      "sha256": "4fee70d015c9f3b6acdeaae8ce953cb7446f585b9d204fd7997f22dcf4bb38a2"
     },
     {
       "path": "maps.js",
@@ -81,8 +81,8 @@
     },
     {
       "path": "ui.js",
-      "bytes": 3036,
-      "sha256": "ba698558fdfc1917b50e82af61485907f7f94d1253ff3219ea614a2618b7decb"
+      "bytes": 6713,
+      "sha256": "1927bbb83c6e2faf38069a398a61df1e7672ab5b26783876f7616fdf771e5685"
     },
     {
       "path": "vendor/THREE-LICENSE.txt",

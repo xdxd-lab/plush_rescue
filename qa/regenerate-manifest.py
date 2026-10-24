@@ -19,8 +19,8 @@ RUNTIME = [
     'weapon-visuals.js', 'weapons.js',
 ]
 
-LAYOUT = ('Static V12 export based on V11 (cbfa10e); commercial HUD/dialog redesign, '
-          'local records, boss countdown, event feedback, SVG icons and 256px portraits.')
+LAYOUT = ('Static V12.1 export based on V12 (4d097de); two-finger tap-to-pick, '
+          'remembered settings, commercial HUD/dialog redesign, SVG icons and 256px portraits.')
 
 manifest_path = ROOT / 'runtime-manifest.json'
 manifest = json.loads(manifest_path.read_text())

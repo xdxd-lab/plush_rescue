@@ -59,3 +59,74 @@ export function bestWeapon(weaponLevels,weapons){
  for(const id of Object.keys(weapons)){const level=weaponLevels[id]||0;if(level>0&&(!best||level>best.level))best={id,level};}
  return best;
 }
+
+// ---- V12.1 tap-to-pick -------------------------------------------------------
+// Short-tap detector. Every pointer is judged on its own at release: a tap is
+// small movement and short duration. It never touches movement ownership.
+export function createTapTracker({touchMove=12,mouseMove=6,maxMs=350,maxPointers=6}={}){
+ const active=new Map();
+ return {
+  begin(id,x,y,time,type='touch'){
+   if(!active.has(id)&&active.size>=maxPointers)active.delete(active.keys().next().value);
+   active.set(id,{x,y,time,limit:type==='mouse'?mouseMove:touchMove,type,moved:false});
+  },
+  move(id,x,y){const t=active.get(id);if(t&&!t.moved&&Math.hypot(x-t.x,y-t.y)>t.limit)t.moved=true;},
+  end(id,x,y,time){
+   const t=active.get(id);if(!t)return null;active.delete(id);
+   if(t.moved||Math.hypot(x-t.x,y-t.y)>t.limit||time-t.time>maxMs)return null;
+   return {x,y,type:t.type};
+  },
+  cancel(id){active.delete(id);},
+  clear(){active.clear();},
+  get size(){return active.size;},
+ };
+}
+
+// Choose the drop under a tap. `project(x,y,z)` maps a world point to CSS-pixel
+// screen coordinates (or null when behind the camera). A drop is visible as a
+// stack: ground ring, floating crystal and label, so the hit area is the whole
+// segment from ring to label, padded by a finger-sized radius.
+export const DROP_VISUAL={ringY:.09,labelY:1.48};
+export function pickDropAt(point,drops,project,{touchRadius=36,mouseRadius=24,worldRadius=.8}={}){
+ const base=point.type==='mouse'?mouseRadius:touchRadius;
+ let best=null;
+ for(const drop of drops){
+  const ground=project(drop.x,DROP_VISUAL.ringY,drop.z),top=project(drop.x,DROP_VISUAL.labelY,drop.z);
+  if(!ground||!top)continue;
+  // Keep the target finger-sized even where perspective or portrait framing shrinks it.
+  const east=project(drop.x+1,DROP_VISUAL.ringY,drop.z),north=project(drop.x,DROP_VISUAL.ringY,drop.z+1);
+  const unit=east&&north?(Math.hypot(east.x-ground.x,east.y-ground.y)+Math.hypot(north.x-ground.x,north.y-ground.y))/2:0;
+  const radius=Math.max(base,unit*worldRadius);
+  const sx=top.x-ground.x,sy=top.y-ground.y,len2=sx*sx+sy*sy;
+  const t=len2?Math.max(0,Math.min(1,((point.x-ground.x)*sx+(point.y-ground.y)*sy)/len2)):0;
+  const distance=Math.hypot(point.x-(ground.x+sx*t),point.y-(ground.y+sy*t));
+  if(distance>radius)continue;
+  const score=distance/radius;
+  if(!best||score<best.score)best={drop,score};
+ }
+ return best?best.drop:null;
+}
+
+// ---- V12.1 remembered settings -------------------------------------------------
+export const SETTINGS_KEY='plush-rescue:settings';
+export const QUALITIES=Object.freeze(['low','balanced','high']);
+export const HEROES=Object.freeze(['pudding','polar']);
+export function defaultSettings(){return {quality:'balanced',volume:.25,hero:'pudding',stats:false};}
+// One validator for both directions: whatever is read or about to be written is
+// reduced to valid values, one field at a time, so bad data is never persisted.
+export function sanitizeSettings(raw){
+ const settings=defaultSettings();
+ if(raw&&typeof raw==='object'){
+  if(QUALITIES.includes(raw.quality))settings.quality=raw.quality;
+  if(typeof raw.volume==='number'&&Number.isFinite(raw.volume))settings.volume=Math.min(1,Math.max(0,raw.volume));
+  if(HEROES.includes(raw.hero))settings.hero=raw.hero;
+  if(typeof raw.stats==='boolean')settings.stats=raw.stats;
+ }
+ return settings;
+}
+export function readSettings(storage){
+ try{return sanitizeSettings(JSON.parse(storage?.getItem(SETTINGS_KEY)||'null'));}catch{return defaultSettings();}
+}
+export function writeSettings(storage,settings){
+ try{storage.setItem(SETTINGS_KEY,JSON.stringify(sanitizeSettings(settings)));return true;}catch{return false;}
+}

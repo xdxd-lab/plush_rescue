@@ -143,3 +143,10 @@ test('viewport allows user zoom; legacy ids and icon symbols are present',()=>{
  for(const id of ['world','vignette','hud','heroPortrait','hearts','healthFill','timer','saved','pause','mapBadge','mapName','notice','bossPanel','bossName','bossHp','bossFill','stick','knob','moveHint','level','xpFill','xpLabel','twoHandedBar','twoHandedSlotLabel','twoHandedName','stowTwoHanded','mainWeapon','mainWeaponIcon','mainSlotLabel','mainWeaponName','offhandWeapon','offhandWeaponIcon','offhandSlotLabel','offhandWeaponName','magicMeter','magicLabel','magicFill','stats','overlay','dialog','dialogTitle','heroSelect','start'])assert.match(html,new RegExp(`id="${id}"`),id);
  assert.match(html,/<select id="heroSelect"[^>]*><option value="pudding">[^<]+<\/option><option value="polar">/);
 });
+
+test('touch gestures: the game surface takes no browser pan/zoom, dialogs may scroll vertically',()=>{
+ for(const vp of VIEWPORTS){
+  assert.equal(declarationsAt('#game',vp)['touch-action'],'none',`${vp.name}: #game`);
+  assert.equal(declarationsAt('.dialog',vp)['touch-action'],'pan-y',`${vp.name}: .dialog`);
+ }
+});

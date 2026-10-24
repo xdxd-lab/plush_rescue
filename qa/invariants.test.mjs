@@ -15,7 +15,6 @@ const sha=path=>crypto.createHash('sha256').update(read(path)).digest('hex');
 // SHA-256 from the V11 runtime-manifest (cbfa10e). Any change here is a gameplay,
 // camera, model, crowd, lighting or effects change and is outside V12's scope.
 const V11_UNCHANGED={
- 'core.js':'8460ab92928f03d62de9e8057811ad02bd2a9dcd44023610e02c541d2fabfe76',
  'camera.js':'7d9e02a29448d1d863c319b0ca3193907fdb1028cd8db1b69c3df65be7cea24d',
  'characters.js':'cd2aee11aeee42cd73734446ca8d768aeb4cb263be8016778958977dd6d50000',
  'crowd.js':'616a6dbff523f30d4046ec7357960ec322d97f0ed71ddafef81d1f6faba69a5a',
@@ -25,7 +24,7 @@ const V11_UNCHANGED={
  'lighting.js':'65e3a24751674769fa358a1971a912c5b6d81cdb390183e88a4ec76d4b116f5f',
  'effects.js':'0fc31b61cb5a7594c25fc12ed11f17f4ca74cf7f0f7cc0ab3eba1af656d5b9a0',
 };
-test('gameplay, camera, model, crowd, lighting and effects modules are unchanged from V11',()=>{
+test('camera, model, crowd, lighting, effects and weapon modules are unchanged from V11',()=>{
  for(const [file,hash] of Object.entries(V11_UNCHANGED))assert.equal(sha(file),hash,file);
 });
 
@@ -48,11 +47,11 @@ test('V8 fullscreen drag, V10 HUD diff writes and V11 rescued-boss scale remain 
 
 test('runtime manifest matches every file on disk and lists the new ui.js module',()=>{
  const manifest=JSON.parse(read('runtime-manifest.json','utf8'));
- assert.equal(manifest.version,'12.0.0');assert.equal(manifest.revision,'v12-commercial-ui-r1');
+ assert.equal(manifest.version,'12.1.0');assert.equal(manifest.revision,'v12.1-tap-pickup-r1');
  const paths=manifest.files.map(f=>f.path);
  assert.ok(paths.includes('ui.js'));assert.ok(!paths.some(p=>p.startsWith('qa/')),'qa/ is not a runtime file');
  for(const f of manifest.files){const data=read(f.path);assert.equal(data.length,f.bytes,f.path);assert.equal(crypto.createHash('sha256').update(data).digest('hex'),f.sha256,f.path);}
- const info=JSON.parse(read('build-info.json','utf8'));assert.equal(info.version,'12.0.0');assert.equal(info.revision,'v12-commercial-ui-r1');
+ const info=JSON.parse(read('build-info.json','utf8'));assert.equal(info.version,'12.1.0');assert.equal(info.revision,'v12.1-tap-pickup-r1');
 });
 
 test('hero portraits are compact square RGBA PNGs at the same paths',()=>{

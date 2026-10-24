@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import {Game,Stick,UPGRADES,LIMITS,healthLabel,bossKind} from './core.js';
+import {Game,Stick,UPGRADES,LIMITS,TAP_PICKUP_RANGE,healthLabel,bossKind} from './core.js';
 import {MAPS,buildMap} from './maps.js';
 import {makePlush} from './characters.js';
 import {CAMERA,cameraOffset,cameraFocus,createGameCamera,fitGameCamera,screenToWorldInput,screenToWorldAt} from './camera.js';
@@ -10,7 +10,7 @@ import {applyMapLighting,positionCameraFill} from './lighting.js';
 import {WEAPONS} from './weapons.js';
 import {createBossVisuals,bossVisualScale} from './boss-visuals.js';
 import {createWeaponVisuals} from './weapon-visuals.js';
-import {iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
+import {createTapTracker,pickDropAt,readSettings,writeSettings,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
 let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){dialog.innerHTML='<h2>需要 3D 圖形支援</h2><p>請使用支援 WebGL 的瀏覽器，並開啟硬體加速後再試。</p>';throw e;}
 renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
@@ -19,9 +19,10 @@ const camera=createGameCamera(innerWidth,innerHeight,{orthographic:new URLSearch
 const sun=new THREE.DirectionalLight('#ffe6bf',3.0);sun.position.set(-14,26,8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-24,right:24,top:24,bottom:-24,near:1,far:65});sun.shadow.normalBias=.018;sun.shadow.radius=2;sun.shadow.bias=-.0002;scene.add(sun);scene.add(sun.target);
 const rim=new THREE.DirectionalLight('#d0e8f0',.85);rim.position.set(8,9,-15);scene.add(rim);
 const fill=new THREE.DirectionalLight('#c7daf1',0);fill.name='Low camera-side moon bounce';fill.visible=false;fill.castShadow=false;scene.add(fill,fill.target);
-let selectedHero='pudding';
+const savedSettings=readSettings((()=>{try{return localStorage;}catch{return null;}})());
+let selectedHero=savedSettings.hero;
 const heroNames={pudding:'布丁狗',polar:'北極熊'};
-let game,map,hero,quality='balanced',volume=.25,showStats=false,lastStatus='',frameTime=0,frames=0,fps=0,renderDirty=true;
+let game,map,hero,quality=savedSettings.quality,volume=savedSettings.volume,showStats=savedSettings.stats,lastStatus='',frameTime=0,frames=0,fps=0,renderDirty=true;
 // Storage can be unavailable in private mode or embedded previews. The default
 // is always to ask; changing the setting still works for this session.
 const autoEquipKey='plush-rescue:auto-equip';
@@ -33,6 +34,9 @@ function storage(){try{return localStorage;}catch{return null;}}
 const motionQuery=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
 const reduceMotion=()=>Boolean(motionQuery?.matches);
 let noticeTimer=0,noticePriority=0,hurtTimer=0,bumpTimer=0,recordedGame=null,recordResult=null;
+// Short taps on drops (V12.1): each pointer is judged at release; the loop resolves them.
+const taps=createTapTracker(),pendingTaps=[];
+function saveSettings(){writeSettings(storage(),{quality,volume,hero:selectedHero,stats:showStats});}
 const runTrack={bosses:0,evolved:new Set(),aliveBosses:new Map(),nextAlive:new Map()};
 const crowd=createCrowd(THREE,scene,LIMITS);
 const weaponVisuals=createWeaponVisuals(THREE,scene);
@@ -83,8 +87,18 @@ document.addEventListener('pointerdown',e=>{
   try{canvas.setPointerCapture(e.pointerId);}catch{stick.reset();updateStick();return;}
   e.preventDefault();updateStick();$('#moveHint').style.opacity='.15';
  }
+ // Every accepted press may become a tap on a drop, including a second finger
+ // while the first one holds the stick. It never takes over movement.
+ taps.begin(e.pointerId,e.clientX,e.clientY,performance.now(),e.pointerType);
+ // Tracked presses (never buttons or dialogs, which returned above) keep the browser
+ // from adding its own handling to the extra finger.
+ e.preventDefault();
 },{passive:false});
+// Safari ignores touch-action for pinch; stop its gesture only while the game is running
+// so dialogs and the rest of the page keep their zoom.
+document.addEventListener('gesturestart',e=>{if(game.status==='running'&&!overlay.classList.contains('shown')&&$('#game').contains(e.target))e.preventDefault();},{passive:false});
 document.addEventListener('pointermove',e=>{
+ taps.move(e.pointerId,e.clientX,e.clientY);
  if(e.pointerId!==stick.id)return;
  if(game.status!=='running'||(e.pointerType==='mouse'&&(e.buttons&1)===0)){clearInput();return;}
  if(stick.move(e.pointerId,e.clientX,e.clientY)){e.preventDefault();updateStick();}
@@ -93,11 +107,15 @@ for(const type of ['pointerup','pointercancel','lostpointercapture'])document.ad
  // Ignore loss of the original target's implicit capture when it transfers
  // to the canvas; only losing our canvas capture cancels the drag.
  if(type==='lostpointercapture'&&e.target!==canvas)return;
+ if(type==='pointerup'){const tap=taps.end(e.pointerId,e.clientX,e.clientY,performance.now());if(tap&&game.status==='running'&&!overlay.classList.contains('shown')&&pendingTaps.length<4)pendingTaps.push(tap);}
+ // A pointer whose capture was lost can no longer be trusted: its pointerup may arrive
+ // without the matching moves, so it must not turn into a tap.
+ else taps.cancel(e.pointerId);
  if(!stick.end(e.pointerId))return;
  if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
  updateStick();
 });
-function clearInput(){const id=stick.id;stick.reset();if(id!==null&&canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);keys.clear();updateStick();}
+function clearInput(){taps.clear();pendingTaps.length=0;const id=stick.id;stick.reset();if(id!==null&&canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);keys.clear();updateStick();}
 function pause(){game.pause();clearInput();syncOverlay();}
 window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('resize',()=>{clearInput();resize();});
 window.addEventListener('keydown',e=>{const action=routeKeyDown(e,game.status,keys);if(action==='pause')pause();else if(action==='resume'){game.resume();syncOverlay();}else if(action==='stats'){setStatsVisible(!showStats);}else if(action?.startsWith('upgrade:')){dialog.querySelectorAll('[data-upgrade]')[Number(action.slice(8))-1]?.onclick?.();}});
@@ -133,7 +151,7 @@ function syncStats(){
  // Enemy count includes bosses; ground bombs (mines) have their own count.
  hudText(hud.stats,`${fps} FPS · ${game.enemies.length} 敵 / ${game.rescued.length} 自由 / ${game.bullets.length} 光束 / ${game.bombs.length} 地雷 · ${renderer.info.render.calls} calls · ${quality}`);
 }
-function setStatsVisible(value){showStats=Boolean(value);hud.stats.hidden=!showStats;if(showStats)syncStats();}
+function setStatsVisible(value,persist=true){showStats=Boolean(value);hud.stats.hidden=!showStats;if(showStats)syncStats();if(persist)saveSettings();}
 function syncHud(){
  const p=game.player;
  hudAttr(hud.heroPortrait,'src','assets/'+game.heroId+'-portrait.png');hudAttr(hud.heroPortrait,'alt',heroNames[game.heroId]+'救援隊員');
@@ -214,9 +232,10 @@ function syncOverlay(){
    +`<label class="setting auto-equip-setting"><span>撿到武器自動換上<small>預設關閉：先比較，再決定要不要換</small></span><input id="autoEquip" type="checkbox" ${autoEquip?'checked':''}></label>`
    +`<label class="setting">下一局隊員 <select id="nextHero"><option value="pudding">布丁狗</option><option value="polar">北極熊</option></select></label></section></div>`
    +`<div class="pause-actions"><button id="resume" class="primary">繼續救援 ${iconSvg('i-play')}</button><button id="restart" class="secondary">重新開始 · 隨機世界</button></div>`;
-  $('#nextHero').value=selectedHero;$('#nextHero').onchange=e=>{selectedHero=e.target.value==='polar'?'polar':'pudding';};
-  $('#quality').value=quality;$('#quality').onchange=e=>setQuality(e.target.value);
+  $('#nextHero').value=selectedHero;$('#nextHero').onchange=e=>{selectedHero=e.target.value==='polar'?'polar':'pudding';saveSettings();};
+  $('#quality').value=quality;$('#quality').onchange=e=>{setQuality(e.target.value);saveSettings();};
   $('#volume').oninput=e=>{volume=Number(e.target.value);unlockAudio();};
+  $('#volume').onchange=()=>saveSettings();
   $('#autoEquip').onchange=e=>setAutoEquip(e.target.checked);
   $('#showStats').onchange=e=>{setStatsVisible(e.target.checked);};
   $('#resume').onclick=resume;$('#restart').onclick=restart;
@@ -263,6 +282,24 @@ function syncModels(){
  weaponVisuals.sync(game,hero);
  fx.shadows(game.player,game.enemies,game.rescued);
 }
+const tapPoint=new THREE.Vector3();
+function projectToScreen(x,y,z){
+ tapPoint.set(x,y,z).project(camera);
+ if(!Number.isFinite(tapPoint.x)||tapPoint.z>1)return null;
+ return {x:(tapPoint.x+1)/2*innerWidth,y:(1-tapPoint.y)/2*innerHeight};
+}
+// Resolve queued taps against the drops as they are drawn this frame. Only drops
+// inside the tap range compete, so a far drop cannot shadow a near one.
+function resolveTaps(){
+ // Use this frame's camera pose; the renderer refreshes matrices only after this runs.
+ if(pendingTaps.length)camera.updateMatrixWorld();
+ while(pendingTaps.length){
+  const tap=pendingTaps.shift();if(game.status!=='running')continue;
+  const p=game.player,near=game.drops.filter(d=>Math.hypot(d.x-p.x,d.z-p.z)<=TAP_PICKUP_RANGE);
+  const drop=near.length?pickDropAt(tap,near,projectToScreen):null;
+  if(drop&&game.tapPickup(drop.id))renderDirty=true;
+ }
+}
 function effects(dt){
  const heard=new Set();
  for(const event of game.events){
@@ -276,11 +313,13 @@ function effects(dt){
  }
  fx.update(dt,camera);weaponVisuals.update(dt,game.events,game,camera);
 }
-reset();resize();renderBestLine();
+setQuality(quality);reset();resize();renderBestLine();
 // Visual hero cards drive the original #heroSelect value/change interface.
 const heroCards=[$('#heroCardPudding'),$('#heroCardPolar')].filter(Boolean);
 function syncHeroCards(){for(const card of heroCards)card.setAttribute('aria-pressed',String(card.dataset.hero===selectedHero));}
-$('#heroSelect').onchange=e=>{selectedHero=e.target.value==='polar'?'polar':'pudding';$('#heroSelect').value=selectedHero;syncHeroCards();reset();};
+// Restore the remembered hero and diagnostics switch without writing them back.
+$('#heroSelect').value=selectedHero;syncHeroCards();setStatsVisible(showStats,false);
+$('#heroSelect').onchange=e=>{selectedHero=e.target.value==='polar'?'polar':'pudding';$('#heroSelect').value=selectedHero;syncHeroCards();saveSettings();reset();};
 for(const card of heroCards)card.onclick=()=>{if(card.dataset.hero===selectedHero)return;const select=$('#heroSelect');select.value=card.dataset.hero;select.onchange({target:select});};$('#start').onclick=()=>{unlockAudio();game.start();syncOverlay();};let previous=performance.now();
 function loop(now){
  requestAnimationFrame(loop);
@@ -293,6 +332,7 @@ function loop(now){
  game.step(dt,movement);
  if(active){trackRun();tickPresentation(dt);}
  updateCamera();
+ if(active)resolveTaps();
  if(active)effects(dt);else{fx.update(0,camera);weaponVisuals.update(0,[],game,camera);}
  if(active||renderDirty){syncModels();syncHud();renderDirty=false;}
  else crowd.sync(null,{dirty:false});
@@ -301,4 +341,4 @@ function loop(now){
  if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(showStats)syncStats();}
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v12-commercial-ui-r1',get records(){return readRecords(storage());},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v12.1-tap-pickup-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
