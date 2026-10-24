@@ -1,5 +1,6 @@
 // V12 presentation helpers. Pure functions only: no DOM, no game mutation.
 // Gameplay values stay in core.js/weapons.js; this module only formats them.
+import {DROP_GEOMETRY} from './weapon-visuals.js';
 
 export const WEAPON_ICONS=Object.freeze({pulse:'i-pulse',shotgun:'i-shotgun',burst:'i-burst',ember:'i-ember',bomber:'i-bomber',moonfan:'i-moonfan',frostwand:'i-frostwand',cannon:'i-cannon',none:'i-empty'});
 export const UPGRADE_ICONS=Object.freeze({power:'i-pulse',rate:'i-bolt',speed:'i-feather',heart:'i-heart'});
@@ -60,20 +61,24 @@ export function bestWeapon(weaponLevels,weapons){
  return best;
 }
 
-// ---- V12.1 tap-to-pick -------------------------------------------------------
+// ---- V12.1 tap-to-pick (V12.1.1 hit area) ------------------------------------
 // Short-tap detector. Every pointer is judged on its own at release: a tap is
 // small movement and short duration. It never touches movement ownership.
-export function createTapTracker({touchMove=12,mouseMove=6,maxMs=350,maxPointers=6}={}){
+// Mouse clicks get more time and slack than fingers (a deliberate click on a
+// trackpad often lasts 400–600 ms); a pointer that really travelled is a drag.
+export const TAP_LIMITS=Object.freeze({touchMove:12,touchMs:350,mouseMove:10,mouseMs:700});
+export function createTapTracker({touchMove=TAP_LIMITS.touchMove,mouseMove=TAP_LIMITS.mouseMove,touchMs=TAP_LIMITS.touchMs,mouseMs=TAP_LIMITS.mouseMs,maxPointers=6}={}){
  const active=new Map();
  return {
   begin(id,x,y,time,type='touch'){
    if(!active.has(id)&&active.size>=maxPointers)active.delete(active.keys().next().value);
-   active.set(id,{x,y,time,limit:type==='mouse'?mouseMove:touchMove,type,moved:false});
+   const mouse=type==='mouse';
+   active.set(id,{x,y,time,limit:mouse?mouseMove:touchMove,maxMs:mouse?mouseMs:touchMs,type,moved:false});
   },
   move(id,x,y){const t=active.get(id);if(t&&!t.moved&&Math.hypot(x-t.x,y-t.y)>t.limit)t.moved=true;},
   end(id,x,y,time){
    const t=active.get(id);if(!t)return null;active.delete(id);
-   if(t.moved||Math.hypot(x-t.x,y-t.y)>t.limit||time-t.time>maxMs)return null;
+   if(t.moved||Math.hypot(x-t.x,y-t.y)>t.limit||time-t.time>t.maxMs)return null;
    return {x,y,type:t.type};
   },
   cancel(id){active.delete(id);},
@@ -81,30 +86,114 @@ export function createTapTracker({touchMove=12,mouseMove=6,maxMs=350,maxPointers
   get size(){return active.size;},
  };
 }
+// Event time for tap duration. timeStamp is when the input happened, so a busy
+// frame between press and release does not make a quick click look slow.
+export function eventTime(event,now){
+ const t=event?.timeStamp;
+ return typeof t==='number'&&Number.isFinite(t)&&t>0?t:now();
+}
 
-// Choose the drop under a tap. `project(x,y,z)` maps a world point to CSS-pixel
-// screen coordinates (or null when behind the camera). A drop is visible as a
-// stack: ground ring, floating crystal and label, so the hit area is the whole
-// segment from ring to label, padded by a finger-sized radius.
-export const DROP_VISUAL={ringY:.09,labelY:1.48};
-export function pickDropAt(point,drops,project,{touchRadius=36,mouseRadius=24,worldRadius=.8}={}){
- const base=point.type==='mouse'?mouseRadius:touchRadius;
+// Opaque HUD panels. They are pointer-events:none (so a drag can start on them),
+// which means a tap on them reaches the canvas: it must not pick what is hidden
+// underneath. The notice only covers the world while it is shown.
+export const HUD_OCCLUDERS='.portrait,.health,.timer,.rescues,#bossPanel,#notice,.experience,.weapon-card,#twoHandedBar,#stats';
+export function pointCovered(point,elements){
+ for(const el of elements){
+  if(el.id==='notice'&&!el.classList?.contains('show'))continue;
+  const r=el.getBoundingClientRect?.();
+  if(r&&r.width>0&&r.height>0&&point.x>=r.left&&point.x<=r.right&&point.y>=r.top&&point.y<=r.bottom)return true;
+ }
+ return false;
+}
+
+// ---- screen-space hit area of one drop ----------------------------------------
+// `project(x,y,z)` returns {x,y,z}: CSS pixels plus NDC depth, or null behind the
+// camera. `axes` holds the camera's world right/up vectors (labels are sprites
+// that always face the camera). `viewport` is {left,top,width,height}.
+// Parts: the ground ring (an ellipse on screen), the bobbing item (the cylinder
+// it sweeps over its whole bob range) and, when shown, the full label rectangle.
+const RING_STEPS=12;
+export function dropHitShape(drop,project,axes,viewport,{labelVisible=true}={}){
+ const G=DROP_GEOMETRY,parts=[];
+ // A point outside the camera's depth range is not drawn (project gives null).
+ // A part keeps its other points, so one cut by the far plane stays tappable.
+ // Depth is the part's nearest point: what is drawn in front.
+ const add=(kind,points)=>{const poly=points.filter(Boolean);if(poly.length>=3)parts.push({kind,poly:convexHull(poly),z:Math.min(...poly.map(p=>p.z))});};
+ const circle=(radius,y)=>Array.from({length:RING_STEPS},(_,i)=>{const a=i/RING_STEPS*Math.PI*2;return project(drop.x+Math.cos(a)*radius,y,drop.z+Math.sin(a)*radius);});
+ add('ring',circle(G.ringRadius,G.ringY));
+ // The item spins and bobs: cover the upright cylinder it sweeps.
+ add('item',[...circle(G.floatRadius,G.floatY-G.floatBob+G.floatBottom),...circle(G.floatRadius,G.floatY+G.floatBob+G.floatTop)]);
+ if(labelVisible){
+  const w=G.labelWidth/2,h=G.labelHeight/2,R=axes.right,U=axes.up;
+  add('label',[[-1,-1],[1,-1],[1,1],[-1,1]].map(([sx,sy])=>project(drop.x+R.x*w*sx+U.x*h*sy,G.labelY+R.y*w*sx+U.y*h*sy,drop.z+R.z*w*sx+U.z*h*sy)));
+ }
+ // Visible when any drawn part overlaps the viewport, even by one corner.
+ return parts.some(part=>polygonMeetsRect(part.poly,viewport))?{drop,parts}:null;
+}
+// Convex polygon vs axis-aligned rectangle: a vertex inside the rectangle, a
+// rectangle corner inside the polygon, or two crossing edges.
+export function polygonMeetsRect(poly,r){
+ const right=r.left+r.width,bottom=r.top+r.height;
+ if(poly.some(p=>p.x>=r.left&&p.x<=right&&p.y>=r.top&&p.y<=bottom))return true;
+ const corners=[{x:r.left,y:r.top},{x:right,y:r.top},{x:right,y:bottom},{x:r.left,y:bottom}];
+ if(poly.length>=3&&corners.some(c=>polygonDistance(c,poly)===0))return true;
+ for(let i=0;i<poly.length;i++)for(let j=0;j<4;j++)if(segmentsCross(poly[i],poly[(i+1)%poly.length],corners[j],corners[(j+1)%4]))return true;
+ return false;
+}
+function segmentsCross(a,b,c,d){
+ const o=(p,q,r)=>Math.sign((q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x));
+ return o(a,b,c)!==o(a,b,d)&&o(c,d,a)!==o(c,d,b);
+}
+function convexHull(points){
+ const p=[...points].sort((a,b)=>a.x-b.x||a.y-b.y),cross=(o,a,b)=>(a.x-o.x)*(b.y-o.y)-(a.y-o.y)*(b.x-o.x);
+ const lower=[],upper=[];
+ for(const q of p){while(lower.length>=2&&cross(lower[lower.length-2],lower[lower.length-1],q)<=0)lower.pop();lower.push(q);}
+ for(const q of p.reverse()){while(upper.length>=2&&cross(upper[upper.length-2],upper[upper.length-1],q)<=0)upper.pop();upper.push(q);}
+ return lower.slice(0,-1).concat(upper.slice(0,-1));
+}
+function segmentDistance(p,a,b){
+ const sx=b.x-a.x,sy=b.y-a.y,len2=sx*sx+sy*sy,t=len2?Math.max(0,Math.min(1,((p.x-a.x)*sx+(p.y-a.y)*sy)/len2)):0;
+ return Math.hypot(p.x-(a.x+sx*t),p.y-(a.y+sy*t));
+}
+// 0 inside a convex polygon, otherwise the distance to its outline.
+function polygonDistance(p,poly){
+ if(poly.length<3)return poly.length?Math.min(...poly.map((q,i)=>segmentDistance(p,q,poly[(i+1)%poly.length]))):Infinity;
+ let pos=false,neg=false,best=Infinity;
+ for(let i=0;i<poly.length;i++){
+  const a=poly[i],b=poly[(i+1)%poly.length],side=(b.x-a.x)*(p.y-a.y)-(b.y-a.y)*(p.x-a.x);
+  if(side>0)pos=true;else if(side<0)neg=true;
+  best=Math.min(best,segmentDistance(p,a,b));
+ }
+ return pos&&neg?best:0;
+}
+
+
+// Choose the drop under a tap. Taps on the drawn shapes are exact hits; a tap
+// just outside still counts within a pointer-sized margin (finger > mouse).
+// Exact hits are ranked by what is drawn in front (smallest depth), near misses
+// by how close the tap came; ties fall back to the stable drop id, so the same
+// tap always gives the same answer and an overlap never ends with no pick.
+export const TAP_MARGIN=Object.freeze({touch:16,mouse:8});
+export function pickDropAt(point,shapes,{margin=point.type==='mouse'?TAP_MARGIN.mouse:TAP_MARGIN.touch}={}){
  let best=null;
- for(const drop of drops){
-  const ground=project(drop.x,DROP_VISUAL.ringY,drop.z),top=project(drop.x,DROP_VISUAL.labelY,drop.z);
-  if(!ground||!top)continue;
-  // Keep the target finger-sized even where perspective or portrait framing shrinks it.
-  const east=project(drop.x+1,DROP_VISUAL.ringY,drop.z),north=project(drop.x,DROP_VISUAL.ringY,drop.z+1);
-  const unit=east&&north?(Math.hypot(east.x-ground.x,east.y-ground.y)+Math.hypot(north.x-ground.x,north.y-ground.y))/2:0;
-  const radius=Math.max(base,unit*worldRadius);
-  const sx=top.x-ground.x,sy=top.y-ground.y,len2=sx*sx+sy*sy;
-  const t=len2?Math.max(0,Math.min(1,((point.x-ground.x)*sx+(point.y-ground.y)*sy)/len2)):0;
-  const distance=Math.hypot(point.x-(ground.x+sx*t),point.y-(ground.y+sy*t));
-  if(distance>radius)continue;
-  const score=distance/radius;
-  if(!best||score<best.score)best={drop,score};
+ for(const shape of shapes){
+  if(!shape)continue;
+  let distance=Infinity,z=Infinity;
+  for(const part of shape.parts){
+   const d=polygonDistance(point,part.poly);
+   if(d<distance-1e-9||(Math.abs(d-distance)<=1e-9&&part.z<z)){distance=d;z=part.z;}
+  }
+  if(distance>margin)continue;
+  const exact=distance===0,c={drop:shape.drop,exact,z,distance};
+  if(!best||better(c,best))best=c;
  }
  return best?best.drop:null;
+}
+function better(a,b){
+ if(a.exact!==b.exact)return a.exact;
+ if(a.exact){if(a.z!==b.z)return a.z<b.z;}
+ else{if(a.distance!==b.distance)return a.distance<b.distance;if(a.z!==b.z)return a.z<b.z;}
+ return a.drop.id<b.drop.id;
 }
 
 // ---- V12.1 remembered settings -------------------------------------------------

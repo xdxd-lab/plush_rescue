@@ -1,1 +1,1 @@
-{"version":"12.1.0","revision":"v12.1-tap-pickup-r1","source_commit":"4d097de","validation_at_build":"43-node-tests;48-dom-smoke;21-hashes;40-references;15-js-modules","built_at":"2026-10-24T05:44:26Z","publication":"v12.1-release"}
+{"version":"12.1.1","revision":"v12.1.1-tap-hit-r1","source_commit":"dd01898","validation_at_build":"51-node-tests;56-dom-smoke;21-hashes;41-references;15-js-modules","built_at":"2026-10-24T11:40:21Z","publication":"v12.1.1-release"}

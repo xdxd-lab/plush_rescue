@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import {Game,Stick,UPGRADES,LIMITS,TAP_PICKUP_RANGE,healthLabel,bossKind} from './core.js';
+import {Game,Stick,UPGRADES,LIMITS,healthLabel,bossKind} from './core.js';
 import {MAPS,buildMap} from './maps.js';
 import {makePlush} from './characters.js';
 import {CAMERA,cameraOffset,cameraFocus,createGameCamera,fitGameCamera,screenToWorldInput,screenToWorldAt} from './camera.js';
@@ -10,7 +10,7 @@ import {applyMapLighting,positionCameraFill} from './lighting.js';
 import {WEAPONS} from './weapons.js';
 import {createBossVisuals,bossVisualScale} from './boss-visuals.js';
 import {createWeaponVisuals} from './weapon-visuals.js';
-import {createTapTracker,pickDropAt,readSettings,writeSettings,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
+import {createTapTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,writeSettings,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
 let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){dialog.innerHTML='<h2>需要 3D 圖形支援</h2><p>請使用支援 WebGL 的瀏覽器，並開啟硬體加速後再試。</p>';throw e;}
 renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
@@ -35,7 +35,7 @@ const motionQuery=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
 const reduceMotion=()=>Boolean(motionQuery?.matches);
 let noticeTimer=0,noticePriority=0,hurtTimer=0,bumpTimer=0,recordedGame=null,recordResult=null;
 // Short taps on drops (V12.1): each pointer is judged at release; the loop resolves them.
-const taps=createTapTracker(),pendingTaps=[];
+const taps=createTapTracker(),pendingTaps=[],tapClock=()=>performance.now();
 function saveSettings(){writeSettings(storage(),{quality,volume,hero:selectedHero,stats:showStats});}
 const runTrack={bosses:0,evolved:new Set(),aliveBosses:new Map(),nextAlive:new Map()};
 const crowd=createCrowd(THREE,scene,LIMITS);
@@ -89,7 +89,7 @@ document.addEventListener('pointerdown',e=>{
  }
  // Every accepted press may become a tap on a drop, including a second finger
  // while the first one holds the stick. It never takes over movement.
- taps.begin(e.pointerId,e.clientX,e.clientY,performance.now(),e.pointerType);
+ taps.begin(e.pointerId,e.clientX,e.clientY,eventTime(e,tapClock),e.pointerType);
  // Tracked presses (never buttons or dialogs, which returned above) keep the browser
  // from adding its own handling to the extra finger.
  e.preventDefault();
@@ -100,14 +100,18 @@ document.addEventListener('gesturestart',e=>{if(game.status==='running'&&!overla
 document.addEventListener('pointermove',e=>{
  taps.move(e.pointerId,e.clientX,e.clientY);
  if(e.pointerId!==stick.id)return;
- if(game.status!=='running'||(e.pointerType==='mouse'&&(e.buttons&1)===0)){clearInput();return;}
+ if(game.status!=='running'){clearInput();return;}
+ // A mouse button released outside the page ends only this drag; other fingers
+ // and taps already waiting for the next frame are kept.
+ if(e.pointerType==='mouse'&&(e.buttons&1)===0){taps.cancel(e.pointerId);endStick();return;}
  if(stick.move(e.pointerId,e.clientX,e.clientY)){e.preventDefault();updateStick();}
 },{passive:false});
 for(const type of ['pointerup','pointercancel','lostpointercapture'])document.addEventListener(type,e=>{
  // Ignore loss of the original target's implicit capture when it transfers
  // to the canvas; only losing our canvas capture cancels the drag.
  if(type==='lostpointercapture'&&e.target!==canvas)return;
- if(type==='pointerup'){const tap=taps.end(e.pointerId,e.clientX,e.clientY,performance.now());if(tap&&game.status==='running'&&!overlay.classList.contains('shown')&&pendingTaps.length<4)pendingTaps.push(tap);}
+ // A tap on an opaque HUD panel is a tap on the panel, not on the world below it.
+ if(type==='pointerup'){const tap=taps.end(e.pointerId,e.clientX,e.clientY,eventTime(e,tapClock));if(tap&&game.status==='running'&&!overlay.classList.contains('shown')&&pendingTaps.length<4&&!pointCovered(tap,hudOccluders))pendingTaps.push(tap);}
  // A pointer whose capture was lost can no longer be trusted: its pointerup may arrive
  // without the matching moves, so it must not turn into a tap.
  else taps.cancel(e.pointerId);
@@ -115,7 +119,8 @@ for(const type of ['pointerup','pointercancel','lostpointercapture'])document.ad
  if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
  updateStick();
 });
-function clearInput(){taps.clear();pendingTaps.length=0;const id=stick.id;stick.reset();if(id!==null&&canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);keys.clear();updateStick();}
+function endStick(){const id=stick.id;stick.reset();if(id!==null&&canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);updateStick();}
+function clearInput(){taps.clear();pendingTaps.length=0;endStick();keys.clear();}
 function pause(){game.pause();clearInput();syncOverlay();}
 window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('resize',()=>{clearInput();resize();});
 window.addEventListener('keydown',e=>{const action=routeKeyDown(e,game.status,keys);if(action==='pause')pause();else if(action==='resume'){game.resume();syncOverlay();}else if(action==='stats'){setStatsVisible(!showStats);}else if(action?.startsWith('upgrade:')){dialog.querySelectorAll('[data-upgrade]')[Number(action.slice(8))-1]?.onclick?.();}});
@@ -136,6 +141,8 @@ function input(){return screenToWorldAt({x:stick.x+(keys.has('d')||keys.has('arr
 // Permanent HUD nodes survive reset; modal controls are intentionally not cached.
 const hud=Object.fromEntries(["heroPortrait", "bossPanel", "bossName", "bossHp", "bossFill", "hearts", "healthFill", "timer", "saved", "level", "xpFill", "xpLabel", "mainWeapon", "offhandWeapon", "mainWeaponName", "offhandWeaponName", "mainWeaponIcon", "offhandWeaponIcon", "game", "twoHandedBar", "twoHandedName", "twoHandedSlotLabel", "stowTwoHanded", "mainSlotLabel", "offhandSlotLabel", "magicFill", "magicLabel", "magicMeter", "stats", "vignette", "notice", "bossClock", "bossClockText"].map(id=>[id,$('#'+id)]));
 hud.loadout=$('.loadout');hud.rescues=$('.rescues');hud.root=$('#hud');
+// Opaque HUD panels that hide the world under them (see pointCovered in ui.js).
+const hudOccluders=[...document.querySelectorAll(HUD_OCCLUDERS)];
 const hudValues=new WeakMap();
 function hudWrite(el,key,value,apply){
  let values=hudValues.get(el);if(!values){values=new Map();hudValues.set(el,values);}
@@ -234,7 +241,7 @@ function syncOverlay(){
    +`<div class="pause-actions"><button id="resume" class="primary">繼續救援 ${iconSvg('i-play')}</button><button id="restart" class="secondary">重新開始 · 隨機世界</button></div>`;
   $('#nextHero').value=selectedHero;$('#nextHero').onchange=e=>{selectedHero=e.target.value==='polar'?'polar':'pudding';saveSettings();};
   $('#quality').value=quality;$('#quality').onchange=e=>{setQuality(e.target.value);saveSettings();};
-  $('#volume').oninput=e=>{volume=Number(e.target.value);unlockAudio();};
+  $('#volume').oninput=e=>{volume=Number(e.target.value);unlockAudio();saveSettings();};
   $('#volume').onchange=()=>saveSettings();
   $('#autoEquip').onchange=e=>setAutoEquip(e.target.checked);
   $('#showStats').onchange=e=>{setStatsVisible(e.target.checked);};
@@ -282,21 +289,27 @@ function syncModels(){
  weaponVisuals.sync(game,hero);
  fx.shadows(game.player,game.enemies,game.rescued);
 }
-const tapPoint=new THREE.Vector3();
-function projectToScreen(x,y,z){
+const tapPoint=new THREE.Vector3(),tapAxes={right:new THREE.Vector3(),up:new THREE.Vector3()};
+// The canvas box in CSS pixels; pointer coordinates use the same space.
+function viewRect(){const r=canvas.getBoundingClientRect?.();return r&&r.width>0&&r.height>0?{left:r.left,top:r.top,width:r.width,height:r.height}:{left:0,top:0,width:innerWidth,height:innerHeight};}
+function projectToScreen(x,y,z,view=viewRect()){
  tapPoint.set(x,y,z).project(camera);
- if(!Number.isFinite(tapPoint.x)||tapPoint.z>1)return null;
- return {x:(tapPoint.x+1)/2*innerWidth,y:(1-tapPoint.y)/2*innerHeight};
+ if(!Number.isFinite(tapPoint.x)||!Number.isFinite(tapPoint.y)||tapPoint.z>1||tapPoint.z<-1)return null;
+ return {x:view.left+(tapPoint.x+1)/2*view.width,y:view.top+(1-tapPoint.y)/2*view.height,z:tapPoint.z};
 }
-// Resolve queued taps against the drops as they are drawn this frame. Only drops
-// inside the tap range compete, so a far drop cannot shadow a near one.
+// Resolve queued taps against what the player saw: the camera pose of the last
+// render and the drops drawn at the last sync (inside the render pool, label
+// shown or not). Any drop on screen can be tapped; there is no distance limit.
 function resolveTaps(){
- // Use this frame's camera pose; the renderer refreshes matrices only after this runs.
- if(pendingTaps.length)camera.updateMatrixWorld();
+ if(!pendingTaps.length)return;
+ camera.updateMatrixWorld();
+ tapAxes.right.setFromMatrixColumn(camera.matrixWorld,0).normalize();tapAxes.up.setFromMatrixColumn(camera.matrixWorld,1).normalize();
+ const view=viewRect(),drawn=weaponVisuals.drawnDrops?.()??new Map(),project=(x,y,z)=>projectToScreen(x,y,z,view);
  while(pendingTaps.length){
   const tap=pendingTaps.shift();if(game.status!=='running')continue;
-  const p=game.player,near=game.drops.filter(d=>Math.hypot(d.x-p.x,d.z-p.z)<=TAP_PICKUP_RANGE);
-  const drop=near.length?pickDropAt(tap,near,projectToScreen):null;
+  const shapes=[];
+  for(const drop of game.drops){const seen=drawn.get(drop.id);if(seen&&drop.life>0)shapes.push(dropHitShape(drop,project,tapAxes,view,seen));}
+  const drop=pickDropAt(tap,shapes);
   if(drop&&game.tapPickup(drop.id))renderDirty=true;
  }
 }
@@ -331,8 +344,8 @@ function loop(now){
  }
  game.step(dt,movement);
  if(active){trackRun();tickPresentation(dt);}
- updateCamera();
  if(active)resolveTaps();
+ updateCamera();
  if(active)effects(dt);else{fx.update(0,camera);weaponVisuals.update(0,[],game,camera);}
  if(active||renderDirty){syncModels();syncHud();renderDirty=false;}
  else crowd.sync(null,{dirty:false});
@@ -341,4 +354,4 @@ function loop(now){
  if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(showStats)syncStats();}
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v12.1-tap-pickup-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v12.1.1-tap-hit-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};

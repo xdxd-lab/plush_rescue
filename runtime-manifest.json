@@ -1,8 +1,8 @@
 {
-  "version": "12.1.0",
-  "revision": "v12.1-tap-pickup-r1",
-  "source_commit": "4d097de",
-  "layout": "Static V12.1 export based on V12 (4d097de); two-finger tap-to-pick, remembered settings, commercial HUD/dialog redesign, SVG icons and 256px portraits.",
+  "version": "12.1.1",
+  "revision": "v12.1.1-tap-hit-r1",
+  "source_commit": "dd01898",
+  "layout": "Static V12.1.1 export based on V12.1 (dd01898); on-screen tap-to-pick with full ring/item/label hit area and HUD cover, remembered settings, commercial HUD/dialog redesign, SVG icons and 256px portraits.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -21,8 +21,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 233,
-      "sha256": "7875c34708c4f6bbdcd48e131e20df262a0a7761855513e13fc41c0e2179a290"
+      "bytes": 234,
+      "sha256": "ead7e5c10e8f7d081fe31d8a1edcfe49d9e39a80a9708cc193c946d8ccdeb006"
     },
     {
       "path": "camera.js",
@@ -36,8 +36,8 @@
     },
     {
       "path": "core.js",
-      "bytes": 20866,
-      "sha256": "233ee34c45fc9f537f4f71b1af9d9cebdd50c435aab5381399a49f517ccc0c07"
+      "bytes": 20832,
+      "sha256": "41e2db9c147d23aaffa85b702fb1e8e93d9fc949f737ec104909f3dcf48ffde7"
     },
     {
       "path": "crowd.js",
@@ -51,8 +51,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 11291,
-      "sha256": "509ea0031807c960f5e7b46691b22898538b0c205895d3493f4a0adc4ad100eb"
+      "bytes": 11317,
+      "sha256": "953c8349350ee77f7c26399aa755eb74b48be264a2a0b7019341b880cfa526cb"
     },
     {
       "path": "keyboard.js",
@@ -66,8 +66,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 35001,
-      "sha256": "4fee70d015c9f3b6acdeaae8ce953cb7446f585b9d204fd7997f22dcf4bb38a2"
+      "bytes": 36283,
+      "sha256": "23c679e1be165b63ddfd76781209153e5e5e11119dae0cc1f08d1d50c0bc7264"
     },
     {
       "path": "maps.js",
@@ -81,8 +81,8 @@
     },
     {
       "path": "ui.js",
-      "bytes": 6713,
-      "sha256": "1927bbb83c6e2faf38069a398a61df1e7672ab5b26783876f7616fdf771e5685"
+      "bytes": 11689,
+      "sha256": "ab3b9d19411ab99f57b366ff5236e845283cdc400c4105b9450ef7612d1cfba2"
     },
     {
       "path": "vendor/THREE-LICENSE.txt",
@@ -101,8 +101,8 @@
     },
     {
       "path": "weapon-visuals.js",
-      "bytes": 31110,
-      "sha256": "e27a995be4d031827f660f340f95d1c094debfc1f86312e13a662d881317b445"
+      "bytes": 32233,
+      "sha256": "af74ae8b1af5595e35604120e6df9f2b5cbe50f8cf0b0965acc5cff73ed2ca14"
     },
     {
       "path": "weapons.js",

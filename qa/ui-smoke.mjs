@@ -15,6 +15,7 @@ const cameraModule=await import(root+'camera.js');
 const keyboard=await import(root+'keyboard.js');
 const ui=await import(root+'ui.js');
 const {WEAPONS}=await import(root+'weapons.js');
+const {createWeaponVisuals,DROP_GEOMETRY}=await import(root+'weapon-visuals.js');
 class Element{
  constructor(tag,attrs={},doc){this.tagName=tag.toUpperCase();this.doc=doc;this.attrs=attrs;this.id=attrs.id;this.dataset={};for(const [k,v]of Object.entries(attrs))if(k.startsWith('data-'))this.dataset[k.slice(5).replace(/-([a-z])/g,(_,x)=>x.toUpperCase())]=v;this.value=attrs.value||'';this.checked='checked'in attrs;this.hidden='hidden'in attrs;this.disabled=false;this.textContent='';this.className=attrs.class||'';this.children=[];this.style={setProperty(k,v){this[k]=v}};this.events={};this.classes=new Set((attrs.class||'').split(' ').filter(Boolean));this.classList={toggle:(c,v)=>{if(v===undefined)v=!this.classes.has(c);if(v)this.classes.add(c);else this.classes.delete(c);},contains:c=>this.classes.has(c)};this.captured=new Set();}
  addEventListener(type,fn){(this.events[type]??=[]).push(fn)}
@@ -30,14 +31,18 @@ class Element{
  setPointerCapture(id){if(this.denyCapture)throw new Error('capture denied');this.captured.add(id)}
  hasPointerCapture(id){return this.captured.has(id)}
  releasePointerCapture(id){this.captured.delete(id)}
+ // Layout is not simulated: a test gives an element a box by setting .rect.
+ getBoundingClientRect(){return this.rect||{left:0,top:0,right:0,bottom:0,width:0,height:0}}
 }
 class Document{
  constructor(){this.ids=new Map();this.all=[];this.events={};this.activeElement=null;this.hidden=false;}
  parse(text){const elements=[];for(const match of text.matchAll(/<([a-z][a-z0-9]*)\b([^>]*)>/gi)){const attrs={};for(const a of match[2].matchAll(/([\w-]+)(?:="([^"]*)")?/g))attrs[a[1]]=a[2]??'';const el=new Element(match[1],attrs,this);elements.push(el);this.all.push(el);if(el.id)this.ids.set(el.id,el)}return elements}
  querySelector(s){if(s.startsWith('#'))return this.ids.get(s.slice(1))||null;return this.all.find(e=>e.matches(s))||null}
+ querySelectorAll(selectors){return this.all.filter(el=>selectors.split(',').some(s=>el.matches(s)))}
  addEventListener(t,f){(this.events[t]??=[]).push(f)}
 }
-function setup(storageDenied=false,{seed={}}={}){
+// realVisuals: use the real weapon-visuals.js so taps see what is actually drawn.
+function setup(storageDenied=false,{seed={},realVisuals=false,width=390,height=844}={}){
  const document=new Document(),html=fs.readFileSync(root+'index.html','utf8');document.parse(html);
  const dialog=document.querySelector('#dialog');dialog.children=document.all.slice(document.all.indexOf(dialog)+1).filter(e=>e.tagName!=='SCRIPT');
  // #game contains every parsed node; the stub has no real tree.
@@ -46,7 +51,7 @@ function setup(storageDenied=false,{seed={}}={}){
  class Renderer{constructor(){this.shadowMap={};this.info={render:{calls:0}}}setSize(){}setPixelRatio(){}render(){}}
  const counters={clear:0,sync:0,update:[]};const visual={clear(){counters.clear++},sync(){counters.sync++},update(dt){counters.update.push(dt)},styleBullet(){}};
  const windowEvents={};
- const context=vm.createContext({console,THREE:{...actualTHREE,WebGLRenderer:Renderer},...core,...cameraModule,...keyboard,...ui,WEAPONS,document,localStorage,URLSearchParams,location:{search:''},innerWidth:390,innerHeight:844,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:()=>visual,createBossVisuals,bossVisualScale,applyMapLighting(){},positionCameraFill(){}});
+ const context=vm.createContext({console,THREE:{...actualTHREE,WebGLRenderer:Renderer},...core,...cameraModule,...keyboard,...ui,WEAPONS,document,localStorage,URLSearchParams,location:{search:''},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:realVisuals?createWeaponVisuals:()=>visual,createBossVisuals,bossVisualScale,applyMapLighting(){},positionCameraFill(){}});
  context.window=context;context.addEventListener=(t,f)=>{(windowEvents[t]??=[]).push(f)};
  vm.runInContext(fs.readFileSync(root+'main.js','utf8').replace(/^import .*;\n/gm,''),context);
  const qa=context.__PLUSH_QA__,el=id=>document.querySelector('#'+id),run=s=>vm.runInContext(s,context);
@@ -58,7 +63,7 @@ function key(keyName,target,extra={}){return {key:keyName,target,isComposing:fal
 const checks=[];function check(name,fn){fn();checks.push(name)}
 const h=setup();const {qa,el,run}=h;
 
-check('V12.1 revision and build label',()=>{assert.equal(qa.revision,'v12.1-tap-pickup-r1');assert.equal(el('game').attrs['data-build'],'v12.1-tap-pickup-r1')});
+check('V12.1.1 revision and build label',()=>{assert.equal(qa.revision,'v12.1.1-tap-hit-r1');assert.equal(el('game').attrs['data-build'],'v12.1.1-tap-hit-r1')});
 check('legacy #heroSelect value/change still switches hero, portrait and card state',()=>{el('heroSelect').value='polar';el('heroSelect').onchange({target:el('heroSelect')});assert.equal(qa.game.heroId,'polar');assert.equal(el('heroPortrait').attrs.src,'assets/polar-portrait.png');assert.equal(el('heroCardPolar').attrs['aria-pressed'],'true');assert.equal(el('heroCardPudding').attrs['aria-pressed'],'false');assert.equal(qa.game.weaponLevels.pulse,1)});
 check('hero cards drive the same select interface',()=>{el('heroCardPudding').onclick();assert.equal(qa.game.heroId,'pudding');assert.equal(el('heroSelect').value,'pudding');assert.equal(el('heroCardPudding').attrs['aria-pressed'],'true');const game=qa.game;el('heroCardPudding').onclick();assert.equal(qa.game,game,'re-selecting the same hero does not reset')});
 check('first run defaults to confirmation and renders both equipped names and icons',()=>{assert.equal(qa.game.autoEquip,false);assert.equal(el('mainWeaponName').textContent,WEAPONS.pulse.name+' Lv.1');assert.equal(el('offhandWeaponName').textContent,WEAPONS.moonfan.name+' Lv.1');assert.equal(el('magicLabel').textContent,'魔力 0 / 12');assert.match(el('mainWeaponIcon').innerHTML,/#i-pulse/);assert.match(el('offhandWeaponIcon').innerHTML,/#i-moonfan/)});
@@ -102,7 +107,7 @@ const down=(h,id,x,y,extra={})=>h.fire(h.document.events,'pointerdown',pointer(h
 const move=(h,id,x,y,extra={})=>h.fire(h.document.events,'pointermove',pointer(h.el('world'),{pointerId:id,clientX:x,clientY:y,...extra}));
 const up=(h,id,x,y,extra={})=>h.fire(h.document.events,'pointerup',pointer(h.el('world'),{pointerId:id,clientX:x,clientY:y,...extra}));
 function tapGame(opts={}){
- const t=setup(false,opts);t.el('start').onclick();const g=t.qa.game;
+ const t=setup(false,{realVisuals:true,...opts});t.el('start').onclick();const g=t.qa.game;
  g.drops.length=0;g.enemies.length=0;g.spawn=1e9;g.dropTimer=1e9;g.invuln=999;
  return t;
 }
@@ -184,9 +189,11 @@ check('mouse taps use the tighter radius; touch gets the finger-sized one',()=>{
  down(t,3,p.x+30,p.y,{pointerType:'mouse'});up(t,3,p.x+30,p.y,{pointerType:'mouse'});frame(t);assert.equal(t.qa.game.drops.length,1,'30px away misses for mouse');
  down(t,4,p.x+30,p.y,{pointerType:'touch'});up(t,4,p.x+30,p.y,{pointerType:'touch'});frame(t);assert.equal(t.qa.game.drops.length,0,'30px away hits for touch');
 });
-check('drops beyond 6 units are not tappable but proximity pickup still works',()=>{
+check('a far drop that is on screen can be tapped (no 6-unit limit); proximity pickup still works',()=>{
  const t=tapGame(),far=addNear(t,'burst',7,0),pf=spot(t,far);
- down(t,3,pf.x,pf.y);up(t,3,pf.x,pf.y);frame(t);assert.equal(t.qa.game.drops.length,1);assert.equal(t.qa.game.status,'running');
+ down(t,3,pf.x,pf.y);up(t,3,pf.x,pf.y);frame(t);assert.equal(t.qa.game.status,'pickup');assert.equal(t.qa.game.pendingPickup.weaponId,'burst');t.el('keepWeapon').onclick();
+ const farther=addNear(t,'frostwand',-4,-10),pt=spot(t,farther);assert.ok(Math.hypot(farther.x-t.qa.game.player.x,farther.z-t.qa.game.player.z)>8.5,'label hidden');
+ down(t,4,pt.x,pt.y);up(t,4,pt.x,pt.y);frame(t);assert.equal(t.qa.game.pendingPickup?.weaponId,'frostwand','ring/item of a far drop');t.el('keepWeapon').onclick();
  const near=addNear(t,'ember',.5,0);frame(t);assert.equal(t.qa.game.status,'pickup');assert.equal(t.qa.game.pendingPickup.weaponId,'ember','walking onto a drop still collects it');
 });
 check('taps are ignored while paused or in a dialog, and queued taps are dropped on pause',()=>{
@@ -236,10 +243,137 @@ check('restoring settings does not overwrite them, and corrupt or invalid values
  }
 });
 check('blocked storage: settings and taps still work for the session',()=>{
- const t=setup(true);assert.equal(t.run('quality'),'balanced');t.el('start').onclick();t.qa.pause();
+ const t=setup(true,{realVisuals:true});assert.equal(t.run('quality'),'balanced');t.el('start').onclick();t.qa.pause();
  t.el('quality').value='high';t.el('quality').onchange({target:t.el('quality')});assert.equal(t.run('quality'),'high');t.el('resume').onclick();
  const g=t.qa.game;g.drops.length=0;g.enemies.length=0;g.spawn=1e9;g.dropTimer=1e9;g.invuln=999;
  const d=addNear(t),p=spot(t,d);down(t,3,p.x,p.y);t.clock.t=60;up(t,3,p.x,p.y);frame(t);assert.equal(g.status,'pickup');
+ const again=setup(true);assert.equal(again.run('quality'),'balanced','nothing survives a reload when storage is blocked');assert.equal(again.qa.game.autoEquip,false);
+});
+// ---- V12.1.1: on-screen hit area, HUD cover, slow mouse, settings rounds ---------------
+const G=DROP_GEOMETRY;
+// A point on a drop's label, fx/fy in -1..1 across its width/height (camera-facing).
+function labelSpot(t,drop,fx,fy=0){
+ t.qa.renderOnce();const sx=fx*G.labelWidth/2,sy=fy*G.labelHeight/2;
+ return t.run(`(()=>{camera.updateMatrixWorld();const r=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize(),u=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,1).normalize();
+  return projectToScreen(${drop.x}+r.x*${sx}+u.x*${sy},${G.labelY}+r.y*${sx}+u.y*${sy},${drop.z}+r.z*${sx}+u.z*${sy});})()`);
+}
+const worldSpot=(t,x,y,z)=>{t.qa.renderOnce();t.run('camera.updateMatrixWorld()');return t.run(`projectToScreen(${x},${y},${z})`);};
+const mouseTap=(t,id,p,ms=120)=>{down(t,id,p.x,p.y,{pointerType:'mouse'});t.clock.t+=ms;up(t,id,p.x,p.y,{pointerType:'mouse',buttons:0});frame(t);};
+const settle=t=>{if(t.qa.game.status==='pickup')t.el('keepWeapon').onclick();};
+
+check('label ends, ring and item are tappable with the mouse in portrait, small portrait, landscape and desktop',()=>{
+ for(const [width,height] of [[390,844],[360,640],[844,390],[1280,720]]){
+  const at={'label left end':(t,d)=>labelSpot(t,d,-.96),'label right end':(t,d)=>labelSpot(t,d,.96),
+   ring:(t,d)=>worldSpot(t,d.x+G.ringRadius*.7,G.ringY,d.z),item:(t,d)=>worldSpot(t,d.x,G.floatY+G.floatBob,d.z)};
+  for(const [where,spotOf] of Object.entries(at)){
+   const t=tapGame({width,height}),d=addNear(t,'shotgun',2,1.5),p=spotOf(t,d);
+   mouseTap(t,3,p);assert.equal(t.qa.game.pendingPickup?.weaponId,'shotgun',`${width}x${height} ${where}`);
+  }
+ }
+});
+check('a slow mouse click (600 ms) and a click judged by timeStamp during a long frame both pick',()=>{
+ const t=tapGame(),d=addNear(t),p=spot(t,d);mouseTap(t,3,p,600);assert.equal(t.qa.game.status,'pickup','600 ms click');
+ const u=tapGame(),e=addNear(u),q=spot(u,e);
+ down(u,4,q.x,q.y,{pointerType:'mouse',timeStamp:100});u.clock.t=2000;up(u,4,q.x,q.y,{pointerType:'mouse',timeStamp:310});frame(u);
+ assert.equal(u.qa.game.status,'pickup','handlers ran late, the input itself was quick');
+ const v=tapGame(),f=addNear(v),r=spot(v,f);mouseTap(v,5,r,900);assert.equal(v.qa.game.drops.length,1,'a 900 ms hold is not a click');
+});
+check('a mouse drag never picks, and a mouse released outside ends only its own drag',()=>{
+ const t=tapGame(),d=addNear(t),p=spot(t,d);
+ down(t,3,p.x,p.y,{pointerType:'mouse'});move(t,3,p.x+15,p.y,{pointerType:'mouse'});up(t,3,p.x,p.y,{pointerType:'mouse'});frame(t);
+ assert.equal(t.qa.game.drops.length,1,'15 px travel is a drag');
+ // Finger 5 tapped (queued for the next frame) while a mouse drag lost its button outside the page.
+ const u=tapGame(),e=addNear(u),q=spot(u,e);
+ down(u,1,40,600,{pointerType:'mouse'});move(u,1,60,620,{pointerType:'mouse'});
+ down(u,5,q.x,q.y);u.clock.t=60;up(u,5,q.x,q.y);
+ move(u,1,70,630,{pointerType:'mouse',buttons:0});assert.equal(u.run('stick.id'),null,'mouse drag ended');
+ frame(u);assert.equal(u.qa.game.status,'pickup','the queued finger tap is kept');
+});
+check('opaque HUD panels block taps on drops drawn underneath; uncovered spots still work',()=>{
+ const t=tapGame(),d=addNear(t),p=spot(t,d),card=t.document.all.find(e=>e.classes.has('weapon-card'));
+ card.rect={left:p.x-30,top:p.y-20,right:p.x+30,bottom:p.y+20,width:60,height:40};
+ down(t,3,p.x,p.y);t.clock.t=60;up(t,3,p.x,p.y);frame(t);assert.equal(t.qa.game.drops.length,1,'tap landed on the weapon card');
+ const notice=t.el('notice');notice.rect={left:0,top:0,right:390,bottom:844,width:390,height:844};card.rect=null;
+ down(t,4,p.x,p.y);t.clock.t+=60;up(t,4,p.x,p.y);frame(t);assert.equal(t.qa.game.status,'pickup','an idle notice does not cover anything');
+ settle(t);const e=addNear(t,'burst',-2,1),q=spot(t,e);notice.classList.toggle('show',true);
+ down(t,5,q.x,q.y);t.clock.t+=60;up(t,5,q.x,q.y);frame(t);assert.equal(t.qa.game.drops.length,1,'a shown notice covers the world');
+});
+check('expired, blinking and undrawn drops: only what is on screen can be taken',()=>{
+ // Expires in the same frame the tap is resolved: never taken, no error.
+ const t=tapGame(),d=addNear(t),p=spot(t,d);d.life=.001;down(t,3,p.x,p.y);t.clock.t=60;up(t,3,p.x,p.y);frame(t);
+ assert.equal(t.qa.game.drops.length,0);assert.equal(t.qa.game.status,'running');assert.equal(t.qa.game.weaponLevels.shotgun,0);
+ // Blinking (last 2 s): in its dark beat it is not on screen and cannot be taken;
+ // once it shows again, the same tap takes it.
+ const u=tapGame(),e=addNear(u),q=spot(u,e);e.life=1.5;
+ const group=()=>{let found=null;u.qa.scene.traverse(o=>{if(o.isGroup&&/pickup$/.test(o.name)&&o.parent)found=o;});return found;};
+ const beat=visible=>{for(let i=0;i<200&&group().visible!==visible;i++){u.qa.weaponVisuals.update(.01);u.qa.renderOnce();}assert.equal(group().visible,visible);};
+ const tapNow=id=>{u.run(`pendingTaps.push({x:${q.x},y:${q.y},type:'touch'})`);u.run('resolveTaps()');};
+ beat(false);assert.equal(u.qa.weaponVisuals.drawnDrops().has(e.id),false,'dark beat is not drawn');
+ tapNow();assert.equal(u.qa.game.status,'running');assert.equal(u.qa.game.drops.length,1,'dark beat: not taken');
+ beat(true);assert.equal(u.qa.weaponVisuals.drawnDrops().has(e.id),true);
+ tapNow();assert.equal(u.qa.game.status,'pickup','bright beat: taken');
+ // The renderer draws at most 16 drops (core also caps at 16). A drop outside the drawn
+ // set, forced in here past the cap, is not on screen and cannot be taken.
+ const v=tapGame(),g=v.qa.game;for(let i=0;i<16;i++)g.addDrop({kind:'upgrade',upgradeId:'power',x:g.player.x-8+i*.3,z:g.player.z+9});
+ assert.equal(g.addDrop({kind:'weapon',weaponId:'cannon',x:0,z:0}),null,'core cap');
+ const hidden={kind:'weapon',weaponId:'cannon',x:g.player.x+2,z:g.player.z-2,id:999,life:30};g.drops.push(hidden);const r=spot(v,hidden);
+ assert.equal(v.qa.weaponVisuals.drawnDrops().size,16);assert.equal(v.qa.weaponVisuals.drawnDrops().has(hidden.id),false);
+ down(v,3,r.x,r.y);v.clock.t=60;up(v,3,r.x,r.y);frame(v);assert.ok(g.drops.some(x=>x.id===hidden.id),'undrawn drop stays');
+ // A drop added after the last frame was drawn is not on screen yet either.
+ const w=tapGame();w.qa.renderOnce();const fresh=addNear(w,'burst',-2,-1);w.run('camera.updateMatrixWorld()');const fp=w.run(`projectToScreen(${fresh.x},.5,${fresh.z})`);
+ assert.equal(w.qa.weaponVisuals.drawnDrops().has(fresh.id),false);
+ down(w,3,fp.x,fp.y);w.clock.t=60;up(w,3,fp.x,fp.y);frame(w);assert.equal(w.qa.game.drops.length,1,'not drawn yet when tapped');
+ down(w,4,fp.x,fp.y);w.clock.t+=60;up(w,4,fp.x,fp.y);frame(w);assert.equal(w.qa.game.status,'pickup','drawn by the next frame, then tappable');
+});
+check('portrait edge: a drop with every centre off screen but a corner still drawn can be tapped',()=>{
+ for(const side of [1,-1]){
+  const t=tapGame({width:360,height:640}),g=t.qa.game;t.qa.renderOnce();
+  // Walk a drop toward the screen edge along the camera's right axis until only part of it is on screen.
+  const found=t.run(`(()=>{camera.updateMatrixWorld();const r=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize(),u=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,1).normalize();
+   const view=viewRect(),axes={right:r,up:u},project=(x,y,z)=>projectToScreen(x,y,z,view),inside=p=>p&&p.x>=0&&p.x<=view.width&&p.y>=0&&p.y<=view.height;
+   for(let k=0;k<3000;k++){const d={id:-1,x:game.player.x+${side}*r.x*k*.01,z:game.player.z+${side}*r.z*k*.01};
+    const shape=dropHitShape(d,project,axes,view,{labelVisible:true});if(!shape)return null;
+    const centres=[project(d.x,${G.ringY},d.z),project(d.x,${G.floatY},d.z),project(d.x,${G.labelY},d.z)];
+    if(!centres.some(inside)){for(let y=0;y<=view.height;y+=1)for(let x=0;x<=view.width;x+=1){const q={x,y,type:'touch'};if(pickDropAt(q,[shape],{margin:0}))return {dx:d.x-game.player.x,dz:d.z-game.player.z,q};}}}
+   return null;})()`);
+  assert.ok(found,`side ${side}: partly visible position exists`);
+  const d=g.addDrop({kind:'weapon',weaponId:'shotgun',x:g.player.x+found.dx,z:g.player.z+found.dz});t.qa.renderOnce();
+  assert.ok(t.qa.weaponVisuals.drawnDrops().has(d.id));
+  down(t,3,found.q.x,found.q.y);t.clock.t+=60;up(t,3,found.q.x,found.q.y);frame(t);
+  assert.equal(g.pendingPickup?.id,d.id,`side ${side}: the visible corner was tapped`);
+ }
+});
+check('five rounds of pause, settings changes and resume keep mouse and touch taps working',()=>{
+ const t=tapGame({width:360,height:640}),qualities=['high','low','balanced','high','low'];
+ for(let round=0;round<5;round++){
+  if(round%2)t.fire(t.windowEvents,'blur',{});else t.qa.pause();
+  assert.equal(t.qa.game.status,'paused');
+  t.el('quality').value=qualities[round];t.el('quality').onchange({target:t.el('quality')});
+  t.el('nextHero').value=round%2?'pudding':'polar';t.el('nextHero').onchange({target:t.el('nextHero')});
+  t.el('showStats').checked=round%2===0;t.el('showStats').onchange({target:t.el('showStats')});
+  if(round===3){t.qa.resume();t.qa.pause();}
+  t.el('resume').onclick();assert.equal(t.qa.game.status,'running');
+  const g=t.qa.game,d=addNear(t,round%2?'burst':'shotgun',1.5-round,2-round*.5);
+  const p=round%2?spot(t,d):labelSpot(t,d,round%4?-.95:.95);
+  if(round%2){down(t,9,p.x,p.y);t.clock.t+=80;up(t,9,p.x,p.y);frame(t);}else mouseTap(t,1,p,round===4?650:150);
+  assert.equal(g.pendingPickup?.id,d.id,`round ${round}`);settle(t);
+ }
+ assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:.25,hero:'polar',stats:true});
+ assert.equal(t.document.events.pointerdown.length,1,'no listener is added by pausing');assert.equal(t.document.events.pointerup.length,1);
+});
+check('volume is saved while dragging; quality, volume, next hero, stats and auto-equip survive a reload; the run does not',()=>{
+ const t=setup();t.el('start').onclick();t.qa.game.time=95;t.qa.game.saved=7;t.qa.pause();
+ t.el('volume').value='0.7';t.el('volume').oninput({target:t.el('volume')});
+ assert.equal(JSON.parse(t.store.get('plush-rescue:settings')).volume,.7,'saved on input, before any change event');
+ t.el('volume').value='0.45';t.el('volume').oninput({target:t.el('volume')});
+ t.el('quality').value='low';t.el('quality').onchange({target:t.el('quality')});
+ t.el('nextHero').value='polar';t.el('nextHero').onchange({target:t.el('nextHero')});
+ t.el('showStats').checked=true;t.el('showStats').onchange({target:t.el('showStats')});
+ t.el('autoEquip').checked=true;t.el('autoEquip').onchange({target:t.el('autoEquip')});
+ const reload=setup(false,{seed:Object.fromEntries(t.store)});
+ assert.equal(reload.run('quality'),'low');assert.equal(reload.run('volume'),.45);assert.equal(reload.qa.game.heroId,'polar');
+ assert.equal(reload.el('stats').hidden,false);assert.equal(reload.qa.game.autoEquip,true);
+ assert.equal(reload.qa.game.status,'ready','a reload starts from the title screen');assert.equal(reload.qa.game.time,0);assert.equal(reload.qa.game.saved,0);
 });
 
 console.log(JSON.stringify({method:'Node DOM/renderer stub only; not browser/WebGL verification',passed:checks.length,checks},null,2));

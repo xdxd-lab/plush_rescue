@@ -11,6 +11,15 @@ const SKILLS = {
 };
 const FALLBACK = {name:'救援光束', icon:'✦', color:'#73e4f5', slot:'main'};
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+// V12.1.1: the one source of truth for a drop's on-screen stack. Rendering below
+// uses these values, and ui.js builds the tap hit area from the same numbers.
+// float* bounds are measured from every catalog model (qa/pickup-tap.test.mjs
+// re-measures them), relative to the bobbing float origin.
+export const DROP_GEOMETRY = Object.freeze({
+  ringY: .09, ringScale: .54, ringRadius: .58,
+  floatY: .70, floatBob: .09, floatBottom: -.37, floatTop: .75, floatRadius: .66,
+  labelY: 1.48, labelWidth: 2.5, labelHeight: .73, labelDistance: 8.5,
+});
 
 export function createWeaponVisuals(THREE, scene) {
   const root = new THREE.Group();
@@ -286,12 +295,12 @@ export function createWeaponVisuals(THREE, scene) {
   function makeDrop() {
     const group=new THREE.Group(), float=new THREE.Group();
     group.name='Hovering weapon or skill pickup'; group.add(float);
-    const ring=part(group,'Pickup ground marker',g.ring,white,[0,.09,0],[.54,.54,.54]);
+    const D=DROP_GEOMETRY, ring=part(group,'Pickup ground marker',g.ring,white,[0,D.ringY,0],[D.ringScale,D.ringScale,D.ringScale]);
     ring.rotation.x=-Math.PI/2;
     const beacon=part(float,'Pickup glowing center',g.crystal,white,[0,0,0],[.24,.31,.24]);
     const glyph=part(float,'Skill symbol',g.star,white,[0,.05,.29],[.21,.21,.025]);
     const label=new THREE.Sprite(labelMaterials.get('skill:unknown'));
-    label.name='Pickup label'; label.position.y=1.48; label.scale.set(2.5,.73,1); group.add(label);
+    label.name='Pickup label'; label.position.y=D.labelY; label.scale.set(D.labelWidth,D.labelHeight,1); group.add(label);
     group.visible=false;
     return {group,float,ring,beacon,glyph,label,model:null,kind:'',key:'',id:null,phase:dropPool.length*.77};
   }
@@ -343,7 +352,7 @@ export function createWeaponVisuals(THREE, scene) {
       view.group.position.set(drop.x,0,drop.z);
       view.group.visible=drop.life===undefined || drop.life>2 || Math.sin(now*13)>.0;
       const p=game.player || {x:0,z:0};
-      view.label.visible=Math.hypot(drop.x-p.x,drop.z-p.z)<8.5;
+      view.label.visible=Math.hypot(drop.x-p.x,drop.z-p.z)<DROP_GEOMETRY.labelDistance;
     }
   }
 
@@ -522,7 +531,7 @@ export function createWeaponVisuals(THREE, scene) {
     for(const effect of effectPool) if(effect.life>0) animateEffect(effect,step);
     for(const event of events || []) if(event.kind==='magic'||event.kind==='explosion'||event.kind==='burn') spawnEffect(event);
     for(const view of drops.values()) {
-      view.float.position.y=.70+Math.sin(now*2.7+view.phase)*.09;
+      view.float.position.y=DROP_GEOMETRY.floatY+Math.sin(now*2.7+view.phase)*DROP_GEOMETRY.floatBob;
       view.float.rotation.y=now*.72+view.phase;
       view.ring.rotation.z=now*.22+view.phase;
       if(camera && view.glyph.visible) {
@@ -545,7 +554,15 @@ export function createWeaponVisuals(THREE, scene) {
     // Reusable pools retain a bounded cache. Repeated game resets never grow
     // GPU resources, and no world object or former hero is retained in scene.
   }
-  return {sync,update,styleBullet,clear,
+  // Read-only view for tap hit-testing: the drops visible in the last drawn
+  // frame and whether each label was shown. An expiring drop in the dark beat
+  // of its blink is not on screen, so it is left out until it shows again.
+  function drawnDrops() {
+    const out=new Map();if(!root.parent) return out;
+    for(const [id,view] of drops) if(view.group.visible) out.set(id,{labelVisible:view.label.visible});
+    return out;
+  }
+  return {sync,update,styleBullet,clear,drawnDrops,
     get stats(){return {drops:drops.size,bombs:bombs.size,burning:burnFlames.count,effects:effectPool.filter(item=>item.life>0).length,dropPool:dropPool.length,bombPool:bombPool.length,effectPool:effectPool.length,geometries:geometries.size,materials:materials.size,textures:textures.size};},
   };
 }
