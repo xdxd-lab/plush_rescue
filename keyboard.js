@@ -4,6 +4,9 @@ const movementKeys=new Set(['w','a','s','d','arrowup','arrowdown','arrowleft','a
 export function isInteractiveTarget(target){return Boolean(target?.closest?.(interactiveSelector));}
 export function routeKeyDown(event,status,keys){
  if(event.isComposing||event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey){keys.clear();return null;}
+ // V12: 1–4 pick a level-up card. Focus normally sits on a choice button, so
+ // this runs before the interactive-target guard but never inside text fields.
+ if(status==='upgrade'&&/^[1-4]$/.test(event.key)&&!event.target?.closest?.('input,select,textarea,[contenteditable]:not([contenteditable="false"])')){event.preventDefault();keys.clear();return 'upgrade:'+event.key;}
  if(event.key==='Escape'){
   keys.clear();
   // Buttons retain focus after Space/click, but Escape remains a global close.

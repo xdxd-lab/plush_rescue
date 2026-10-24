@@ -2,7 +2,7 @@
 
 點擊上方連結即可在瀏覽器遊玩，不需要下載或安裝。
 
-# 布偶救援隊 · Plush Rescue V11
+# 布偶救援隊 · Plush Rescue V12
 
 Standalone static GitHub Pages export. No build step, CDN, npm install, or server backend is required. `index.html` and all game modules/assets belong at the repository root.
 
@@ -26,11 +26,18 @@ python3 -m http.server 8000
 
 Then visit `http://localhost:8000/`. Do not open `index.html` through `file://`; JavaScript modules need HTTP. The verifier checks recorded runtime SHA-256 hashes, JavaScript syntax when Node.js is available, and relative asset/import resolution under a non-root repository URL. It includes both dynamically selected hero portraits.
 
+Repository QA (Node.js 18+, no install): `node --test qa/*.test.mjs` and `node qa/ui-smoke.mjs`. The `qa/` folder is not a runtime file and is not listed in the manifest; after accepting runtime changes, run `python3 qa/regenerate-manifest.py`, then `python3 verify-export.py`.
+
 Browser smoke check: choose each hero, start a run, move with WASD/arrows or the touch stick, pause/resume, open settings, and restart. The V5 baseline passed 124 Node tests and 14 DOM/renderer-stub checks; those original suites are not included in this minimal export. V6 received focused camera numerical and JavaScript syntax checks. V7 and the V8 art checkpoint received Mac WebGL checks. Final V8 cloud validation covers model and input-event regressions; a fresh cloud browser run was blocked at browser startup, so final physical-device touch and performance remain unverified.
 
 ## Version and provenance
 
-- Version: **11.0.0** / **v11-boss-rescue-r1**
+- Version: **12.0.0** / **v12-commercial-ui-r1**
+- V12 change: commercial interface pass. Flow-based HUD (top stack and bottom grid) for portrait phones, landscape phones and desktop; inline SVG icons; hero picker cards that drive the original `#heroSelect`; next-boss countdown; event banners (boss arrival/rescue, offhand evolution, skill pickups); hurt/critical vignette; grouped pause settings with run summary; level-up cards with 1–4 keys; results screen with run stats and browser-local best records (`plush-rescue:records`); viewport zoom allowed; minimum 11px text and 44px touch targets. Boss warnings show the strike colour in the last 20% of the windup (existing meshes/materials only). Hero portraits are 256×256 RGBA at the same paths (2.46 MB → 0.16 MB).
+- V12 preserved: core.js, camera.js, characters.js, crowd.js, maps.js, weapons.js, weapon-visuals.js, lighting.js and effects.js are byte-identical to V11 (gameplay values, V6 camera, V7–V9 models/matrix baking, V11 rescued-boss scale). V8 fullscreen drag, V10 HUD diff writes and diagnostics row, and the QA API are retained. Hurt blinking is unchanged unless the system requests reduced motion.
+- V12 base commit: `cbfa10e`
+- V12 verification: independent checks passed 22/22 Node tests, 30/30 DOM/renderer smoke checks, and `verify-export.py` (21 runtime hashes, 40 non-root references, 15 JavaScript modules parsed). Safari loaded the live WebGL scene; the start screen, gameplay HUD and level-up screen were inspected at desktop, narrower desktop, approximately 573×851 portrait, and 848×391 landscape window sizes without visible overlap. Small-phone 360×640/390×844/568×320 layouts, physical touch and safe areas, other browsers, full 20-minute playthrough, and phone FPS/battery use remain unverified.
+- Version history (V11): **11.0.0** / **v11-boss-rescue-r1**
 - V11 change: rescued mini/big bosses retain their original radius-based size with the cute rescued model; ordinary dolls and the existing rescue lifetime/final fade are retained. Diagnostics no longer append menu/pause/end labels that wrap and shift the footer.
 - V11 base commit: `8a2c6ac5751e9c4b72d2bb0d02c2611caeb59f54`
 - V11 verification: gameplay rescue metadata, boss/ordinary transforms, shared active-boss scaling, pooling, contact-shadow invariants and status-independent diagnostics checked in cloud Node tests. Real-browser visuals remain unverified. Hurt blinking, shadows and gameplay are unchanged.

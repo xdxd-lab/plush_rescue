@@ -151,9 +151,15 @@ export function createBossVisuals(THREE,scene){
       slot.group.userData.hazardId=hazard.id;slot.group.userData.active=isActive;slot.group.userData.progress=progress;
       slot.fill.material=isActive?activeFill:warningFill;
       slot.fill.scale.setScalar(isActive?1:Math.max(.025,Math.sqrt(progress)));
-      slot.edge.material=isActive?active:warning;
+      // V12: the last 20% of a windup already shows the strike colour on the
+      // exact boundary, and the stitched star grows, so players read "move now".
+      // Existing meshes/materials only: no extra draw calls or allocations.
+      const imminent=!isActive&&progress>=.8;
+      slot.group.userData.imminent=imminent;
+      slot.edge.material=isActive||imminent?active:warning;
       slot.emblem.material=isActive?active:warning;
-      slot.emblem.rotation.z=time*.75;
+      slot.emblem.scale.setScalar(isActive?.27:.19+.06*progress);
+      slot.emblem.rotation.z=time*(imminent?2.2:.75);
       slot.pulse.visible=isActive;
       if(isActive){
         const cycle=((age-windup)*3.5)%1;

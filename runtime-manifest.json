@@ -1,28 +1,28 @@
 {
-  "version": "11.0.0",
-  "revision": "v11-boss-rescue-r1",
-  "source_commit": "8a2c6ac5751e9c4b72d2bb0d02c2611caeb59f54",
-  "layout": "Static V11 export based on V10; preserved rescued boss size and status-independent diagnostics text.",
+  "version": "12.0.0",
+  "revision": "v12-commercial-ui-r1",
+  "source_commit": "cbfa10e",
+  "layout": "Static V12 export based on V11 (cbfa10e); commercial HUD/dialog redesign, local records, boss countdown, event feedback, SVG icons and 256px portraits.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
-      "bytes": 1521650,
-      "sha256": "c9bdb04f855f3e992256291518a5bf19b1182728d3ea8d651319c15dea28d1e1"
+      "bytes": 78897,
+      "sha256": "659790c52dba76e71d6e1147f493bf2dbbc787200c464facbd3ffcbc060a8c81"
     },
     {
       "path": "assets/pudding-portrait.png",
-      "bytes": 940032,
-      "sha256": "0b60d67daae70748cae28ca1313f18ce54771cd39e4f97d20a3f272e6b40a153"
+      "bytes": 82922,
+      "sha256": "53783999ad814f84d9655a792514a4ebffe3c1fe10a1a91619d984f18fbfc5eb"
     },
     {
       "path": "boss-visuals.js",
-      "bytes": 11062,
-      "sha256": "31585122b31ac4e198f52ae2fae7ec0e030fb82fc43fbd7c33c9467f68e57aef"
+      "bytes": 11481,
+      "sha256": "c46fcff3a51c6fd0c1f79d21e0dec1484bb8ea89ef6cf935a9ba72d097cf7ce9"
     },
     {
       "path": "build-info.json",
-      "bytes": 340,
-      "sha256": "a67ec5b88f711b954c8ad8f0fb7602f4be0d3e55bf4b2f7d47d2ec9dd85fe8f2"
+      "bytes": 260,
+      "sha256": "b0e2452e8c310d0f16900e22676d58a4bf0fbe50e420fd6047efc58bd13fee84"
     },
     {
       "path": "camera.js",
@@ -51,13 +51,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 3914,
-      "sha256": "3a5878516742f4db868bde02da4e49c3020d34ea1b7ed63ca26a2efad18ccc94"
+      "bytes": 11211,
+      "sha256": "7ee770a3b4c7e5335bcde48397f7f4bbb90af255979a661e269471fe25c3d228"
     },
     {
       "path": "keyboard.js",
-      "bytes": 1380,
-      "sha256": "5029cce8a90b7506795753bb959aa5d3322485f19e16496a60e9a2ab7d41f3ba"
+      "bytes": 1757,
+      "sha256": "7723f262b8aecf7b40b42c83eca46d2054b9fa4760ae96a9779412850573586d"
     },
     {
       "path": "lighting.js",
@@ -66,8 +66,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 25303,
-      "sha256": "03d5b19d23c4964f9827de8ab86f0e5d573d3e5d80d96edae28a7235dab3371e"
+      "bytes": 32092,
+      "sha256": "dd3ed218465a3315bd0f865f45776c5007474a5a20391a512a1ffd7e967baac6"
     },
     {
       "path": "maps.js",
@@ -76,8 +76,13 @@
     },
     {
       "path": "style.css",
-      "bytes": 15428,
-      "sha256": "b0b345db14c86fe6ab5562f440d2ebf461a9a9c9d677d868fdbffc1e853c7329"
+      "bytes": 30377,
+      "sha256": "5443e3a6e88de1a224f523a884200bee3ae1bdd933ae23e8f00883353a94f8d6"
+    },
+    {
+      "path": "ui.js",
+      "bytes": 3036,
+      "sha256": "ba698558fdfc1917b50e82af61485907f7f94d1253ff3219ea614a2618b7decb"
     },
     {
       "path": "vendor/THREE-LICENSE.txt",
