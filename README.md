@@ -1,65 +1,86 @@
-**[https://xdxd-lab.github.io/plush_rescue/](https://xdxd-lab.github.io/plush_rescue/)**
-
-點擊上方連結即可在瀏覽器遊玩，不需要下載或安裝。
+**立即遊玩：**[GitHub Pages](https://xdxd-lab.github.io/plush_rescue/) · [Sites](https://plush-rescue-survivor.b892020xx.chatgpt.site)
 
 # 布偶救援隊 · Plush Rescue V12
 
-Standalone static GitHub Pages export. No build step, CDN, npm install, or server backend is required. `index.html` and all game modules/assets belong at the repository root.
+這是一款可直接在瀏覽器遊玩的單人生存救援遊戲，不需要下載或安裝。GitHub Pages 版本是免建置的靜態網站；`index.html`、遊戲模組與素材都放在本儲存庫根目錄。執行遊戲不需要 CDN、`npm install` 或後端服務。
 
-## Publish with GitHub Pages
+## 給未來維護者與 AI 的語言規範
 
-1. Create a new repository and add this folder’s contents to its `main` branch. Include the hidden `.nojekyll` file. Do not nest the export inside another folder.
-2. In the repository, open **Settings → Pages**.
-3. Select **Deploy from a branch**, then **main** and **/ (root)**, and save.
-4. Wait for GitHub’s Pages deployment to finish. Open the exact website URL shown in Settings → Pages. A project site normally uses `https://OWNER.github.io/REPOSITORY/`.
+**本 `README.md` 及其後續修訂，請一律使用正體中文與臺灣常用語氣撰寫。**不要改成簡體中文，也不要將整份文件改回英文。指令、程式碼、路徑、檔名、版本識別碼，以及 GitHub Pages、WebGL 等必要的技術名稱可以保留原文。
 
-GitHub Pages availability depends on account plan and repository visibility. This export does not enable Pages or change repository settings by itself.
+修改遊戲功能或發布新版本時，請同步更新本文件的功能說明、驗證結果與尚未驗證的項目。請明確區分 Node 模擬測試、瀏覽器檢查與實體手機測試，不要把其中一種寫成另一種的驗證成果。
 
-## Local verification
+## 發布到 GitHub Pages
 
-Run from this folder:
+本儲存庫已使用 `main` 分支的根目錄提供 GitHub Pages。後續更新請將網站檔案直接提交至根目錄，並保留隱藏檔 `.nojekyll`；不要再把匯出內容包進子資料夾。
+
+若要在其他儲存庫部署，請至 **Settings → Pages**，選擇 **Deploy from a branch**、`main` 與 `/ (root)`，儲存後以 Pages 設定頁顯示的網址為準。能否使用 GitHub Pages，仍取決於該帳號方案及儲存庫的公開狀態。這份匯出內容本身不會變更 Pages 設定。
+
+## 本機執行與驗證
+
+在儲存庫根目錄執行：
 
 ```sh
 python3 verify-export.py
 python3 -m http.server 8000
 ```
 
-Then visit `http://localhost:8000/`. Do not open `index.html` through `file://`; JavaScript modules need HTTP. The verifier checks recorded runtime SHA-256 hashes, JavaScript syntax when Node.js is available, and relative asset/import resolution under a non-root repository URL. It includes both dynamically selected hero portraits.
+接著開啟 <http://localhost:8000/>。請勿用 `file://` 直接開啟 `index.html`，因為 JavaScript 模組需要透過 HTTP 載入。
 
-Repository QA (Node.js 18+, no install): `node --test qa/*.test.mjs` and `node qa/ui-smoke.mjs`. The `qa/` folder is not a runtime file and is not listed in the manifest; after accepting runtime changes, run `python3 qa/regenerate-manifest.py`, then `python3 verify-export.py`.
+`verify-export.py` 會檢查執行檔的 SHA-256 雜湊、非網站根路徑下的相對資源引用，以及 Node.js 可用時的 JavaScript 語法；兩位角色的動態頭像路徑也包含在檢查內。若有 Node.js 18 以上版本，另外執行：
 
-Browser smoke check: choose each hero, start a run, move with WASD/arrows or the touch stick, pause/resume, open settings, and restart. The V5 baseline passed 124 Node tests and 14 DOM/renderer-stub checks; those original suites are not included in this minimal export. V6 received focused camera numerical and JavaScript syntax checks. V7 and the V8 art checkpoint received Mac WebGL checks. Final V8 cloud validation covers model and input-event regressions; a fresh cloud browser run was blocked at browser startup, so final physical-device touch and performance remain unverified.
+```sh
+node --test qa/*.test.mjs
+node qa/ui-smoke.mjs
+```
 
-## Version and provenance
+`qa/` 是驗證程式，並非遊戲執行檔，因此不列在 `runtime-manifest.json`。確認執行檔變更後，請依序執行 `python3 qa/regenerate-manifest.py` 與 `python3 verify-export.py`。
 
-- Version: **12.0.0** / **v12-commercial-ui-r1**
-- V12 change: commercial interface pass. Flow-based HUD (top stack and bottom grid) for portrait phones, landscape phones and desktop; inline SVG icons; hero picker cards that drive the original `#heroSelect`; next-boss countdown; event banners (boss arrival/rescue, offhand evolution, skill pickups); hurt/critical vignette; grouped pause settings with run summary; level-up cards with 1–4 keys; results screen with run stats and browser-local best records (`plush-rescue:records`); viewport zoom allowed; minimum 11px text and 44px touch targets. Boss warnings show the strike colour in the last 20% of the windup (existing meshes/materials only). Hero portraits are 256×256 RGBA at the same paths (2.46 MB → 0.16 MB).
-- V12 preserved: core.js, camera.js, characters.js, crowd.js, maps.js, weapons.js, weapon-visuals.js, lighting.js and effects.js are byte-identical to V11 (gameplay values, V6 camera, V7–V9 models/matrix baking, V11 rescued-boss scale). V8 fullscreen drag, V10 HUD diff writes and diagnostics row, and the QA API are retained. Hurt blinking is unchanged unless the system requests reduced motion.
-- V12 base commit: `cbfa10e`
-- V12 verification: independent checks passed 22/22 Node tests, 30/30 DOM/renderer smoke checks, and `verify-export.py` (21 runtime hashes, 40 non-root references, 15 JavaScript modules parsed). Safari loaded the live WebGL scene; the start screen, gameplay HUD and level-up screen were inspected at desktop, narrower desktop, approximately 573×851 portrait, and 848×391 landscape window sizes without visible overlap. Small-phone 360×640/390×844/568×320 layouts, physical touch and safe areas, other browsers, full 20-minute playthrough, and phone FPS/battery use remain unverified.
-- Version history (V11): **11.0.0** / **v11-boss-rescue-r1**
-- V11 change: rescued mini/big bosses retain their original radius-based size with the cute rescued model; ordinary dolls and the existing rescue lifetime/final fade are retained. Diagnostics no longer append menu/pause/end labels that wrap and shift the footer.
-- V11 base commit: `8a2c6ac5751e9c4b72d2bb0d02c2611caeb59f54`
-- V11 verification: gameplay rescue metadata, boss/ordinary transforms, shared active-boss scaling, pooling, contact-shadow invariants and status-independent diagnostics checked in cloud Node tests. Real-browser visuals remain unverified. Hurt blinking, shadows and gameplay are unchanged.
-- V10 change: cache crowd part/batch discovery with topology/material/visibility invalidation; avoid redundant permanent-HUD writes; place wrapping diagnostics below equipment and list ground mines separately.
-- V10 base commit: `a51197577912dec4e805989d63f37ef0ffb6240f`
-- V10 verification: exact character/instance-buffer comparisons, baseline-equivalent HUD transitions, deterministic mine/count scenarios and numeric bottom-layout checks. Browser rendering and phone FPS remain unverified. Enemy spawning, limits, combat, camera and shadows are unchanged.
-- V10 count clarification: enemy count includes ordinary enemies and bosses; mines are the separate game.bombs collection and never contribute to enemy count.
-- V9 change: bake authored static character-local transforms and update animated local transforms only when changed; keep required descendant world transforms.
-- V9 verification: exact matrix/instance comparisons across movement, rescue, pooling, heroes and weapon swaps. Cloud Node CPU microbenchmarks showed 7–13% less time in the measured character/matrix segment; this is not a phone FPS measurement. Browser/device verification remains unavailable.
-- V9 base commit: `708ef19d18adbdec88faca48387328c5c79d8800`
-- V9 maintenance: future edits to baked decorative position/rotation/scale must explicitly call updateMatrix(), or keep that node dynamic. Gameplay, enemy counts, touch, camera, shaders and shadows are unchanged.
-- V8 change: clearer worn-plush expressions, localized bright modern facades across three maps, and fullscreen non-interactive drag movement with UI priority.
-- V8 verification: 44 cloud Node input/event regressions and 17 cloud Node model/scope checks passed. Cloud Chromium launch was blocked by the execution environment; these are not real-browser or phone FPS results.
-- V8 base commit: `6ea5194842d64e205b4569091f8eb88aeed727c4`
-- V7 change: rescued plush appearance only; rounded silhouettes, soft ears and clear expressions. V6 camera angles and gameplay are retained.
-- V7 verification: 31 focused Node regressions and 18 Mac Safari WebGL checks passed; physical-phone performance was not measured.
-- Original source commit: `129b61e36b3595f81e77e7f78d8f813bf543e94d`
-- V6 base export commit: `791e58ea29748ce2429733dd81207eba2565dd87`
-- V6 change: camera azimuth 32° → 60° and elevation 41° → 40°. Distance 29, landscape/portrait spans 25.6/28, character scale and gameplay are unchanged.
-- Runtime files: original export plus the V6 camera, V7 rescued-plush, and V8 visual/touch changes described above.
-- `runtime-manifest.json` records every current runtime file’s size and SHA-256 hash.
-- Vendored Three.js licensing is retained in `vendor/THREE-LICENSE.txt`.
-- Character artwork and other project assets are included as provided; no additional redistribution license is implied.
+瀏覽器基本檢查至少應包含：切換兩位角色、開始遊戲、以 WASD／方向鍵或觸控搖桿移動、暫停與繼續、開啟設定，以及重新開始。V5 的完整測試套件沒有收錄在這份精簡匯出內容中；下方版本紀錄保留當時的驗證範圍。
 
-For game changes, edit the upstream source and regenerate/reverify a fresh export. Update the manifest only after intentionally accepting a new version. This repository is the minimal runnable export, not the full development/test history.
+## 版本與來源紀錄
+
+### V12：介面打磨
+
+- 版本：**12.0.0**／`v12-commercial-ui-r1`；基礎提交：`cbfa10e`。
+- 重新整理直式手機、橫式手機與桌面的介面版型；加入內嵌 SVG 圖示、角色選擇卡、下次首領倒數、事件提示、分組設定、升級快捷鍵 1–4、結算統計與儲存在瀏覽器本機的最佳紀錄（`plush-rescue:records`）。允許瀏覽器縮放，文字至少 11px，主要觸控目標至少 44px。
+- 首領攻擊預警進入最後 20% 倒數時，邊界會顯示攻擊色；僅調整既有網格與材質。兩張角色頭像維持原路徑並縮成 256 × 256 RGBA，合計由 2.46 MB 降至約 0.16 MB。
+- `core.js`、`camera.js`、`characters.js`、`crowd.js`、`maps.js`、`weapons.js`、`weapon-visuals.js`、`lighting.js`、`effects.js` 與 V11 完全相同。V8 的全畫面非按鈕區域拖曳、V10 的 HUD 差異寫入與診斷列，以及 QA API 均保留。受傷閃爍只在系統要求減少動態效果時調整。
+- 獨立驗證通過 22／22 項 Node 測試、30／30 項 DOM／渲染器模擬檢查，以及 `verify-export.py` 的 21 個執行檔雜湊、40 個相對資源引用與 15 個 JavaScript 模組語法檢查。Safari 已載入 WebGL 場景，並檢視桌面、較窄桌面、約 573 × 851 直式及 848 × 391 橫式視窗的開始畫面、遊戲 HUD 與升級畫面，未見明顯重疊。
+- **尚未驗證：**360 × 640、390 × 844、568 × 320 等小尺寸畫面、實體手機觸控與安全區域、其他瀏覽器、完整 20 分鐘遊戲流程，以及手機 FPS、耗電與發熱。
+
+### V11：被救首領與診斷列
+
+- 版本：**11.0.0**／`v11-boss-rescue-r1`；基礎提交：`8a2c6ac5751e9c4b72d2bb0d02c2611caeb59f54`。
+- 小首領與大首領獲救後，沿用可愛布偶外型並維持原本的尺寸；一般布偶與原有救援存活時間、淡出方式不變。診斷列移除會導致底部版面跳動的狀態字尾。
+- 當時已檢查救援資料、首領與一般敵人的模型縮放、共用模型與物件池、接觸陰影，以及診斷文字；當時尚未進行真實瀏覽器視覺驗證。受傷閃爍、陰影與玩法維持原狀。
+
+### V10：群眾模型與 HUD 效能
+
+- 基礎提交：`a51197577912dec4e805989d63f37ef0ffb6240f`。
+- 快取群眾模型的部件與批次查找，並在拓樸、材質或可見性變動時使快取失效；減少固定 HUD 欄位的重複寫入。診斷列移到裝備下方，地雷另行計數。
+- 當時完成角色與實例緩衝區比對、HUD 狀態轉換、地雷數量與底部版面數值檢查；未完成瀏覽器畫面與手機 FPS 測量。敵人數包含一般敵人與首領，地雷在 `game.bombs` 中，不計入敵人數。
+
+### V9：角色矩陣最佳化
+
+- 基礎提交：`708ef19d18adbdec88faca48387328c5c79d8800`。
+- 預先計算角色裝飾物的靜態本地轉換矩陣，只在動態轉換變更時更新；必要的子物件世界轉換仍會保留。當時已比對移動、救援、物件池、角色與武器切換的矩陣和實例結果。
+- 雲端 Node CPU 微型基準測試顯示，受測的角色／矩陣處理區段耗時減少 7–13%；**這不是手機 FPS 結果**，當時也沒有瀏覽器或實體裝置驗證。日後若修改已預先計算的裝飾物位置、旋轉或縮放，須明確呼叫 `updateMatrix()`，或讓該物件維持動態更新。
+
+### V8：場景與拖曳操作
+
+- 基礎提交：`6ea5194842d64e205b4569091f8eb88aeed727c4`。
+- 改善舊布偶的表情、三張地圖的明亮建築立面，並讓玩家從全畫面非互動區域拖曳移動，互動控制項仍優先處理點擊。
+- 當時通過 44 項雲端 Node 輸入／事件回歸檢查與 17 項模型／作用範圍檢查。雲端 Chromium 無法啟動，故不算瀏覽器或手機 FPS 驗證。
+
+### V7 與 V6
+
+- V7 僅改善獲救布偶的圓潤輪廓、柔和耳朵與清楚表情；當時通過 31 項針對性 Node 回歸檢查與 18 項 Mac Safari WebGL 檢查，未測量實體手機效能。
+- V6 將相機方位角由 32° 改為 **60°**、仰角由 41° 改為 **40°**；距離 29、橫式／直式取景範圍 25.6／28、角色比例及玩法維持不變。基礎匯出提交：`791e58ea29748ce2429733dd81207eba2565dd87`。
+- 最初原始碼提交：`129b61e36b3595f81e77e7f78d8f813bf543e94d`。V5 曾通過 124 項 Node 測試與 14 項 DOM／渲染器模擬檢查；該套件不在目前的精簡匯出內容中。
+
+## 素材與後續修改
+
+`runtime-manifest.json` 記錄目前每個遊戲執行檔的大小與 SHA-256 雜湊。內附的 Three.js 授權條款位於 `vendor/THREE-LICENSE.txt`。角色美術與其他素材依原提供內容收錄，並不因此取得額外的再散布授權。
+
+修改遊戲時，請從上游原始碼整理新匯出內容，確認變更後再重新產生 manifest 並驗證。本儲存庫提供的是可直接執行的精簡匯出版本，沒有收錄完整的早期開發與測試歷史。
