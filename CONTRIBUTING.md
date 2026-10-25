@@ -1,6 +1,8 @@
 # 參與與協作 · Plush Rescue
 
-本儲存庫是可直接部署到 GitHub Pages 的靜態遊戲，沒有建置步驟。`main` 分支的根目錄就是線上網站，推送到 `main` 等於發布，請在推送前完成下方檢查。
+本儲存庫是可直接部署到 GitHub Pages 的靜態遊戲，沒有建置步驟。`main` 分支的根目錄就是線上網站。
+
+`.github/workflows/ci-pages.yml` 會對每次推送與指向 `main` 的 PR 自動執行下方的必要檢查，並只在推送到 `main` 且檢查通過時部署。但這個部署門檻要等管理員把 **Settings → Pages → Source** 切為 **GitHub Actions** 才會生效（見 `README.md`「發布到 GitHub Pages」）；在那之前，推送到 `main` 仍等於直接發布，測試失敗也會上線，請在推送前完成下方檢查。
 
 ## 語言
 
@@ -13,7 +15,7 @@
 1. 從最新的 `main` 開分支，例如 `fix/<主題>`、`feat/<主題>`、`docs/<主題>`、`test/<主題>`。
 2. 直接修改根目錄的遊戲檔案與 `qa/`；本儲存庫自 V12 起沒有另外的上游原始碼（見 `README.md`「維護方式與開發來源」）。
 3. 改到執行檔（`runtime-manifest.json` 列出的檔案）時，執行 `python3 qa/regenerate-manifest.py`。
-4. 執行下方的必要檢查，並把結果寫進 PR。
+4. 執行下方的必要檢查，並把結果寫進 PR；PR 上的 `CI and Pages` workflow 會再跑一次同樣的三項檢查。
 5. 發布新版本時，依 `README.md`「版本識別與標注慣例」更新 `build-info.json`、`main.js`、`index.html` 與 `CHANGELOG.md`，合併後建立 tag 與 GitHub Release。
 
 提交訊息採 Conventional Commits 前綴：`feat:`、`fix:`、`test:`、`docs:`、`chore:`。

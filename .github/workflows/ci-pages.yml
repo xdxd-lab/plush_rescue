@@ -1,0 +1,97 @@
+# CI for every push and PR; GitHub Pages deployment only for a push to main whose tests pass.
+# The deploy gate takes effect only after Settings → Pages → Source is set to "GitHub Actions"
+# (see README.md「發布到 GitHub Pages」). Until then the branch deployment keeps publishing main.
+name: CI and Pages
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# At most one run per ref at a time: on main the whole test → build → deploy chain of one run
+# finishes before another run of this workflow on main starts, and a run in progress is never
+# cancelled midway (a newer pending run may replace an older pending one). The order in which
+# pending runs start is not relied on: a late or re-run older run is stopped by the freshness
+# check in deploy-pages. Pull requests (refs/pull/N/merge) and other branches get their own groups.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Verify export (hashes, references, JS syntax)
+        run: python3 verify-export.py
+      - name: Node tests
+        run: node --test qa/*.test.mjs
+      - name: UI smoke
+        run: node qa/ui-smoke.mjs
+
+  # Packs the same commit the tests ran on. Chrome QA (qa/browser-chrome.mjs) is not part of
+  # the gate: it is only verified on macOS so far.
+  build-pages:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/configure-pages@v6
+      # The whole repository root, as the branch deployment serves it; include-hidden-files keeps
+      # .nojekyll (.git and .github are always excluded by the action).
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: .
+          include-hidden-files: true
+
+  deploy-pages:
+    needs: build-pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # freshness check reads refs/heads/main
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Deploy only while main still points at this run's commit, so a stale run (started late or
+      # re-run) never replaces a newer deployment. Runs in the same serialized run as the deploy;
+      # if main cannot be read, the step fails and nothing is deployed.
+      - id: fresh
+        name: Check that main is still this run's commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_SHA: ${{ github.sha }}
+        run: |
+          head=$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/main" --jq .object.sha)
+          [[ "$head" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::could not read refs/heads/main ($head)"; exit 1; }
+          if [ "$head" = "$RUN_SHA" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::main is at $head, not $RUN_SHA: skipping stale deployment"
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+      - id: deployment
+        if: steps.fresh.outputs.deploy == 'true'
+        uses: actions/deploy-pages@v5

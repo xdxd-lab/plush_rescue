@@ -12,9 +12,13 @@
 
 ## 發布到 GitHub Pages
 
-本儲存庫已使用 `main` 分支的根目錄提供 GitHub Pages。後續更新請將網站檔案直接提交至根目錄，並保留隱藏檔 `.nojekyll`；不要再把匯出內容包進子資料夾。
+本儲存庫的網站內容就是 `main` 分支的根目錄。後續更新請將網站檔案直接提交至根目錄，並保留隱藏檔 `.nojekyll`；不要再把匯出內容包進子資料夾。
 
-若要在其他儲存庫部署，請至 **Settings → Pages**，選擇 **Deploy from a branch**、`main` 與 `/ (root)`，儲存後以 Pages 設定頁顯示的網址為準。能否使用 GitHub Pages，仍取決於該帳號方案及儲存庫的公開狀態。這份匯出內容本身不會變更 Pages 設定。
+**測試與部署 workflow：**`.github/workflows/ci-pages.yml` 會在每次推送（任何分支）、指向 `main` 的 PR 與手動觸發時執行 `test` job（Node 24、Python 3.12）：依序執行 `python3 verify-export.py`、`node --test qa/*.test.mjs`、`node qa/ui-smoke.mjs`。只有推送到 `main` 且 `test` 成功時，才會以同一個提交（`github.sha`）打包根目錄；部署前會再確認 `main` 仍指向這個提交，若 `main` 已有更新的提交就略過部署（以成功結束），避免較晚完成或重新執行的舊 run 蓋掉新版。通過後才部署到 GitHub Pages（`configure-pages` → `upload-pages-artifact` → `deploy-pages`，environment `github-pages`）。`qa/browser-chrome.mjs` 尚未在 Linux 驗證，不在必跑檢查內。
+
+**門檻何時生效：**workflow 只有在 **Settings → Pages → Build and deployment → Source** 設為 **GitHub Actions** 之後，才會成為唯一的部署途徑。來源仍是 **Deploy from a branch** 時，GitHub 會照舊直接發布 `main` 的根目錄，**測試失敗也會上線**；這時 workflow 的測試結果只供參考，部署 job 也可能失敗或與分支部署重複。切換之前，請把「推送到 `main` 等於發布」當成事實，推送前自行完成本機檢查。切換由儲存庫管理員在 GitHub 設定頁進行，本 workflow 不會自動變更 Pages 設定。
+
+若要在其他儲存庫部署，請至 **Settings → Pages**，選擇 **GitHub Actions**（使用上述 workflow），或選擇 **Deploy from a branch**、`main` 與 `/ (root)`（沒有測試門檻）；儲存後以 Pages 設定頁顯示的網址為準。能否使用 GitHub Pages，仍取決於該帳號方案及儲存庫的公開狀態。
 
 ## 本機執行與驗證
 

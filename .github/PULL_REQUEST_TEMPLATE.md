@@ -11,7 +11,9 @@
 
 ## 檢查結果
 
-<!-- 貼上實際輸出摘要：命令、結束碼、通過數。沒有執行的項目請勾「未執行」並說明原因。 -->
+<!-- 貼上實際輸出摘要：命令、結束碼、通過數。沒有執行的項目請勾「未執行」並說明原因。
+     前三項也由 `CI and Pages` workflow 的 test job 自動執行，請確認它通過。
+     注意：Settings → Pages → Source 切為 GitHub Actions 之前，合併到 main 會直接發布，不受 workflow 結果影響。 -->
 
 - [ ] `python3 verify-export.py`
 - [ ] `node --test qa/*.test.mjs`
