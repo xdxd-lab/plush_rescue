@@ -36,13 +36,29 @@ node qa/ui-smoke.mjs
 
 `qa/` 是驗證程式，並非遊戲執行檔，因此不列在 `runtime-manifest.json`。確認執行檔變更後，請依序執行 `python3 qa/regenerate-manifest.py` 與 `python3 verify-export.py`。
 
-瀏覽器基本檢查至少應包含：切換兩位角色、開始遊戲、以 WASD／方向鍵或觸控搖桿移動、暫停與繼續、開啟設定，以及重新開始。V5 的完整測試套件沒有收錄在這份精簡匯出內容中；下方版本紀錄保留當時的驗證範圍。
+瀏覽器基本檢查至少應包含：切換兩位角色、開始遊戲、以 WASD／方向鍵或觸控搖桿移動、暫停與繼續、開啟設定，以及重新開始。
+
+## 維護方式與開發來源
+
+- **截至 V11（`cbfa10e`，本儲存庫第一個提交）：**內容是從上游開發環境整理出的精簡匯出。V5～V11 的完整測試套件與早期開發歷史沒有收錄在本儲存庫；下方 V11 以前的版本紀錄只保留當時的驗證範圍，無法在這裡重跑。
+- **自 V12（`4080051`）起：**直接在本儲存庫開發與發布，沒有另外的上游原始碼。修改遊戲時請直接編輯本儲存庫，並依「發布新版本」的步驟更新版本與驗證紀錄。
+
+## 版本識別與標注慣例
+
+- **唯一來源：**發布版本以 `build-info.json` 的 `version`（語意化版本，例如 `12.1.1`）與 `revision` 為準。新版本的 `revision` 採 `v<version>-<代號>-r<序號>`（例如 `v12.1.1-tap-hit-r1`）；V12、V12.1 的舊值保留作歷史紀錄。`qa/` 內的測試一律從 `build-info.json` 讀取，不另外寫死目前版本。
+- **必須一致的執行檔：**`main.js` 的 `__PLUSH_QA__.revision` 與 `index.html` 的 `#game` `data-build` 必須等於 `revision`；`runtime-manifest.json` 的 `version`／`revision`／基礎來源提交 `source_commit` 由 `qa/regenerate-manifest.py` 從 `build-info.json` 複製。`qa/invariants.test.mjs` 會檢查以上欄位一致。`source_commit` 記錄基礎來源，未必是本儲存庫的發布提交。
+- **發布新版本：**更新 `build-info.json` → 同步 `main.js` 與 `index.html` 的 `revision` → `python3 qa/regenerate-manifest.py`（說明文字有變時加 `--layout=…`）→ `node --test qa/*.test.mjs`、`node qa/ui-smoke.mjs`、`python3 verify-export.py` → 更新本文件的版本紀錄。
+- **文件中的時間標注：**描述某個時點的狀態時，以版本加提交標明，不用日期或模糊的「目前」：
+  - `截至 vX.Y.Z（<commit>）`：當時的快照，例如驗證數量、檔案是否變更；之後不再更新。
+  - `自 vX.Y.Z 起`：從該版開始成立的行為。
+  - `vX.Y.Z 以前`／`已由 vX.Y.Z 取代`：已不再適用的舊行為。
+  - 程式註解用英文對應寫法：`as of vX.Y.Z (<commit>)`、`since vX.Y.Z`、`until vX.Y.Z`。
 
 ## 版本與來源紀錄
 
 ### V12.1.1：點取命中區與滑鼠點擊修正
 
-> **發布後補充檢查（2026-10-25）：**新增 `qa/browser-chrome.mjs`，在無頭 Google Chrome 156（SwiftShader 軟體 WebGL、真實 CSS 版面、DevTools 協定送出附時間戳記的滑鼠與觸控）中實測。以下只列有執行輸出可以核對的結果，全部以目前版本的 `qa/browser-chrome.mjs` 在 2026-10-25 執行，每批結束碼 0、無 console 錯誤、未留下 Chrome 或暫存設定檔。
+> **發布後補充檢查（截至 `84363c8`）：**新增 `qa/browser-chrome.mjs`，在無頭 Google Chrome 156（SwiftShader 軟體 WebGL、真實 CSS 版面、DevTools 協定送出附時間戳記的滑鼠與觸控）中實測。以下結果由 `84363c8` 所含版本的 `qa/browser-chrome.mjs` 執行；每批結束碼 0、無 console 錯誤、未留下 Chrome 或暫存設定檔。
 >
 > - 四種畫面加 storage 情境連續完整執行一次：32/32 通過（約 6 分鐘）。1280×720 9 項，包含 600 ms 慢速點擊，以及主執行緒卡住 900 ms 時依 `timeStamp`（122 ms）仍判定為點擊；390×844、360×640、844×390 各 7 項，包含第二指點取時第一指仍保有搖桿、五輪暫停／設定（每輪檢查「顯示效能數字」與 `localStorage`）、重新整理後設定恢復；另開設定檔、封鎖 storage 各 1 項。
 > - 568×320 與 800×600 的點取：16/16 通過（7 項與 9 項）。
@@ -74,8 +90,8 @@ node qa/ui-smoke.mjs
 - **會保存的設定：**音量拖曳時就會存下最新值，不必等放開。在同一個網址（同源）、同一個瀏覽器重新整理或重開後，會恢復畫面品質、音量、下局角色、效能數字（`plush-rescue:settings`）以及「撿到武器自動換上」（`plush-rescue:auto-equip`）。最佳紀錄另存在 `plush-rescue:records`。
 - **不會保存的內容：**當局進度（時間、等級、救援數、裝備、掉落物、暫停狀態、地圖）一律不保存，重新整理後會回到開始畫面。無痕／隱私模式通常會在關閉視窗後清除上述資料（依瀏覽器而定）；`localStorage` 被停用或額度已滿時，設定只在這一局有效。不同瀏覽器、不同裝置或不同網址（例如 GitHub Pages 與 Sites）之間不會共用。
 - `weapon-visuals.js` 改用共用常數，並新增唯讀的 `drawnDrops()`，因此不再與 V11 位元相同；測試確認道具繪製的位置、尺寸與名牌顯示距離都和 V11 一致。`core.js` 的 `tapPickup()` 拿掉距離限制、改為拒絕已到期的道具，其他玩法不變。
-- 驗證（Node 20.18，加 `--experimental-detect-module`）：`node --test qa/*.test.mjs` 51／51 通過；`node qa/ui-smoke.mjs` 56／56 通過，涵蓋 360×640、390×844、844×390、1280×720 的名牌兩端點取，以及直式畫面左右上下邊緣只露出一角的道具、遠距道具、HUD 遮擋、到期與閃爍（暗拍不可點、亮拍可點）、600 ms 慢速滑鼠、五輪「暫停→改設定→繼續」與設定 reload；`python3 verify-export.py` 通過 21 個執行檔雜湊、41 個資源引用與 15 個 JavaScript 模組語法檢查。另外刻意破壞程式 23 次（mutation 測試），每一次都有測試抓到。以上全是 Node 模擬，不是瀏覽器或實機測試。
-- **尚未驗證：**真實瀏覽器（Chrome、Safari、Firefox）與實體手機上的點取位置、HUD 面板的實際外框、各瀏覽器的 `e.timeStamp` 表現、原生下拉選單是否會觸發失焦，以及對效能的影響。
+- 驗證（截至 v12.1.1 發布，`6858765`；Node 20.18，加 `--experimental-detect-module`）：`node --test qa/*.test.mjs` 51／51 通過；`node qa/ui-smoke.mjs` 56／56 通過，涵蓋 360×640、390×844、844×390、1280×720 的名牌兩端點取，以及直式畫面左右上下邊緣只露出一角的道具、遠距道具、HUD 遮擋、到期與閃爍（暗拍不可點、亮拍可點）、600 ms 慢速滑鼠、五輪「暫停→改設定→繼續」與設定 reload；`python3 verify-export.py` 通過 21 個執行檔雜湊、41 個資源引用與 15 個 JavaScript 模組語法檢查。另外刻意破壞程式 23 次（mutation 測試），每一次都有測試抓到。以上全是 Node 模擬，不是瀏覽器或實機測試。
+- **截至 v12.1.1 發布（`6858765`）尚未驗證：**真實瀏覽器（Chrome、Safari、Firefox）與實體手機上的點取位置、HUD 面板的實際外框、各瀏覽器的 `e.timeStamp` 表現、原生下拉選單是否會觸發失焦，以及對效能的影響。Chrome 的後續檢查見本節上方的發布後補充紀錄。
 
 ### V12.1：多點觸控點取道具與記住設定
 
@@ -127,10 +143,10 @@ node qa/ui-smoke.mjs
 
 - V7 僅改善獲救布偶的圓潤輪廓、柔和耳朵與清楚表情；當時通過 31 項針對性 Node 回歸檢查與 18 項 Mac Safari WebGL 檢查，未測量實體手機效能。
 - V6 將相機方位角由 32° 改為 **60°**、仰角由 41° 改為 **40°**；距離 29、橫式／直式取景範圍 25.6／28、角色比例及玩法維持不變。基礎匯出提交：`791e58ea29748ce2429733dd81207eba2565dd87`。
-- 最初原始碼提交：`129b61e36b3595f81e77e7f78d8f813bf543e94d`。V5 曾通過 124 項 Node 測試與 14 項 DOM／渲染器模擬檢查；該套件不在目前的精簡匯出內容中。
+- 最初原始碼提交（上游）：`129b61e36b3595f81e77e7f78d8f813bf543e94d`。截至 V5，曾通過 124 項 Node 測試與 14 項 DOM／渲染器模擬檢查；該套件不在本儲存庫中。
 
 ## 素材與後續修改
 
 `runtime-manifest.json` 記錄目前每個遊戲執行檔的大小與 SHA-256 雜湊。內附的 Three.js 授權條款位於 `vendor/THREE-LICENSE.txt`。角色美術與其他素材依原提供內容收錄，並不因此取得額外的再散布授權。
 
-修改遊戲時，請從上游原始碼整理新匯出內容，確認變更後再重新產生 manifest 並驗證。本儲存庫提供的是可直接執行的精簡匯出版本，沒有收錄完整的早期開發與測試歷史。
+修改遊戲時請直接編輯本儲存庫，確認變更後依「版本識別與標注慣例」的發布步驟重新產生 manifest 並驗證。V11 以前的早期開發與測試歷史不在本儲存庫中（見「維護方式與開發來源」）。

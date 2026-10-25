@@ -13,7 +13,7 @@ const root=new URL('../',import.meta.url);
 const read=(path,enc)=>fs.readFileSync(new URL(path,root),enc);
 const sha=path=>crypto.createHash('sha256').update(read(path)).digest('hex');
 
-// SHA-256 from the V11 runtime-manifest (cbfa10e). Any change here is a gameplay,
+// SHA-256 from the runtime-manifest as of v11.0.0 (cbfa10e). Any change here is a gameplay,
 // camera, model, crowd, lighting or effects change and is outside V12's scope.
 const V11_UNCHANGED={
  'camera.js':'7d9e02a29448d1d863c319b0ca3193907fdb1028cd8db1b69c3df65be7cea24d',
@@ -67,13 +67,22 @@ test('V8 fullscreen drag, V10 HUD diff writes and V11 rescued-boss scale remain 
  assert.match(main,/hero\.visible=game\.invuln===0\|\|reduceMotion\(\)\|\|Math\.floor\(game\.time\*12\)%2===0;/);
 });
 
+// build-info.json is the single source of the release version; nothing in qa/ repeats it.
+const BUILD=JSON.parse(read('build-info.json','utf8'));
+test('build-info.json version is the one release identifier everywhere',()=>{
+ assert.match(BUILD.version,/^\d+\.\d+\.\d+$/,'version is semver');
+ assert.ok(BUILD.revision.startsWith(`v${BUILD.version}-`),`revision ${BUILD.revision} starts with v${BUILD.version}-`);
+ assert.ok(read('main.js','utf8').includes(`revision:'${BUILD.revision}'`),'main.js __PLUSH_QA__.revision');
+ assert.ok(read('index.html','utf8').includes(`data-build="${BUILD.revision}"`),'index.html #game data-build');
+});
+
 test('runtime manifest matches every file on disk and lists the new ui.js module',()=>{
  const manifest=JSON.parse(read('runtime-manifest.json','utf8'));
- assert.equal(manifest.version,'12.1.1');assert.equal(manifest.revision,'v12.1.1-tap-hit-r1');
+ assert.equal(manifest.version,BUILD.version);assert.equal(manifest.revision,BUILD.revision);
+ assert.equal(manifest.source_commit,BUILD.source_commit);
  const paths=manifest.files.map(f=>f.path);
  assert.ok(paths.includes('ui.js'));assert.ok(!paths.some(p=>p.startsWith('qa/')),'qa/ is not a runtime file');
  for(const f of manifest.files){const data=read(f.path);assert.equal(data.length,f.bytes,f.path);assert.equal(crypto.createHash('sha256').update(data).digest('hex'),f.sha256,f.path);}
- const info=JSON.parse(read('build-info.json','utf8'));assert.equal(info.version,'12.1.1');assert.equal(info.revision,'v12.1.1-tap-hit-r1');
 });
 
 test('hero portraits are compact square RGBA PNGs at the same paths',()=>{

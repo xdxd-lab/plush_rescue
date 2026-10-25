@@ -3,11 +3,15 @@
 
 Run only after intentionally accepting a new version. qa/ and repository
 metadata are not runtime files. Python 3 stdlib only.
-Usage (from the repository root): python3 qa/regenerate-manifest.py
+version, revision and source_commit are copied from build-info.json (the single
+source of the release identifier); the free-text layout line is kept unless
+--layout is given.
+Usage (from the repository root): python3 qa/regenerate-manifest.py [--layout=TEXT]
 """
 import hashlib
 import json
 from pathlib import Path
+import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 RUNTIME = [
@@ -19,17 +23,15 @@ RUNTIME = [
     'weapon-visuals.js', 'weapons.js',
 ]
 
-LAYOUT = ('Static V12.1.1 export based on V12.1 (dd01898); on-screen tap-to-pick with full '
-          'ring/item/label hit area and HUD cover, remembered settings, commercial HUD/dialog '
-          'redesign, SVG icons and 256px portraits.')
-
 manifest_path = ROOT / 'runtime-manifest.json'
 manifest = json.loads(manifest_path.read_text())
 info = json.loads((ROOT / 'build-info.json').read_text())
 manifest['version'] = info['version']
 manifest['revision'] = info['revision']
 manifest['source_commit'] = info['source_commit']
-manifest['layout'] = LAYOUT
+layout = next((a[len('--layout='):] for a in sys.argv[1:] if a.startswith('--layout=')), None)
+if layout is not None:
+    manifest['layout'] = layout
 files = []
 for name in RUNTIME:
     data = (ROOT / name).read_bytes()

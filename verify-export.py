@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Verify unchanged V5 runtime and project-site URL routing. Python 3 stdlib only."""
+"""Verify the runtime against runtime-manifest.json (sizes, SHA-256), project-site URL
+routing (relative, in-repository, case-exact references) and JavaScript syntax when Node
+is available. Python 3 stdlib only.
+
+History: originally written for the V5 export; the checks are not tied to a version.
+"""
 import hashlib
 from html.parser import HTMLParser
 import json

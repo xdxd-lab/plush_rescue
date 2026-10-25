@@ -43,7 +43,12 @@ shared `localStorage` on the same origin, and the five settings rounds toggle st
 second viewport started from the opposite value and its reload check saw `stats:false` (the game restored exactly
 what had been stored). The reload check now first asserts that the reloaded settings equal what was stored.
 
-Browser-check status (QA session of 2026-10-25, current version of `browser-chrome.mjs`, Chrome 156, Node 24).
+Version identifier: the tests read `version`/`revision` from `build-info.json` and never repeat them;
+`qa/invariants.test.mjs` asserts that `main.js`, `index.html` and `runtime-manifest.json` carry the same values,
+including `source_commit` in the manifest. See
+the release steps in the root `README.md` (版本識別與標注慣例).
+
+Browser-check status (as of `84363c8`, Chrome 156, Node 24).
 Every run below exited 0 with no console errors and no Chrome process or temporary profile left behind.
 
 - `node qa/browser-chrome.mjs --dialogs`: one single run of the four default views, the storage contexts and the

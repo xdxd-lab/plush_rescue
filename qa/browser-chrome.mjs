@@ -223,7 +223,8 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
  const page=await openPage({...view,context:browserContextId}),mobile=!!view.mobile;
  await check(`${view.name}: boots with WebGL, revision and no errors`,async()=>{
   const info=await page.eval("({rev:__T.qa.revision,build:document.querySelector('#game').dataset.build,gl:!!document.querySelector('#world').getContext('webgl2')||!!__T.qa.renderer.getContext(),w:document.querySelector('#world').clientWidth,h:document.querySelector('#world').clientHeight})");
-  assert.equal(info.rev,'v12.1.1-tap-hit-r1');assert.equal(info.build,'v12.1.1-tap-hit-r1');assert.ok(info.gl);assert.equal(info.w,view.width);assert.equal(info.h,view.height);
+  const {revision}=JSON.parse(fs.readFileSync(path.join(root,'build-info.json'),'utf8'));
+  assert.equal(info.rev,revision);assert.equal(info.build,revision);assert.ok(info.gl);assert.equal(info.w,view.width);assert.equal(info.h,view.height);
  });
  await page.shot(view.name.split(' ')[0]+'-title');
  await check(`${view.name}: start, then ring, item and both label ends are tappable`,async()=>{
