@@ -1,8 +1,11 @@
 # Plush Rescue QA
 
 Not a runtime folder: GitHub Pages serves it, but the game never loads it and
-`runtime-manifest.json` does not list it. Requires Node.js 18+ (built-in test
-runner, no install) and Python 3 for the export tools.
+`runtime-manifest.json` does not list it. Requires Node.js 22 LTS or newer (built-in test
+runner, no install) and Python 3 for the export tools. The root `.js` modules have no `package.json`, so Node must
+detect ES module syntax: as of v12.1.1 (`ef9d208`), Node 20.18.0 fails without `--experimental-detect-module`
+("is a CommonJS module") and passes with it; Node 24.22.1 needs no flag; Node 18 is not supported. See the table in
+the root `README.md`.
 
 | Command (from the repository root) | Covers |
 |---|---|
