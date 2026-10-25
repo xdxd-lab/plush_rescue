@@ -150,3 +150,27 @@ test('touch gestures: the game surface takes no browser pan/zoom, dialogs may sc
   assert.equal(declarationsAt('.dialog',vp)['touch-action'],'pan-y',`${vp.name}: .dialog`);
  }
 });
+
+// 12.1.1 post-release check. Real Chrome measured the start dialog at 800×600 and the
+// pause dialog at 844×390 / 568×320 taller than the window (primary button partly below
+// the fold). That is acceptable only while the dialog itself stays a scroll container that
+// touch, wheel and keyboard can reach. These rules keep that true at every viewport.
+test('dialogs stay reachable when taller than the window: scroll container, no input capture, focus kept inside',()=>{
+ for(const vp of [...VIEWPORTS,{name:'short laptop',w:800,h:600,touch:false}]){
+  const d=declarationsAt('.dialog',vp),o=declarationsAt('#overlay',vp);
+  assert.equal(d['overflow'],'auto',`${vp.name}: .dialog scrolls`);
+  assert.equal(d['max-height'],'100%',`${vp.name}: .dialog is capped to the overlay`);
+  assert.equal(d['touch-action'],'pan-y',`${vp.name}: .dialog takes vertical touch scroll`);
+  assert.notEqual(o['overflow'],'hidden',`${vp.name}: #overlay does not clip the dialog`);
+  for(const sel of ['#start','.primary','.pause-actions'])assert.notEqual(declarationsAt(sel,vp).display,'none',`${vp.name}: ${sel} shown`);
+  assert.ok(!['fixed','absolute'].includes(declarationsAt('.primary',vp).position),`${vp.name}: primary stays in the scrolling flow`);
+ }
+ const main=fs.readFileSync(new URL('../main.js',import.meta.url),'utf8');
+ // Touches on a shown dialog are never claimed by the game, so the browser can scroll it.
+ assert.ok(main.includes("if(game.status!=='running'||overlay.classList.contains('shown')||e.defaultPrevented"),'pointerdown ignores dialogs');
+ assert.ok(main.includes("document.addEventListener('gesturestart',e=>{if(game.status==='running'&&!overlay.classList.contains('shown')"),'pinch is only blocked during play');
+ // Keyboard: the primary action is focused on open and Tab stays inside the dialog
+ // (a browser scrolls a tabbed-to control into view).
+ assert.ok(main.includes("dialog.querySelector('#keepWeapon,#resume,.choice,#again,#start')?.focus("),'primary focused on open');
+ assert.ok(main.includes("if(e.key!=='Tab'||game.status==='running')return;"),'focus trap for Tab');
+});
