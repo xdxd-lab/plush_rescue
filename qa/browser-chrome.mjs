@@ -339,21 +339,33 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
   const s=await page.eval("({settings:__T.qa.settings,hero:document.querySelector('#heroSelect').value,auto:localStorage.getItem('plush-rescue:auto-equip'),status:__T.qa.game.status,time:__T.qa.game.time,stats:!document.querySelector('#stats').hidden})");
   // Restore first (what was stored comes back), then the expected values of this viewport's run.
   assert.deepEqual(s.settings,JSON.parse(storedBeforeReload),'reload restores what was stored');
-  assert.deepEqual(s.settings,{quality:'low',volume:.65,hero:'polar',stats:true});assert.equal(s.auto,'true');assert.equal(s.status,'ready');assert.equal(s.time,0);assert.equal(s.stats,true);assert.equal(s.hero,'polar');
+  assert.deepEqual(s.settings,{quality:'low',volume:.65,hero:'polar',stats:true,autoChoose:false});assert.equal(s.auto,'true');assert.equal(s.status,'ready');assert.equal(s.time,0);assert.equal(s.stats,true);assert.equal(s.hero,'polar');
  });
  await page.close();await send('Target.disposeBrowserContext',{browserContextId});
 }
 
 if(runPickup&&!onlyViews)await check('a separate browser profile context starts from defaults (storage is per profile and origin)',async()=>{
- const {browserContextId}=await send('Target.createBrowserContext');const page=await openPage({width:800,height:600,context:browserContextId});
- assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false});await page.close();
+ const {browserContextId}=await send('Target.createBrowserContext');let page,failed;
+ try{
+  page=await openPage({width:800,height:600,context:browserContextId});
+  assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false});
+ }catch(e){failed=e}
+ try{await page?.close();}catch(e){failed??=e}
+ try{await send('Target.disposeBrowserContext',{browserContextId});}catch(e){failed??=e}
+ if(failed)throw failed;
 });
 if(runPickup&&!onlyViews)await check('blocked localStorage: the game runs, settings work for the session, a reload falls back to defaults',async()=>{
- const {browserContextId}=await send('Target.createBrowserContext');const page=await openPage({width:800,height:600,context:browserContextId,blockStorage:true});
- assert.equal(await page.eval("(()=>{try{localStorage;return 'open'}catch{return 'blocked'}})()"),'blocked');
- await begin(page,false);await page.click('#pause');await page.eval("(()=>{const q=document.querySelector('#quality');q.value='high';q.dispatchEvent(new Event('change'));})()");
- await page.click('#resume');assert.ok(await tapDrop(page,{mobile:false,where:'labelLeft'}),'taps work without storage');
- await page.reload();assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false});await page.close();
+ const {browserContextId}=await send('Target.createBrowserContext');let page,failed;
+ try{
+  page=await openPage({width:800,height:600,context:browserContextId,blockStorage:true});
+  assert.equal(await page.eval("(()=>{try{localStorage;return 'open'}catch{return 'blocked'}})()"),'blocked');
+  await begin(page,false);await page.click('#pause');await page.eval("(()=>{const q=document.querySelector('#quality');q.value='high';q.dispatchEvent(new Event('change'));})()");
+  await page.click('#resume');assert.ok(await tapDrop(page,{mobile:false,where:'labelLeft'}),'taps work without storage');
+  await page.reload();assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false});
+ }catch(e){failed=e}
+ try{await page?.close();}catch(e){failed??=e}
+ try{await send('Target.disposeBrowserContext',{browserContextId});}catch(e){failed??=e}
+ if(failed)throw failed;
 });
 
 // ---- dialog reachability (--dialogs) -----------------------------------------------------

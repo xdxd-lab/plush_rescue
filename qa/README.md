@@ -51,8 +51,22 @@ Version identifier: the tests read `version`/`revision` from `build-info.json` a
 including `source_commit` in the manifest. See
 the release steps in the root `README.md` (版本識別與標注慣例).
 
-Browser-check status (as of `84363c8`, Chrome 156, Node 24).
-Every run below exited 0 with no console errors and no Chrome process or temporary profile left behind.
+Browser-check status.
+
+V12.2.0 follow-up (2026-10-27, based on `17eb077`, Chrome 156, Node 24): an identical minimal Chrome
+launch aborted with `SIGABRT` inside the tool sandbox but succeeded in a less restricted execution environment.
+The macOS crash report places the abort during application registration, before DevTools or game checks; the
+specific sandbox restriction is unknown. In the latter environment, `node qa/browser-chrome.mjs --dialogs`
+passed 56/56 checks (32 game and storage, 24 dialogs), with zero failures, skipped checks or console errors.
+`--no-pickup --dialogs` independently passed 24/24 and `--views=1280x720` passed 9/9. No Chrome process or
+temporary profile remained. The initial full run found three stale exact settings expectations missing V12.2.0's
+`autoChoose:false`; an assertion failure also left two extra browser contexts and pages alive. After correcting
+the expectations and always attempting both cleanup steps, the full storage-to-dialog run passed. The first
+run's later CDP timeout is consistent with interference from those live pages, but its exact Chrome mechanism
+was not established. These checks do not cover real phones, Safari/WebKit, Firefox or a hardware GPU.
+
+Historical V12.1.1 browser checks (as of `84363c8`, Chrome 156, Node 24): every run below exited 0 with no
+console errors and no Chrome process or temporary profile left behind.
 
 - `node qa/browser-chrome.mjs --dialogs`: one single run of the four default views, the storage contexts and the
   dialogs of all six views, 56/56 (32 game, 24 dialog), 559 s.
