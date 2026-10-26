@@ -276,12 +276,25 @@ test('remembered settings round-trip and validate every field on its own',()=>{
  const store=new Map(),storage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,v)};
  assert.deepEqual(ui.readSettings(storage),ui.defaultSettings());
  assert.ok(ui.writeSettings(storage,{quality:'high',volume:.6,hero:'polar',stats:true}));
- assert.deepEqual(ui.readSettings(storage),{quality:'high',volume:.6,hero:'polar',stats:true});
+ assert.deepEqual(ui.readSettings(storage),{quality:'high',volume:.6,hero:'polar',stats:true,autoChoose:false});
  store.set(ui.SETTINGS_KEY,JSON.stringify({quality:'ultra',volume:7,hero:'dragon',stats:'yes'}));
- assert.deepEqual(ui.readSettings(storage),{quality:'balanced',volume:1,hero:'pudding',stats:false});
+ assert.deepEqual(ui.readSettings(storage),{quality:'balanced',volume:1,hero:'pudding',stats:false,autoChoose:false});
  store.set(ui.SETTINGS_KEY,JSON.stringify({quality:'low',volume:-3,hero:'polar'}));
- assert.deepEqual(ui.readSettings(storage),{quality:'low',volume:0,hero:'polar',stats:false},'valid fields survive invalid neighbours');
+ assert.deepEqual(ui.readSettings(storage),{quality:'low',volume:0,hero:'polar',stats:false,autoChoose:false},'valid fields survive invalid neighbours');
+ store.set(ui.SETTINGS_KEY,JSON.stringify({autoChoose:true}));assert.equal(ui.readSettings(storage).autoChoose,true);
+ store.set(ui.SETTINGS_KEY,JSON.stringify({autoChoose:'yes'}));assert.equal(ui.readSettings(storage).autoChoose,false);
  for(const raw of ['{broken','null','42','"text"','[]'])store.set(ui.SETTINGS_KEY,raw),assert.deepEqual(ui.readSettings(storage),ui.defaultSettings(),raw);
+});
+
+test('automatic choice recommendations are deterministic and preserve upgraded equipment',()=>{
+ const upgrades=[{id:'power'},{id:'rate'},{id:'speed'},{id:'heart'}];
+ const g=running();g.status='upgrade';
+ assert.equal(ui.recommendUpgrade(g,upgrades),'power','full health prefers reliable damage');
+ g.player.hp=2;assert.equal(ui.recommendUpgrade(g,upgrades),'heart','critical health prioritizes recovery');
+ const pickup={slot:'main',weaponId:'shotgun'};g.status='running';
+ g.weaponLevels.shotgun=2;assert.equal(ui.recommendPickup(g,pickup),true,'higher-level pickup replaces a lower-level main weapon');
+ g.weaponLevels.pulse=4;assert.equal(ui.recommendPickup(g,pickup),false,'lower-level pickup keeps current main weapon');
+ assert.equal(ui.recommendPickup(g,{...pickup,slot:'twohand'}),false,'two-handed pickup stays a deliberate manual decision');
 });
 
 test('settings storage that throws or is missing degrades to defaults without errors',()=>{
@@ -294,24 +307,24 @@ test('writeSettings validates every field before storing and read-back is always
  const store=new Map(),storage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,v)};
  const written=()=>JSON.parse(store.get(ui.SETTINGS_KEY));
  const cases=[
-  [{quality:'ultra',volume:NaN,hero:'x',stats:'yes'},{quality:'balanced',volume:.25,hero:'pudding',stats:false}],
-  [{quality:'high',volume:Infinity,hero:'polar',stats:true},{quality:'high',volume:.25,hero:'polar',stats:true}],
-  [{quality:'low',volume:9,hero:'polar',stats:false},{quality:'low',volume:1,hero:'polar',stats:false}],
-  [{quality:'low',volume:-1},{quality:'low',volume:0,hero:'pudding',stats:false}],
-  [{volume:'.5',extra:'ignored'},{quality:'balanced',volume:.25,hero:'pudding',stats:false}],
+  [{quality:'ultra',volume:NaN,hero:'x',stats:'yes'},{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false}],
+  [{quality:'high',volume:Infinity,hero:'polar',stats:true},{quality:'high',volume:.25,hero:'polar',stats:true,autoChoose:false}],
+  [{quality:'low',volume:9,hero:'polar',stats:false},{quality:'low',volume:1,hero:'polar',stats:false,autoChoose:false}],
+  [{quality:'low',volume:-1},{quality:'low',volume:0,hero:'pudding',stats:false,autoChoose:false}],
+  [{volume:'.5',extra:'ignored'},{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false}],
   [null,ui.defaultSettings()],[undefined,ui.defaultSettings()],[42,ui.defaultSettings()],
  ];
  for(const [input,expected] of cases){
   assert.equal(ui.writeSettings(storage,input),true);assert.deepEqual(written(),expected,JSON.stringify(input));
   assert.deepEqual(ui.readSettings(storage),expected,'what was written reads back unchanged');
  }
- assert.deepEqual(Object.keys(written()).sort(),['hero','quality','stats','volume'],'no stray keys are stored');
+ assert.deepEqual(Object.keys(written()).sort(),['autoChoose','hero','quality','stats','volume'],'no stray keys are stored');
 });
 
 test('settings survive a write → read round trip for every valid combination',()=>{
  const store=new Map(),storage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,v)};
- for(const quality of ui.QUALITIES)for(const hero of ui.HEROES)for(const stats of [true,false])for(const volume of [0,.05,.25,.6,1]){
-  const settings={quality,volume,hero,stats};ui.writeSettings(storage,settings);assert.deepEqual(ui.readSettings(storage),settings);
+ for(const quality of ui.QUALITIES)for(const hero of ui.HEROES)for(const stats of [true,false])for(const autoChoose of [true,false])for(const volume of [0,.05,.25,.6,1]){
+  const settings={quality,volume,hero,stats,autoChoose};ui.writeSettings(storage,settings);assert.deepEqual(ui.readSettings(storage),settings);
  }
- assert.deepEqual(ui.sanitizeSettings({quality:'low',volume:.5,hero:'polar',stats:true}),{quality:'low',volume:.5,hero:'polar',stats:true});
+ assert.deepEqual(ui.sanitizeSettings({quality:'low',volume:.5,hero:'polar',stats:true,autoChoose:true}),{quality:'low',volume:.5,hero:'polar',stats:true,autoChoose:true});
 });

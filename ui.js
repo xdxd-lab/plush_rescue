@@ -200,7 +200,7 @@ function better(a,b){
 export const SETTINGS_KEY='plush-rescue:settings';
 export const QUALITIES=Object.freeze(['low','balanced','high']);
 export const HEROES=Object.freeze(['pudding','polar']);
-export function defaultSettings(){return {quality:'balanced',volume:.25,hero:'pudding',stats:false};}
+export function defaultSettings(){return {quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false};}
 // One validator for both directions: whatever is read or about to be written is
 // reduced to valid values, one field at a time, so bad data is never persisted.
 export function sanitizeSettings(raw){
@@ -210,6 +210,7 @@ export function sanitizeSettings(raw){
   if(typeof raw.volume==='number'&&Number.isFinite(raw.volume))settings.volume=Math.min(1,Math.max(0,raw.volume));
   if(HEROES.includes(raw.hero))settings.hero=raw.hero;
   if(typeof raw.stats==='boolean')settings.stats=raw.stats;
+  if(typeof raw.autoChoose==='boolean')settings.autoChoose=raw.autoChoose;
  }
  return settings;
 }
@@ -218,4 +219,19 @@ export function readSettings(storage){
 }
 export function writeSettings(storage,settings){
  try{storage.setItem(SETTINGS_KEY,JSON.stringify(sanitizeSettings(settings)));return true;}catch{return false;}
+}
+
+// A recommendation is predictable and does not consume the game's random stream.
+export function recommendUpgrade(game,upgrades){
+ const available=upgrades.filter(u=>u.id==='power'||u.id==='rate'&&game.fireInterval>.075+1e-6||u.id==='speed'&&(game.player.speed<8-1e-6||game.player.hp<game.player.maxHp)||u.id==='heart'&&(game.player.maxHp<12||game.player.hp<game.player.maxHp));
+ if(!available.length)return upgrades[0]?.id??null;
+ if(game.player.hp<=game.player.maxHp*.4&&available.some(u=>u.id==='heart'))return 'heart';
+ return available.find(u=>u.id==='power')?.id??available[0].id;
+}
+export function recommendPickup(game,pickup){
+ if(!pickup||pickup.slot==='twohand')return false;
+ const currentId=game.loadout[pickup.slot];
+ if(!currentId||currentId===pickup.weaponId)return false;
+ if(pickup.slot==='offhand'&&game.magicByWeapon[currentId]?.evolved&&!game.magicByWeapon[pickup.weaponId]?.evolved)return false;
+ return (game.weaponLevels[pickup.weaponId]??0)>(game.weaponLevels[currentId]??0);
 }

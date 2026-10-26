@@ -171,6 +171,6 @@ test('dialogs stay reachable when taller than the window: scroll container, no i
  assert.ok(main.includes("document.addEventListener('gesturestart',e=>{if(game.status==='running'&&!overlay.classList.contains('shown')"),'pinch is only blocked during play');
  // Keyboard: the primary action is focused on open and Tab stays inside the dialog
  // (a browser scrolls a tabbed-to control into view).
- assert.ok(main.includes("dialog.querySelector('#keepWeapon,#resume,.choice,#again,#start')?.focus("),'primary focused on open');
+ assert.ok(main.includes("(autoChoose&&autoTarget?autoTarget:dialog.querySelector('#keepWeapon,#resume,.choice,#again,#start'))?.focus("),'recommended target focused only when auto-choice is enabled');
  assert.ok(main.includes("if(e.key!=='Tab'||game.status==='running')return;"),'focus trap for Tab');
 });

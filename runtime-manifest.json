@@ -1,8 +1,8 @@
 {
-  "version": "12.1.1",
-  "revision": "v12.1.1-tap-hit-r1",
-  "source_commit": "dd01898",
-  "layout": "Static V12.1.1 export based on V12.1 (dd01898); on-screen tap-to-pick with full ring/item/label hit area and HUD cover, remembered settings, commercial HUD/dialog redesign, SVG icons and 256px portraits.",
+  "version": "12.2.0",
+  "revision": "v12.2.0-auto-choice-r1",
+  "source_commit": "3a16473",
+  "layout": "Static V12.2.0 export based on V12.1.1 (3a16473); optional 10-second automatic choice for upgrade and weapon comparison, remembered settings, mobile-first rescue UI.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -21,8 +21,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 234,
-      "sha256": "ead7e5c10e8f7d081fe31d8a1edcfe49d9e39a80a9708cc193c946d8ccdeb006"
+      "bytes": 238,
+      "sha256": "3f4d071ddb44d2273d7186721e22bbbedf88b5827539b51294eb3367d172c15d"
     },
     {
       "path": "camera.js",
@@ -51,8 +51,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 11317,
-      "sha256": "953c8349350ee77f7c26399aa755eb74b48be264a2a0b7019341b880cfa526cb"
+      "bytes": 11321,
+      "sha256": "636dc3b9d9100e2ddc5c1a0b7f4d90687327d375afb2a715c68edf877d87e303"
     },
     {
       "path": "keyboard.js",
@@ -66,8 +66,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 36283,
-      "sha256": "23c679e1be165b63ddfd76781209153e5e5e11119dae0cc1f08d1d50c0bc7264"
+      "bytes": 40609,
+      "sha256": "1b0b73dfbad66810a8ea21e25c1230561b1a6460f83c01d448f5b221c6c51055"
     },
     {
       "path": "maps.js",
@@ -76,13 +76,13 @@
     },
     {
       "path": "style.css",
-      "bytes": 30377,
-      "sha256": "5443e3a6e88de1a224f523a884200bee3ae1bdd933ae23e8f00883353a94f8d6"
+      "bytes": 31181,
+      "sha256": "e9cd5c1c0ba3eacdcad9d6812c37e5610d8df05c062cd9667800a96be36cb35d"
     },
     {
       "path": "ui.js",
-      "bytes": 11689,
-      "sha256": "ab3b9d19411ab99f57b366ff5236e845283cdc400c4105b9450ef7612d1cfba2"
+      "bytes": 12785,
+      "sha256": "06572376b6016a71911463025e83c5c4085d9b5bd45762f1abd54c667bbd8f7c"
     },
     {
       "path": "vendor/THREE-LICENSE.txt",

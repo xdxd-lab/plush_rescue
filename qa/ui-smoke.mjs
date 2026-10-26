@@ -35,11 +35,12 @@ class Element{
  getBoundingClientRect(){return this.rect||{left:0,top:0,right:0,bottom:0,width:0,height:0}}
 }
 class Document{
- constructor(){this.ids=new Map();this.all=[];this.events={};this.activeElement=null;this.hidden=false;}
+ constructor(){this.ids=new Map();this.all=[];this.events={};this.activeElement=null;this.hidden=false;this.focused=true;}
  parse(text){const elements=[];for(const match of text.matchAll(/<([a-z][a-z0-9]*)\b([^>]*)>/gi)){const attrs={};for(const a of match[2].matchAll(/([\w-]+)(?:="([^"]*)")?/g))attrs[a[1]]=a[2]??'';const el=new Element(match[1],attrs,this);elements.push(el);this.all.push(el);if(el.id)this.ids.set(el.id,el)}return elements}
  querySelector(s){if(s.startsWith('#'))return this.ids.get(s.slice(1))||null;return this.all.find(e=>e.matches(s))||null}
  querySelectorAll(selectors){return this.all.filter(el=>selectors.split(',').some(s=>el.matches(s)))}
  addEventListener(t,f){(this.events[t]??=[]).push(f)}
+ hasFocus(){return this.focused}
 }
 // realVisuals: use the real weapon-visuals.js so taps see what is actually drawn.
 function setup(storageDenied=false,{seed={},realVisuals=false,width=390,height=844}={}){
@@ -69,8 +70,9 @@ check('hero cards drive the same select interface',()=>{el('heroCardPudding').on
 check('first run defaults to confirmation and renders both equipped names and icons',()=>{assert.equal(qa.game.autoEquip,false);assert.equal(el('mainWeaponName').textContent,WEAPONS.pulse.name+' Lv.1');assert.equal(el('offhandWeaponName').textContent,WEAPONS.moonfan.name+' Lv.1');assert.equal(el('magicLabel').textContent,'魔力 0 / 12');assert.match(el('mainWeaponIcon').innerHTML,/#i-pulse/);assert.match(el('offhandWeaponIcon').innerHTML,/#i-moonfan/)});
 check('next boss countdown is shown before the run starts',()=>{assert.equal(el('bossClockText').textContent,'首領 1:00')});
 el('start').onclick();qa.pause();
-check('pause dialog shows run summary and grouped settings',()=>{const html=el('dialog').innerHTML;for(const id of ['volume','quality','showStats','autoEquip','nextHero','resume','restart'])assert.ok(el(id),id);assert.match(html,/救援時間/);assert.match(html,/畫面與聲音/)});
+check('pause dialog shows run summary and grouped settings',()=>{const html=el('dialog').innerHTML;for(const id of ['volume','quality','showStats','autoEquip','autoChoose','nextHero','resume','restart'])assert.ok(el(id),id);assert.equal(el('autoChoose').checked,false);assert.match(html,/救援時間/);assert.match(html,/畫面與聲音/)});
 check('settings toggle updates live game and local storage',()=>{const box=el('autoEquip');assert.equal(box.checked,false);box.checked=true;box.onchange({target:box});assert.equal(qa.game.autoEquip,true);assert.equal(h.store.get('plush-rescue:auto-equip'),'true')});
+check('auto-choice setting saves, reloads, and defaults off',()=>{const box=el('autoChoose');box.checked=true;box.onchange({target:box});assert.equal(JSON.parse(h.store.get('plush-rescue:settings')).autoChoose,true);assert.equal(qa.settings.autoChoose,true);box.checked=false;box.onchange({target:box});assert.equal(JSON.parse(h.store.get('plush-rescue:settings')).autoChoose,false)});
 check('restart clears modal and all movement input, preserving setting',()=>{run("keys.add('w');stick.begin(4,20,20);stick.move(4,40,90)");qa.game.pendingPickup={id:999,weaponId:'shotgun',slot:'main'};el('restart').onclick();assert.equal(qa.game.pendingPickup,null);assert.equal(qa.game.autoEquip,true);assert.equal(run('keys.size'),0);assert.equal(run('stick.id'),null);assert.equal(el('overlay').classList.contains('shown'),false)});
 qa.pause();el('autoEquip').checked=false;el('autoEquip').onchange({target:el('autoEquip')});el('resume').onclick();
 function pickup(id){qa.game.addDrop({kind:'weapon',weaponId:id,x:qa.game.player.x,z:qa.game.player.z});qa.game.collectDrops();qa.renderOnce()}
@@ -100,6 +102,45 @@ check('mouse drag ends when the button is released outside; foreign capture loss
 check('ending a run records local bests; a better run is marked as a new record',()=>{qa.game.saved=12;qa.game.time=90;qa.game.end('fallen');qa.renderOnce();let records=JSON.parse(h.store.get('plush-rescue:records'));assert.equal(records.runs,1);assert.equal(records.saved,12);assert.doesNotMatch(el('dialog').innerHTML,/新紀錄/,'first run sets a baseline');assert.match(el('dialog').innerHTML,/救回首領/);assert.ok(el('again'));el('again').onclick();qa.game.saved=30;qa.game.time=95;qa.game.end('fallen');qa.renderOnce();records=JSON.parse(h.store.get('plush-rescue:records'));assert.equal(records.runs,2);assert.equal(records.saved,30);assert.match(el('dialog').innerHTML,/新紀錄/);el('again').onclick()});
 check('blocked localStorage is safe for settings and records',()=>{const b=setup(true);b.el('start').onclick();b.qa.pause();b.el('autoEquip').checked=true;b.el('autoEquip').onchange({target:b.el('autoEquip')});b.el('restart').onclick();assert.equal(b.qa.game.autoEquip,true);b.qa.game.end('survived');b.qa.renderOnce();assert.match(b.el('dialog').innerHTML,/天亮了/);assert.equal(b.qa.records.runs,0)});
 check('start screen shows the best record once one exists',()=>{const c=setup();assert.equal(c.el('bestLine').hidden,true);const d=setup();d.store.set('plush-rescue:records',JSON.stringify({time:300,saved:40,level:6,bosses:2,runs:3}));d.run('renderBestLine()');assert.equal(d.el('bestLine').hidden,false);assert.match(d.el('bestLine').innerHTML,/05:00/)});
+
+check('auto-choice countdown resolves an upgrade once, and cancellation/restart invalidate it',()=>{
+ const t=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});
+ t.el('start').onclick();t.run("game.status='upgrade';game.level=2;syncOverlay()");
+ assert.equal(t.qa.autoChoice.remaining,10);assert.match(t.el('choiceCountdownText').textContent,/10 秒後自動選擇/);
+ t.run('cancelChoiceTimer()');for(let i=0;i<44;i++)t.run('advanceChoiceTimer(.25)');
+ assert.equal(t.qa.game.status,'upgrade','cancelled countdown does not resolve');assert.equal(t.qa.autoChoice.cancelled,true);
+ t.run('syncOverlay()');assert.equal(t.qa.autoChoice.remaining,10,'new choice starts a fresh countdown');
+ t.qa.restart();assert.equal(t.qa.autoChoice,null,'restart clears stale pending choice');const power=t.qa.game.power;
+ for(let i=0;i<44;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.game.status,'running','stale callback cannot change the restarted run');assert.equal(t.qa.game.power,power);
+ t.run("game.status='upgrade';game.level=3;syncOverlay()");for(let i=0;i<40;i++)t.run('advanceChoiceTimer(.25)');
+ assert.equal(t.qa.game.status,'running','countdown resolves the selected upgrade');assert.ok(t.qa.game.power>power,'recommended power upgrade is applied exactly once');
+});
+check('low frame rate advances the countdown; a very long single frame cannot decide immediately',()=>{
+ const t=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});
+ t.el('start').onclick();t.run("game.status='upgrade';game.level=2;syncOverlay()");
+ t.run('advanceChoiceTimer(30)');assert.equal(t.qa.autoChoice.remaining,8,'a 30-second stall counts at most two seconds');
+ assert.equal(t.qa.game.status,'upgrade','one long frame cannot resolve the choice');
+ for(let i=0;i<15;i++)t.run('advanceChoiceTimer(.5)');
+ assert.equal(t.qa.autoChoice.remaining,.5,'0.5-second visible frames continue to advance the timer');
+ assert.equal(t.qa.game.status,'upgrade');t.run('advanceChoiceTimer(.5)');
+ assert.equal(t.qa.game.status,'running','steady low-FPS frames eventually resolve the choice');
+});
+check('weapon comparison auto-resolves; background and blur freeze the countdown and resume with three seconds',()=>{
+ const startPickup=t=>{t.el('start').onclick();t.qa.game.weaponLevels.shotgun=2;t.qa.game.addDrop({kind:'weapon',weaponId:'shotgun',x:t.qa.game.player.x,z:t.qa.game.player.z});t.qa.game.collectDrops();t.qa.renderOnce();assert.equal(t.qa.game.status,'pickup');assert.equal(t.qa.autoChoice.target,'換上新武器')};
+ const t=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});startPickup(t);
+ for(let i=0;i<36;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.autoChoice.remaining,1);
+ t.document.hidden=true;t.fire(t.document.events,'visibilitychange',{});for(let i=0;i<12;i++)t.run('advanceChoiceTimer(.25)');
+ assert.equal(t.qa.autoChoice.remaining,1,'hidden page freezes the countdown');
+ t.document.hidden=false;t.fire(t.document.events,'visibilitychange',{});t.run('advanceChoiceTimer(.25)');
+ assert.equal(t.qa.autoChoice.remaining,3,'return from background grants at least three seconds');
+ for(let i=0;i<8;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.game.status,'pickup','choice remains available during the grace period');
+ for(let i=0;i<4;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.game.status,'running');assert.equal(t.qa.game.loadout.main,'shotgun','recommended replacement is applied once');
+
+ const b=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});startPickup(b);for(let i=0;i<36;i++)b.run('advanceChoiceTimer(.25)');
+ b.document.focused=false;b.fire(b.windowEvents,'blur',{});for(let i=0;i<12;i++)b.run('advanceChoiceTimer(.25)');
+ assert.equal(b.qa.autoChoice.remaining,1,'unfocused window freezes the countdown');
+ b.document.focused=true;b.fire(b.windowEvents,'focus',{});b.run('advanceChoiceTimer(.25)');assert.equal(b.qa.autoChoice.remaining,3,'regaining focus grants at least three seconds');
+});
 
 
 // ---- V12.1: tap-to-pick on top of the V8 fullscreen drag ---------------------------
@@ -214,13 +255,13 @@ check('quality, volume, next hero and diagnostics are saved when changed in the 
  t.el('volume').value='0.6';t.el('volume').oninput({target:t.el('volume')});t.el('volume').onchange({target:t.el('volume')});
  t.el('nextHero').value='polar';t.el('nextHero').onchange({target:t.el('nextHero')});
  t.el('showStats').checked=true;t.el('showStats').onchange({target:t.el('showStats')});
- assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'high',volume:.6,hero:'polar',stats:true});
+ assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'high',volume:.6,hero:'polar',stats:true,autoChoose:false});
 });
 check('only validated settings are ever written, even if internal state is odd',()=>{
  const t=setup();t.run("quality='ultra';volume=NaN;selectedHero='dragon';showStats='yes';saveSettings()");
- assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'balanced',volume:.25,hero:'pudding',stats:false});
+ assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false});
  t.run("quality='low';volume=7;selectedHero='polar';showStats=true;saveSettings()");
- assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:1,hero:'polar',stats:true});
+ assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:1,hero:'polar',stats:true,autoChoose:false});
 });
 check('the hero cards and F3 are remembered too',()=>{
  const t=setup();t.el('heroCardPolar').onclick();assert.equal(JSON.parse(t.store.get('plush-rescue:settings')).hero,'polar');
@@ -358,7 +399,7 @@ check('five rounds of pause, settings changes and resume keep mouse and touch ta
   if(round%2){down(t,9,p.x,p.y);t.clock.t+=80;up(t,9,p.x,p.y);frame(t);}else mouseTap(t,1,p,round===4?650:150);
   assert.equal(g.pendingPickup?.id,d.id,`round ${round}`);settle(t);
  }
- assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:.25,hero:'polar',stats:true});
+ assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:.25,hero:'polar',stats:true,autoChoose:false});
  assert.equal(t.document.events.pointerdown.length,1,'no listener is added by pausing');assert.equal(t.document.events.pointerup.length,1);
 });
 check('volume is saved while dragging; quality, volume, next hero, stats and auto-equip survive a reload; the run does not',()=>{
@@ -370,9 +411,11 @@ check('volume is saved while dragging; quality, volume, next hero, stats and aut
  t.el('nextHero').value='polar';t.el('nextHero').onchange({target:t.el('nextHero')});
  t.el('showStats').checked=true;t.el('showStats').onchange({target:t.el('showStats')});
  t.el('autoEquip').checked=true;t.el('autoEquip').onchange({target:t.el('autoEquip')});
+ t.el('autoChoose').checked=true;t.el('autoChoose').onchange({target:t.el('autoChoose')});
  const reload=setup(false,{seed:Object.fromEntries(t.store)});
  assert.equal(reload.run('quality'),'low');assert.equal(reload.run('volume'),.45);assert.equal(reload.qa.game.heroId,'polar');
  assert.equal(reload.el('stats').hidden,false);assert.equal(reload.qa.game.autoEquip,true);
+ assert.equal(reload.qa.settings.autoChoose,true,'auto-choice preference survives a reload');
  assert.equal(reload.qa.game.status,'ready','a reload starts from the title screen');assert.equal(reload.qa.game.time,0);assert.equal(reload.qa.game.saved,0);
 });
 

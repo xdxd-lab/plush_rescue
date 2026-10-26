@@ -245,6 +245,11 @@ h2{font-size:27px}
 .pickup-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
 .pickup-actions button{font-size:15px;letter-spacing:0}
 .pickup-tip{font-size:12px;line-height:1.5;color:var(--d-dim);margin:12px 0 0}
+.choice-countdown{margin:12px 0 4px;padding:9px 12px;border:1px solid #aac8b6;border-radius:12px;background:#eef6ed;color:#2c5944;font-size:13px;font-weight:750;line-height:1.4;text-align:center}
+.choice-countdown-track{display:block;height:4px;margin-top:7px;border-radius:4px;background:#d7e5d6;overflow:hidden}
+.choice-countdown-bar{display:block;width:var(--choice-width,100%);height:100%;border-radius:4px;background:#3f8766}
+.choice.auto-choice-target,.pickup-actions .secondary.auto-choice-target{border-color:#328465;box-shadow:0 0 0 3px rgba(53,143,105,.19);background:#e6f4e9}
+.pickup-actions .primary.auto-choice-target{background:#2f795b;color:#fff;box-shadow:0 0 0 3px rgba(53,143,105,.25),0 5px 0 var(--d-primary-shadow)}
 
 /* Upgrade choices */
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
@@ -355,6 +360,7 @@ h2{font-size:27px}
  .pickup-card p{font-size:12px;line-height:1.45}
  .pickup-note{margin-top:8px;font-size:12px}
  .pickup-tip{margin-top:6px}
+ .choice-countdown{margin:7px 0 2px;padding:6px 9px;font-size:12px}
  .text-button{margin-top:2px}
  .result-hero{margin:8px 0 0}
  .result-hero img{width:48px;height:48px}
