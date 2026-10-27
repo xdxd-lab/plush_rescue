@@ -27,6 +27,9 @@ export const DROP_GEOMETRY = Object.freeze({
 // keeps its ring and item, which stay tappable; drawnDrops() reports the
 // choice so tap and hover hit areas follow what is drawn. A label that was
 // shown last frame keeps a small distance bonus so near ties do not flicker.
+// A drop in the dark beat of its expiry blink is not drawn, so it neither takes
+// a label slot nor blocks a neighbour's label. Pooled labels start hidden and
+// are hidden again on release, so a new drop never inherits that bonus.
 export const LABEL_POLICY = Object.freeze({portrait: 3, landscape: 5, heroClear: 1.3, keep: .6, gap: .02});
 
 export function createWeaponVisuals(THREE, scene) {
@@ -308,7 +311,7 @@ export function createWeaponVisuals(THREE, scene) {
     const beacon=part(float,'Pickup glowing center',g.crystal,white,[0,0,0],[.24,.31,.24]);
     const glyph=part(float,'Skill symbol',g.star,white,[0,.05,.29],[.21,.21,.025]);
     const label=new THREE.Sprite(labelMaterials.get('skill:unknown'));
-    label.name='Pickup label'; label.position.y=D.labelY; label.scale.set(D.labelWidth,D.labelHeight,1); group.add(label);
+    label.name='Pickup label'; label.position.y=D.labelY; label.scale.set(D.labelWidth,D.labelHeight,1); label.visible=false; group.add(label);
     group.visible=false;
     return {group,float,ring,beacon,glyph,label,model:null,kind:'',key:'',id:null,phase:dropPool.length*.77};
   }
@@ -347,14 +350,14 @@ export function createWeaponVisuals(THREE, scene) {
   function syncDrops(game) {
     const entities=(game.drops || []).slice(0,MAX_DROPS), live=new Set(entities.map(drop=>drop.id));
     for (const [id,view] of drops) if (!live.has(id)) {
-      view.group.removeFromParent(); view.group.visible=false; view.id=null; drops.delete(id);
+      view.group.removeFromParent(); view.group.visible=false; view.label.visible=false; view.id=null; drops.delete(id);
     }
     for (const drop of entities) {
       let view=drops.get(drop.id);
       if (!view) {
         view=dropPool.find(item=>item.id===null);
         if (!view) { view=makeDrop(); dropPool.push(view); }
-        view.id=drop.id; drops.set(drop.id,view); root.add(view.group); view.group.visible=true;
+        view.id=drop.id; drops.set(drop.id,view); root.add(view.group); view.group.visible=true; view.label.visible=false;
       }
       configureDrop(view,drop);
       view.group.position.set(drop.x,0,drop.z);
@@ -381,7 +384,7 @@ export function createWeaponVisuals(THREE, scene) {
     for(const drop of entities) {
       const view=drops.get(drop.id),d=Math.hypot(drop.x-p.x,drop.z-p.z),was=view.label.visible;
       view.label.visible=false;
-      if(d>=DROP_GEOMETRY.labelDistance||(camera&&d<LABEL_POLICY.heroClear)) continue;
+      if(!view.group.visible||d>=DROP_GEOMETRY.labelDistance||(camera&&d<LABEL_POLICY.heroClear)) continue;
       candidates.push({drop,view,rank:d-(was?LABEL_POLICY.keep:0)});
     }
     // Without a camera (first frame, Node tests) the V11 distance rule applies alone.
@@ -591,7 +594,7 @@ export function createWeaponVisuals(THREE, scene) {
   }
   function clear() {
     detachHero();drops.clear();bombs.clear();
-    for(const view of dropPool) {view.id=null;view.group.removeFromParent();view.group.visible=false;}
+    for(const view of dropPool) {view.id=null;view.group.removeFromParent();view.group.visible=false;view.label.visible=false;}
     for(const view of bombPool) {view.id=null;view.group.removeFromParent();}
     for(const effect of effectPool) {effect.life=0;effect.group.removeFromParent();}
     root.removeFromParent();root.clear();burnFlames.count=burnCores.count=0;lastBurnKey='';now=0;effectCursor=0;labelCamera=null;

@@ -83,3 +83,50 @@ test('of two drops whose labels would overlap on screen, only the nearer is labe
   assert.equal(t.wv.drawnDrops().size,2,`${name}: both drops are still drawn`);
  }
 });
+
+// Steps the visuals clock to the middle of a dark (sin<0) or bright (sin>0)
+// beat of the 13 rad/s expiry blink, then syncs like the game loop.
+function beat(t,camera,dark){
+ const target=(Math.floor(t.now*13/(2*Math.PI))+1)*2*Math.PI+(dark?1.5:.5)*Math.PI;
+ const dt=target/13-t.now;t.now+=dt;t.wv.update(dt,[],t.game,camera);t.wv.sync(t.game,new THREE.Group());
+}
+// Portrait frame: drop 1 nearest (2.51), 2 and 3 next, drop 4 farther (5.49).
+const four=()=>[{x:-2.2,z:1.2},{x:2.4,z:1.5},{x:0,z:-3},{x:3,z:-4.6}];
+
+test('a drop in the dark beat of its expiry blink neither takes a label slot nor blocks one; it competes again when bright',()=>{
+ const camera=view(390,844),t=scene(four(),camera);t.now=0;t.game.drops[0].life=1.5;
+ beat(t,camera,true);
+ assert.equal(t.wv.drawnDrops().has(1),false,'dark beat: not drawn');
+ assert.deepEqual(t.labels().sort(),[2,3,4],'the free slot goes to the next drop');
+ beat(t,camera,false);
+ assert.equal(t.wv.drawnDrops().has(1),true);
+ assert.deepEqual(t.labels().sort(),[1,2,3],'bright again and clearly nearer: it takes its label back');
+ // Overlapping pair: when the nearer one is dark, the farther one is labelled.
+ for(const [name,[w,h]] of Object.entries(VIEWS)){
+  const cam=view(w,h),right=new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld,0).normalize();
+  const a={x:2.5,z:1},b={x:a.x+right.x*G.labelWidth*.6,z:a.z+right.z*G.labelWidth*.6};
+  const near=Math.hypot(a.x,a.z)<Math.hypot(b.x,b.z)?0:1,u=scene([a,b],cam);u.now=0;u.game.drops[near].life=1.5;
+  beat(u,cam,false);assert.deepEqual(u.labels(),[near+1],`${name}: bright, the nearer is labelled`);
+  beat(u,cam,true);assert.deepEqual(u.labels(),[2-near],`${name}: dark, the farther is labelled`);
+ }
+});
+
+test('a newly allocated pool slot starts without the shown-label bonus',()=>{
+ const camera=view(390,844),t=scene(four(),camera);
+ assert.deepEqual(t.labels().sort(),[1,2,3]);
+ // Drop 1 walks out of label range (keeps its slot); a new drop needs a fresh
+ // slot, a little farther than drop 4 (within the keep margin).
+ t.game.drops[0].x=-9;t.game.drops[0].z=0;
+ t.game.drops.push({id:5,kind:'weapon',weaponId:'cannon',x:-4,z:-4,life:30});t.frame();
+ assert.equal(t.wv.stats.dropPool,5,'a fresh slot was made');
+ assert.deepEqual(t.labels().sort(),[2,3,4],'the nearer drop 4 wins, not the newcomer');
+});
+
+test('a reused pool slot does not pass its label bonus to the next drop',()=>{
+ const camera=view(390,844),t=scene(four(),camera);
+ assert.deepEqual(t.labels().sort(),[1,2,3]);
+ // Drop 1 (labelled) is picked up and a new drop takes its slot in the same frame.
+ t.game.drops.shift();t.game.drops.push({id:5,kind:'weapon',weaponId:'cannon',x:-4,z:-4,life:30});t.frame();
+ assert.equal(t.wv.stats.dropPool,4,'the freed slot was reused');
+ assert.deepEqual(t.labels().sort(),[2,3,4],'the nearer drop 4 wins, not the newcomer');
+});

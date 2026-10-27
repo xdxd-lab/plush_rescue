@@ -106,8 +106,8 @@
     },
     {
       "path": "weapon-visuals.js",
-      "bytes": 35132,
-      "sha256": "909bf370b3ee8bbf56cd013f9fc9c30ecf8410b5e804d0aefe31711c4cd5be26"
+      "bytes": 35484,
+      "sha256": "75edc4f3e66f77d8e33a9f710d33e71b65eac2de0e4509d87469835f180fdf7c"
     },
     {
       "path": "weapons.js",
