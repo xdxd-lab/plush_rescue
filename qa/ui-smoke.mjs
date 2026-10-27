@@ -419,4 +419,129 @@ check('volume is saved while dragging; quality, volume, next hero, stats and aut
  assert.equal(reload.qa.game.status,'ready','a reload starts from the title screen');assert.equal(reload.qa.game.time,0);assert.equal(reload.qa.game.saved,0);
 });
 
+// ---- V12.2.1: mouse hover pickup -------------------------------------------------------
+const hoverMove=(t,p,extra={})=>move(t,9,p.x,p.y,{pointerType:'mouse',buttons:0,...extra});
+// A real-time frame of `ms` (loop takes the absolute time); the first call only syncs the clock.
+const hframe=(t,ms)=>{t.hnow=(t.hnow||5000)+ms;t.run(`loop(${t.hnow})`);};
+const hoverGame=(opts={})=>{const t=tapGame(opts);hframe(t,0);hframe(t,16);return t;};
+check('a mouse resting on a drop takes it after 0.5 s through the normal pickup flow; 0.4 s does not',()=>{
+ const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);
+ for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running','about 0.4 s');assert.equal(t.el('hoverRing').hidden,false,'progress ring is shown');
+ for(let i=0;i<3;i++)hframe(t,100);assert.equal(t.qa.game.status,'pickup');assert.equal(t.qa.game.pendingPickup.weaponId,'shotgun');assert.equal(t.qa.game.weaponLevels.shotgun,1);
+ assert.equal(t.el('hoverRing').hidden,true);assert.equal(t.run('hoverPoint'),null,'the mouse has to move again');
+});
+check('the progress ring shows on the very first frame after the move, even with slow (200 ms) frames; a drop under a resting cursor shows none',()=>{
+ const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,200);
+ assert.equal(t.el('hoverRing').hidden,false,'ring is up right after the entering frame');assert.equal(t.qa.game.status,'running');
+ hframe(t,200);hframe(t,200);assert.equal(t.qa.game.status,'running','400 ms counted');hframe(t,200);assert.equal(t.qa.game.status,'pickup','a 200 ms frame is counted in full');
+ const u=hoverGame(),probe=addNear(u),q=spot(u,probe);u.qa.game.drops.length=0;hoverMove(u,q);hframe(u,16);addNear(u);hframe(u,100);hframe(u,100);
+ assert.equal(u.el('hoverRing').hidden,true,'unarmed: no ring');
+});
+check('hover pickup honours auto-equip like a click, and an upgrade drop is taken too',()=>{
+ const t=hoverGame(),g=t.qa.game;g.autoEquip=true;const d=addNear(t,'burst'),p=spot(t,d);hoverMove(t,p);hframe(t,16);
+ for(let i=0;i<7;i++)hframe(t,100);assert.equal(g.status,'running');assert.equal(g.loadout.main,'burst');assert.equal(g.drops.length,0);
+ const u=g.addDrop({kind:'upgrade',upgradeId:'power',x:g.player.x+3,z:g.player.z}),q=spot(t,u),power=g.power;hoverMove(t,q);hframe(t,16);
+ for(let i=0;i<7;i++)hframe(t,100);assert.ok(g.power>power);
+});
+check('touch and pen never hover-pick; a pressed mouse button (drag) never does either',()=>{
+ for(const extra of [{pointerType:'touch'},{pointerType:'pen'},{pointerType:'mouse',buttons:1}]){
+  const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p,extra);hframe(t,16);
+  for(let i=0;i<12;i++)hframe(t,100);assert.equal(t.qa.game.status,'running',JSON.stringify(extra));assert.equal(t.qa.game.drops.length,1);
+ }
+});
+check('a drop sliding under a resting cursor is not picked; a mouse move over it starts the 0.5 s',()=>{
+ const t=hoverGame(),probe=addNear(t),p=spot(t,probe);t.qa.game.drops.length=0;
+ hoverMove(t,p);hframe(t,16);
+ const d=addNear(t);hframe(t,16);for(let i=0;i<12;i++)hframe(t,100);assert.equal(t.qa.game.status,'running','resting cursor');assert.equal(t.qa.game.drops.length,1);
+ hoverMove(t,{x:p.x+1,y:p.y});hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running');
+ for(let i=0;i<3;i++)hframe(t,100);assert.equal(t.qa.game.status,'pickup');
+});
+check('hover only takes exact hits: a spot just outside the shape is not picked',()=>{
+ const t=hoverGame(),d=addNear(t),p=spot(t,d),far={x:p.x+120,y:p.y};
+ hoverMove(t,far);hframe(t,16);for(let i=0;i<12;i++)hframe(t,100);assert.equal(t.qa.game.status,'running');
+});
+check('pointerdown, leaving the window, pause, blur, hidden and resize restart the hover',()=>{
+ const resets={
+  pointerdown:t=>down(t,9,5,5,{pointerType:'mouse'}),
+  'leave window':t=>t.fire(t.document.events,'pointerout',{pointerType:'mouse',relatedTarget:null}),
+  blur:t=>t.fire(t.windowEvents,'blur',{}),
+  resize:t=>t.fire(t.windowEvents,'resize',{}),
+  pause:t=>t.qa.pause(),
+ };
+ for(const [name,act] of Object.entries(resets)){
+  const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);
+  act(t);if(t.qa.game.status==='paused')t.qa.resume();
+  for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running',name+': 0.4 s before + 0.4 s after must not add up');
+  assert.equal(t.run('hoverPoint'),null,name);
+ }
+ const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);
+ t.document.hidden=true;t.fire(t.document.events,'visibilitychange',{});t.document.hidden=false;t.qa.resume();
+ for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running','hidden');
+});
+check('moving to another drop or off the drop restarts; a HUD panel over the drop blocks the hover',()=>{
+ const t=hoverGame(),d=addNear(t,'shotgun',3,0),e=addNear(t,'burst',-3,0),p=spot(t,d),q=spot(t,e);
+ hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);hoverMove(t,q);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);
+ assert.equal(t.qa.game.status,'running','time on the first drop is not carried to the second');
+ for(let i=0;i<3;i++)hframe(t,100);assert.equal(t.qa.game.pendingPickup?.weaponId,'burst');
+ const u=hoverGame(),f=addNear(u),r=spot(u,f),card=u.document.all.find(x=>x.classes.has('weapon-card'));
+ card.rect={left:r.x-30,top:r.y-20,right:r.x+30,bottom:r.y+20,width:60,height:40};
+ hoverMove(u,r);hframe(u,16);for(let i=0;i<12;i++)hframe(u,100);assert.equal(u.qa.game.status,'running','weapon card covers the drop');assert.equal(u.el('hoverRing').hidden,true);
+});
+check('slow frames (267, 400 ms) count in full; a stall of 1000 ms resets the hover (a move and a full 0.5 s are needed); a dialog or non-running state never hover-picks',()=>{
+ for(const ms of [267,400]){const u=hoverGame(),e=addNear(u),q=spot(u,e);hoverMove(u,q);hframe(u,ms);assert.equal(u.el('hoverRing').hidden,false,ms+' ms: ring on the entering frame');assert.equal(u.qa.game.status,'running');
+  hframe(u,ms);assert.equal(u.qa.game.status,'running',ms+' ms: one counted frame is under 0.5 s');hframe(u,ms);assert.equal(u.qa.game.status,'pickup',ms+' ms: two counted frames reach 0.5 s');}
+ const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);
+ hframe(t,999);assert.equal(t.qa.game.status,'pickup','999 ms is a slow frame, not a stall');
+ const w=hoverGame(),f=addNear(w),r=spot(w,f);hoverMove(w,r);hframe(w,16);for(let i=0;i<4;i++)hframe(w,100);
+ hframe(w,1000);assert.equal(w.run('hover.id'),null,'a 1000 ms stall resets');for(let i=0;i<12;i++)hframe(w,100);assert.equal(w.qa.game.status,'running','no move since the stall: not restarted');
+ hoverMove(w,{x:r.x+1,y:r.y});hframe(w,16);for(let i=0;i<4;i++)hframe(w,100);assert.equal(w.qa.game.status,'running','0.4 s');for(let i=0;i<3;i++)hframe(w,100);assert.equal(w.qa.game.status,'pickup');
+ const u=hoverGame(),e=addNear(u),q=spot(u,e);hoverMove(u,q);hframe(u,16);u.qa.pause();for(let i=0;i<12;i++)hframe(u,100);assert.equal(u.qa.game.status,'paused');assert.equal(u.qa.game.drops.length,1);
+});
+const countShapes=t=>{t.run('globalThis.__shapeCalls=0;{const original=dropShapes;dropShapes=function(...args){globalThis.__shapeCalls++;return original(...args);};}');return ()=>t.run('globalThis.__shapeCalls');};
+check('an idle cursor with nothing tracked costs no hit tests; a move or a tracked hover (even in a dark beat) does',()=>{
+ const t=hoverGame(),probe=addNear(t),p=spot(t,probe);t.qa.game.drops.length=0;const calls=countShapes(t);
+ hoverMove(t,p);hframe(t,16);assert.equal(calls(),1,'the move frame is tested once');
+ for(let i=0;i<30;i++)hframe(t,16);assert.equal(calls(),1,'30 idle frames: no projection at all');
+ const d=addNear(t);for(let i=0;i<10;i++)hframe(t,16);assert.equal(calls(),1,'a drop sliding under the idle cursor is not even tested');assert.equal(t.run('hover.id'),null);
+ hoverMove(t,{x:p.x+1,y:p.y});hframe(t,16);assert.equal(calls(),2,'a new move is tested');assert.equal(t.run('hover.id'),d.id);
+ const before=calls();for(let i=0;i<3;i++)hframe(t,100);assert.equal(calls(),before+3,'once tracked, every frame is tested without further moves');
+ for(let i=0;i<3;i++)hframe(t,100);assert.equal(t.qa.game.status,'pickup','and the hover still completes');
+ const u=hoverGame(),e=addNear(u),q=spot(u,e);e.life=1.9;hoverMove(u,q);hframe(u,16);hframe(u,100);const ucalls=countShapes(u);
+ const group=()=>{let found=null;u.qa.scene.traverse(o=>{if(o.isGroup&&/pickup$/.test(o.name)&&o.parent)found=o;});return found;};
+ for(let i=0;i<30&&group().visible;i++)hframe(u,10);assert.equal(group().visible,false);
+ const start=ucalls();for(let i=0;i<3;i++)hframe(u,10);assert.equal(ucalls(),start+3,'a tracked drop in its dark beat is still tested every frame');assert.equal(u.run('hover.id'),e.id);
+});
+check('a HUD panel that goes away does not let an old mouse move start a hover',()=>{
+ const t=hoverGame(),d=addNear(t),p=spot(t,d),card=t.document.all.find(x=>x.classes.has('weapon-card'));
+ card.rect={left:p.x-30,top:p.y-20,right:p.x+30,bottom:p.y+20,width:60,height:40};
+ hoverMove(t,p);hframe(t,16);assert.equal(t.run('hoverMoved'),false,'the covered frame consumed the move');
+ card.rect=null;for(let i=0;i<12;i++)hframe(t,100);assert.equal(t.qa.game.status,'running','no new mouse move: no hover');assert.equal(t.run('hover.id'),null);
+ hoverMove(t,{x:p.x+1,y:p.y});hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running');for(let i=0;i<3;i++)hframe(t,100);assert.equal(t.qa.game.status,'pickup','a real move starts it');
+ const u=hoverGame(),e=addNear(u),q=spot(u,e);u.qa.pause();hoverMove(u,q);hframe(u,16);u.qa.resume();for(let i=0;i<12;i++)hframe(u,100);assert.equal(u.qa.game.status,'running','a move made while paused does not carry over');
+});
+check('499 ms on a drop, slide off for one frame and back: a full 0.5 s is needed again',()=>{
+ const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);
+ for(let i=0;i<49;i++)hframe(t,10);hframe(t,9);assert.equal(t.qa.game.status,'running','499 ms');
+ hoverMove(t,{x:p.x+150,y:p.y});hframe(t,16);hoverMove(t,p);hframe(t,16);
+ for(let i=0;i<48;i++)hframe(t,10);assert.equal(t.qa.game.status,'running','about 480 ms after re-entry');
+ for(let i=0;i<4;i++)hframe(t,10);assert.equal(t.qa.game.status,'pickup','about 520 ms after re-entry');
+});
+check('sliding off the drop restarts the hover, even for one frame; sliding back needs a new move and a full 0.5 s',()=>{
+ const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);
+ hoverMove(t,{x:p.x+150,y:p.y});hframe(t,16);assert.equal(t.run('hover.id'),null,'reset on the very next frame');assert.equal(t.el('hoverRing').hidden,true);
+ hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running','0.4 s before + 0.4 s after do not add up');
+ for(let i=0;i<3;i++)hframe(t,100);assert.equal(t.qa.game.status,'pickup');
+});
+check('in the dark beat of an expiry blink the tracked drop is held (progress kept, nothing taken); a real slide-off in the dark resets',()=>{
+ const t=hoverGame(),d=addNear(t),p=spot(t,d);d.life=1.9;hoverMove(t,p);hframe(t,16);hframe(t,100);
+ const group=()=>{let found=null;t.qa.scene.traverse(o=>{if(o.isGroup&&/pickup$/.test(o.name)&&o.parent)found=o;});return found;};
+ for(let i=0;i<30&&group().visible;i++)hframe(t,10);assert.equal(group().visible,false,'reached a dark beat');
+ assert.equal(t.run('hover.id'),d.id,'held through the dark beat');assert.equal(t.qa.game.status,'running');
+ hoverMove(t,{x:p.x+150,y:p.y});hframe(t,10);assert.equal(t.run('hover.id'),null,'cursor really left while dark: reset');
+});
+check('an expiring drop in its blink keeps the hover (dark beats do not reset it) and is picked before it expires',()=>{
+ const t=hoverGame(),d=addNear(t),p=spot(t,d);d.life=1.9;hoverMove(t,p);hframe(t,16);
+ for(let i=0;i<36&&t.qa.game.status==='running';i++)hframe(t,50);assert.equal(t.qa.game.status,'pickup','picked despite dark beats');assert.ok(d.life>0,'taken before expiring');
+});
+
 console.log(JSON.stringify({method:'Node DOM/renderer stub only; not browser/WebGL verification',passed:checks.length,checks},null,2));

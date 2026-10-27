@@ -86,6 +86,47 @@ export function createTapTracker({touchMove=TAP_LIMITS.touchMove,mouseMove=TAP_L
   get size(){return active.size;},
  };
 }
+// V12.2.1: mouse hover pickup. A mouse that rests on the same drop for HOLD ms
+// takes it through the normal tap flow. Timing is driven by frame deltas, so a
+// stalled frame (tab switch, device sleep) is never counted. The pointer must have
+// moved while over the drop: a drop that slides under a resting cursor (camera
+// motion) never starts a hover. Sliding off the drop resets at once (no edge grace).
+// A slow frame counts in full, so a slow device still reaches 0.5 s; only a stall of
+// stallMs or more (1 fps, which is what a throttled background tab gives, or sleep, or
+// a frozen page) resets the hover: nothing is counted and nothing stays pending. Only a drop that is still in the game but in
+// the dark beat of its expiry blink is "held": progress is kept, no time is added and
+// it can not be taken until it shows; a hold longer than maxHoldMs resets too.
+export const HOVER_LIMITS=Object.freeze({holdMs:500,stallMs:1000,maxHoldMs:600});
+export function createHoverTracker({holdMs=HOVER_LIMITS.holdMs,stallMs=HOVER_LIMITS.stallMs,maxHoldMs=HOVER_LIMITS.maxHoldMs}={}){
+ let id=null,armed=false,elapsed=0,blocked=null,held=0;
+ const progress=()=>armed?Math.min(1,elapsed/holdMs):0;
+ // armed: the hover is running (the pointer moved over the drop), even before any time is counted.
+ const out=(fire,shown)=>({fire,id:shown,progress:shown===null?0:progress(),armed:shown!==null&&armed});
+ const reset=()=>{id=null;armed=false;elapsed=0;blocked=null;held=0;};
+ return {
+  // hitId: the drawn drop under the pointer this frame (or null); hiddenId: the
+  // tracked drop when it is under the pointer but only hidden by its blink;
+  // dtMs: frame delta; moved: the pointer moved since the previous frame.
+  update({hitId=null,hiddenId=null,dtMs=0,moved=false}={}){
+   if(Number.isFinite(dtMs)&&dtMs>=stallMs){reset();return out(null,null);}
+   const dt=Number.isFinite(dtMs)&&dtMs>0?dtMs:0;
+   if(hitId===null||hitId===undefined){
+    if(id!==null&&hiddenId===id&&(held+=dt)<=maxHoldMs)return out(null,id);
+    reset();return out(null,null);
+   }
+   held=0;
+   if(hitId===blocked)return out(null,null);
+   if(hitId!==id){id=hitId;armed=Boolean(moved);elapsed=0;blocked=null;return out(null,id);}
+   // The frame that arms the hover (the pointer moved over the drop) adds no time.
+   if(!armed&&moved){armed=true;elapsed=0;}
+   else if(armed)elapsed+=dt;
+   if(armed&&elapsed>=holdMs){const fire=id;reset();blocked=fire;return out(fire,null);}
+   return out(null,id);
+  },
+  reset,
+  get id(){return id;},
+ };
+}
 // Event time for tap duration. timeStamp is when the input happened, so a busy
 // frame between press and release does not make a quick click look slow.
 export function eventTime(event,now){

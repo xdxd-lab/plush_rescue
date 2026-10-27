@@ -128,6 +128,8 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 footer{position:absolute;left:0;right:0;margin-inline:auto;bottom:var(--gut-b);width:min(760px,calc(100% - var(--gut-l) - var(--gut-r)));display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"hint hint" "xp xp" "equip two" "stats stats";gap:8px;font-size:13px;font-weight:700;pointer-events:none;z-index:2}
 /* V10: diagnostics occupy the final bottom row and reserve their own height. */
 footer:has(> #stats:not([hidden])){bottom:calc(2px + env(safe-area-inset-bottom))}
+#hoverRing{position:absolute;width:34px;height:34px;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);z-index:5;background:conic-gradient(rgba(255,214,126,.95) calc(var(--hover,0)*1deg),rgba(255,255,255,.16) 0);-webkit-mask:radial-gradient(circle,transparent 11px,#000 12px);mask:radial-gradient(circle,transparent 11px,#000 12px)}
+#hoverRing[hidden]{display:none}
 #moveHint{grid-area:hint;justify-self:center;pointer-events:none;padding:6px 14px;border-radius:999px;background:rgba(24,26,38,.6);font-size:12px;font-weight:600;color:var(--text-dim);white-space:nowrap;transition:opacity .4s}
 #moveHint .hint-keys{display:none}
 #game.hint-done #moveHint{display:none}

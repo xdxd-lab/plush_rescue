@@ -1,7 +1,7 @@
 {
-  "version": "12.2.0",
-  "revision": "v12.2.0-auto-choice-r1",
-  "source_commit": "3a16473",
+  "version": "12.2.1",
+  "revision": "v12.2.1-hover-pickup-r1",
+  "source_commit": "8b5d738",
   "layout": "Static V12.2.0 export based on V12.1.1 (3a16473); optional 10-second automatic choice for upgrade and weapon comparison, remembered settings, mobile-first rescue UI.",
   "files": [
     {
@@ -21,8 +21,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 238,
-      "sha256": "3f4d071ddb44d2273d7186721e22bbbedf88b5827539b51294eb3367d172c15d"
+      "bytes": 260,
+      "sha256": "3796c75b54ae5e1474c8c83dd3fe16ab9661c2aed72af08237402b1b6f15df79"
     },
     {
       "path": "camera.js",
@@ -51,8 +51,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 11321,
-      "sha256": "636dc3b9d9100e2ddc5c1a0b7f4d90687327d375afb2a715c68edf877d87e303"
+      "bytes": 11356,
+      "sha256": "d617aa45571ba4fdcafb916ba58f3dfb8a0934c0be534a82cf6ddf458261790f"
     },
     {
       "path": "keyboard.js",
@@ -66,8 +66,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 40609,
-      "sha256": "1b0b73dfbad66810a8ea21e25c1230561b1a6460f83c01d448f5b221c6c51055"
+      "bytes": 43663,
+      "sha256": "4e0d0f46c13b5f750db6836a98c699792fda0c6c19c463f91cefa66ec15e3b40"
     },
     {
       "path": "maps.js",
@@ -76,13 +76,13 @@
     },
     {
       "path": "style.css",
-      "bytes": 31181,
-      "sha256": "e9cd5c1c0ba3eacdcad9d6812c37e5610d8df05c062cd9667800a96be36cb35d"
+      "bytes": 31565,
+      "sha256": "0dc4e33c39f04668e4a38e1d36bcf222da381527b721d244baa58ac55310a061"
     },
     {
       "path": "ui.js",
-      "bytes": 12785,
-      "sha256": "06572376b6016a71911463025e83c5c4085d9b5bd45762f1abd54c667bbd8f7c"
+      "bytes": 15313,
+      "sha256": "727ad6dc0ddcf9e84b96d19228e43cb85f490f251ef8e261779d15215f5f349f"
     },
     {
       "path": "vendor/THREE-LICENSE.txt",

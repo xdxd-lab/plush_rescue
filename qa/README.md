@@ -11,6 +11,7 @@ the root `README.md`.
 |---|---|
 | `node --test qa/*.test.mjs` | layout rules per viewport, invariants (V11-unchanged modules, weapon-visuals drawing identical to V11, V8/V10/V11 markers, manifest, portraits, P2 warning), ui.js helpers, keyboard, tap-to-pick (core, tap detection and timing, DROP_GEOMETRY measured against every model, ring/item/full-label hit area, shape–viewport intersection incl. portrait edges and far-plane cuts, overlap ranking, HUD cover), remembered settings, and gameplay signatures proving core.js matches V11 (`sim-signature.mjs`) |
 | `node --test qa/equip-slots.test.mjs` | focused pickup choices, main/off-hand replacement and separate magic charge, two-handed equip/stow/toggle, repeated cannon pickups, sequential pickups and firing behavior |
+| `node --test qa/hover-pickup.test.mjs` | mouse hover timing, target changes, hidden blink grace, long stalls, reset and repeat prevention |
 | `node qa/ui-smoke.mjs` | DOM/renderer stub with the real Game: hero cards and `#heroSelect`, pause/settings, pickup, level-up (incl. 1–4 keys), cannon, notices, boss clock, V8 drag, records, blocked storage, two-finger tap-to-pick, on-screen taps in four viewports (label ends, far drops, partly visible drops at the portrait edge, HUD cover, expiry and blink dark/bright beats, slow mouse), five pause/settings/resume rounds, settings reload |
 | `node qa/browser-chrome.mjs [--shots=DIR] [--views=WxH,...] [--dialogs] [--no-pickup] [--self-test=MODE]` | optional, needs Google Chrome and Node 22+ (Node 20: add `--experimental-websocket`): headless Chrome with SwiftShader WebGL, real CSS layout and DevTools-protocol mouse/touch input with explicit timestamps — boot, ring/item/label-end taps, far drops (auto-chosen visible, uncovered spot), real HUD cover, five real pause/settings/resume rounds with a per-round check of the stats checkbox and `localStorage`, slow and busy-thread mouse clicks, drag guard, second finger, reload, separate profile, blocked storage. Default views 1280×720, 390×844, 360×640, 844×390; `--views` also takes 568×320 and 800×600. `--dialogs` measures start/pause dialog reachability (wheel or touch drag to the end, Tab into view, Enter). Prints one line per check as it finishes. Slow: a full run takes many minutes. Lifecycle: see below |
 | `python3 qa/regenerate-manifest.py` | rewrite runtime sizes/hashes after accepting changes |
@@ -32,6 +33,11 @@ WebSocket handshake. A failed assertion only fails its own check. Chrome, the lo
 profile are removed on success, failed checks, setup errors, uncaught errors and SIGINT/SIGTERM/SIGHUP; a SIGKILL
 of the Node process cannot be cleaned up. `--self-test=timeout|cdp|assert|setup|handshake-http|handshake-ws|signal`
 exercises these paths without the game checks.
+
+V12.2.1 hover follow-up: Node 24.22.1 passed 82 tests and the DOM smoke passed 75 checks. A focused
+Chrome 156 / SwiftShader run used real CDP mouse input to check the visible progress ring, leaving and
+re-entering a drop, pickup after re-entry and a HUD-covered drop; all passed. Desktop click and 390×844
+emulated touch pickup checks also passed. This is not a real phone or hardware GPU test.
 
 CDP touch semantics used by `browser-chrome.mjs` (observed in Chrome 156): `touchStart`/`touchMove` list the points that are down;
 `touchEnd` lists the points being released (an empty list releases all). Without explicit `timestamp`s, a slow

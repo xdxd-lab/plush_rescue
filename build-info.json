@@ -1,1 +1,1 @@
-{"version":"12.2.0","revision":"v12.2.0-auto-choice-r1","source_commit":"3a16473","validation_at_build":"54-node-tests;60-dom-smoke;21-hashes;41-references;15-js-modules","built_at":"2026-10-26T09:53:04Z","publication":"v12.2.0-release"}
+{"version":"12.2.1","revision":"v12.2.1-hover-pickup-r1","source_commit":"8b5d738","validation_at_build":"82-node-tests;75-dom-smoke;21-hashes;41-references;15-js-modules;chrome-hover-focused","built_at":"2026-10-27T17:04:51Z","publication":"v12.2.1-release"}

@@ -1,6 +1,6 @@
 **立即遊玩：**[GitHub Pages](https://xdxd-lab.github.io/plush_rescue/) · [Sites](https://plush-rescue-survivor.b892020xx.chatgpt.site)
 
-# 布偶救援隊 · Plush Rescue V12.2.0
+# 布偶救援隊 · Plush Rescue V12.2.1
 
 這是一款可直接在瀏覽器遊玩的單人生存救援遊戲，不需要下載或安裝。GitHub Pages 版本是免建置的靜態網站；`index.html`、遊戲模組與素材都放在本儲存庫根目錄。執行遊戲不需要 CDN、`npm install` 或後端服務。
 
@@ -82,7 +82,7 @@ node qa/ui-smoke.mjs
 
 ## 版本紀錄
 
-目前版本為 **12.2.0**（`v12.2.0-auto-choice-r1`）。在遊戲內的「設定」可選擇開啟「選擇時倒數 10 秒自動決定」；預設關閉，僅適用於升級和武器比較畫面，玩家操作會取消當次倒數。各版本的變更、驗證結果、尚未驗證的項目，以及版本與提交的對照，見 [`CHANGELOG.md`](CHANGELOG.md)。
+目前版本為 **12.2.1**（`v12.2.1-hover-pickup-r1`）。滑鼠移到寶物上停留約 0.5 秒即可拾取，也可以照常點擊；觸控拾取方式不變。在遊戲內的「設定」可選擇開啟「選擇時倒數 10 秒自動決定」；預設關閉，僅適用於升級和武器比較畫面，玩家操作會取消當次倒數。各版本的變更、驗證結果、尚未驗證的項目，以及版本與提交的對照，見 [`CHANGELOG.md`](CHANGELOG.md)。
 
 ## 素材與後續修改
 
