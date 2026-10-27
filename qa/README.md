@@ -10,6 +10,7 @@ the root `README.md`.
 | Command (from the repository root) | Covers |
 |---|---|
 | `node --test qa/*.test.mjs` | layout rules per viewport, invariants (V11-unchanged modules, weapon-visuals drawing identical to V11, V8/V10/V11 markers, manifest, portraits, P2 warning), ui.js helpers, keyboard, tap-to-pick (core, tap detection and timing, DROP_GEOMETRY measured against every model, ring/item/full-label hit area, shape–viewport intersection incl. portrait edges and far-plane cuts, overlap ranking, HUD cover), remembered settings, and gameplay signatures proving core.js matches V11 (`sim-signature.mjs`) |
+| `node --test qa/equip-slots.test.mjs` | focused pickup choices, main/off-hand replacement and separate magic charge, two-handed equip/stow/toggle, repeated cannon pickups, sequential pickups and firing behavior |
 | `node qa/ui-smoke.mjs` | DOM/renderer stub with the real Game: hero cards and `#heroSelect`, pause/settings, pickup, level-up (incl. 1–4 keys), cannon, notices, boss clock, V8 drag, records, blocked storage, two-finger tap-to-pick, on-screen taps in four viewports (label ends, far drops, partly visible drops at the portrait edge, HUD cover, expiry and blink dark/bright beats, slow mouse), five pause/settings/resume rounds, settings reload |
 | `node qa/browser-chrome.mjs [--shots=DIR] [--views=WxH,...] [--dialogs] [--no-pickup] [--self-test=MODE]` | optional, needs Google Chrome and Node 22+ (Node 20: add `--experimental-websocket`): headless Chrome with SwiftShader WebGL, real CSS layout and DevTools-protocol mouse/touch input with explicit timestamps — boot, ring/item/label-end taps, far drops (auto-chosen visible, uncovered spot), real HUD cover, five real pause/settings/resume rounds with a per-round check of the stats checkbox and `localStorage`, slow and busy-thread mouse clicks, drag guard, second finger, reload, separate profile, blocked storage. Default views 1280×720, 390×844, 360×640, 844×390; `--views` also takes 568×320 and 800×600. `--dialogs` measures start/pause dialog reachability (wheel or touch drag to the end, Tab into view, Enter). Prints one line per check as it finishes. Slow: a full run takes many minutes. Lifecycle: see below |
 | `python3 qa/regenerate-manifest.py` | rewrite runtime sizes/hashes after accepting changes |
@@ -64,6 +65,14 @@ temporary profile remained. The initial full run found three stale exact setting
 the expectations and always attempting both cleanup steps, the full storage-to-dialog run passed. The first
 run's later CDP timeout is consistent with interference from those live pages, but its exact Chrome mechanism
 was not established. These checks do not cover real phones, Safari/WebKit, Firefox or a hardware GPU.
+
+Further investigation (2026-10-28): five Chrome crash reports show `SIGABRT` during macOS application
+registration. System logs for the same process IDs record sandbox-denied Mach service lookups immediately
+before the crashes, including `com.apple.coreservices.launchservicesd` and `com.apple.windowserver.active`;
+`com.apple.CoreServices.coreservicesd` was also denied in some captured cases. For example, PID 11717 had
+denials at 04:14:38.057–.058 and the crash report was captured at 04:14:38.0637 (+0800). The timing and
+the successful less-restricted launch support a connection to sandbox restrictions, but do not identify which
+denial caused the abort or prove the source of the policy.
 
 Historical V12.1.1 browser checks (as of `84363c8`, Chrome 156, Node 24): every run below exited 0 with no
 console errors and no Chrome process or temporary profile left behind.
