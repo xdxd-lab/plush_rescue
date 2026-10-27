@@ -20,6 +20,14 @@ export const DROP_GEOMETRY = Object.freeze({
   floatY: .70, floatBob: .09, floatBottom: -.37, floatTop: .75, floatRadius: .66,
   labelY: 1.48, labelWidth: 2.5, labelHeight: .73, labelDistance: 8.5,
 });
+// Which drop labels are shown. Labels stay within labelDistance as before, but
+// a crowded frame shows only the nearest few (fewer on a narrow portrait
+// screen), none right on top of the hero (those drops are about to be walked
+// over), and none overlapping a label already shown. A drop without a label
+// keeps its ring and item, which stay tappable; drawnDrops() reports the
+// choice so tap and hover hit areas follow what is drawn. A label that was
+// shown last frame keeps a small distance bonus so near ties do not flicker.
+export const LABEL_POLICY = Object.freeze({portrait: 3, landscape: 5, heroClear: 1.3, keep: .6, gap: .02});
 
 export function createWeaponVisuals(THREE, scene) {
   const root = new THREE.Group();
@@ -104,7 +112,7 @@ export function createWeaponVisuals(THREE, scene) {
   const gold = material(new THREE.MeshBasicMaterial({color:'#ffe6a4',side:THREE.DoubleSide}));
   const skillMaterials = new Map(Object.entries(SKILLS).map(([id,skill]) => [id, material(new THREE.MeshBasicMaterial({color:skill.color, side:THREE.DoubleSide}))]));
   const labelMaterials = new Map();
-  let now = 0, currentHero = null, originalGun = null, originalGunVisible = true;
+  let now = 0, currentHero = null, originalGun = null, originalGunVisible = true, labelCamera = null;
   let heldMain = null, heldOffhand = null, mainId = '', offhandId = '', evolved = false;
   const heldModels = new Map(), charmModels = new Map(), carriedModels = new Map();
   const carried = new THREE.Group(); carried.name='Retained main weapon and offhand on backpack';
@@ -351,8 +359,43 @@ export function createWeaponVisuals(THREE, scene) {
       configureDrop(view,drop);
       view.group.position.set(drop.x,0,drop.z);
       view.group.visible=drop.life===undefined || drop.life>2 || Math.sin(now*13)>.0;
-      const p=game.player || {x:0,z:0};
-      view.label.visible=Math.hypot(drop.x-p.x,drop.z-p.z)<DROP_GEOMETRY.labelDistance;
+    }
+    chooseLabels(entities,game.player || {x:0,z:0});
+  }
+  const labelPoint=new THREE.Vector3(),labelRight=new THREE.Vector3(),labelUp=new THREE.Vector3(),shownRects=[];
+  // The label's screen rectangle in NDC units with x scaled by the aspect, or
+  // null when its centre is off screen or behind the camera.
+  function labelRect(drop,camera,aspect) {
+    const D=DROP_GEOMETRY,project=(sx,sy)=>labelPoint.set(drop.x,D.labelY,drop.z)
+      .addScaledVector(labelRight,sx*D.labelWidth/2).addScaledVector(labelUp,sy*D.labelHeight/2).project(camera);
+    const c=project(0,0);
+    if(!(c.z>-1&&c.z<1)||Math.abs(c.x)>1||Math.abs(c.y)>1) return null;
+    let left=Infinity,right=-Infinity,bottom=Infinity,top=-Infinity;
+    for(const [sx,sy] of [[-1,-1],[1,-1],[1,1],[-1,1]]) {
+      const q=project(sx,sy);left=Math.min(left,q.x*aspect);right=Math.max(right,q.x*aspect);bottom=Math.min(bottom,q.y);top=Math.max(top,q.y);
+    }
+    return {left,right,bottom,top};
+  }
+  function chooseLabels(entities,p) {
+    const camera=labelCamera,candidates=[];
+    for(const drop of entities) {
+      const view=drops.get(drop.id),d=Math.hypot(drop.x-p.x,drop.z-p.z),was=view.label.visible;
+      view.label.visible=false;
+      if(d>=DROP_GEOMETRY.labelDistance||(camera&&d<LABEL_POLICY.heroClear)) continue;
+      candidates.push({drop,view,rank:d-(was?LABEL_POLICY.keep:0)});
+    }
+    // Without a camera (first frame, Node tests) the V11 distance rule applies alone.
+    if(!camera) {for(const c of candidates) c.view.label.visible=true;return;}
+    candidates.sort((a,b)=>a.rank-b.rank||a.drop.id-b.drop.id);
+    const aspect=camera.isPerspectiveCamera?camera.aspect:(camera.right-camera.left)/(camera.top-camera.bottom||1);
+    const budget=aspect<1?LABEL_POLICY.portrait:LABEL_POLICY.landscape,gap=LABEL_POLICY.gap;
+    camera.updateMatrixWorld();labelRight.setFromMatrixColumn(camera.matrixWorld,0).normalize();labelUp.setFromMatrixColumn(camera.matrixWorld,1).normalize();
+    shownRects.length=0;
+    for(const c of candidates) {
+      if(shownRects.length>=budget) break;
+      const r=labelRect(c.drop,camera,aspect);if(!r) continue;
+      if(shownRects.some(o=>r.left<o.right+gap&&r.right>o.left-gap&&r.bottom<o.top+gap&&r.top>o.bottom-gap)) continue;
+      shownRects.push(r);c.view.label.visible=true;
     }
   }
 
@@ -527,6 +570,7 @@ export function createWeaponVisuals(THREE, scene) {
   }
   function update(dt, events=[], game=null, camera=null) {
     const step=Number.isFinite(dt)?Math.max(0,dt):0;now+=step;
+    if(camera) labelCamera=camera;
     // World state is reconciled once by sync(); update only advances visuals.
     for(const effect of effectPool) if(effect.life>0) animateEffect(effect,step);
     for(const event of events || []) if(event.kind==='magic'||event.kind==='explosion'||event.kind==='burn') spawnEffect(event);
@@ -550,7 +594,7 @@ export function createWeaponVisuals(THREE, scene) {
     for(const view of dropPool) {view.id=null;view.group.removeFromParent();view.group.visible=false;}
     for(const view of bombPool) {view.id=null;view.group.removeFromParent();}
     for(const effect of effectPool) {effect.life=0;effect.group.removeFromParent();}
-    root.removeFromParent();root.clear();burnFlames.count=burnCores.count=0;lastBurnKey='';now=0;effectCursor=0;
+    root.removeFromParent();root.clear();burnFlames.count=burnCores.count=0;lastBurnKey='';now=0;effectCursor=0;labelCamera=null;
     // Reusable pools retain a bounded cache. Repeated game resets never grow
     // GPU resources, and no world object or former hero is retained in scene.
   }
