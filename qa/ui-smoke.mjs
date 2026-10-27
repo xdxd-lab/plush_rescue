@@ -16,6 +16,7 @@ const keyboard=await import(root+'keyboard.js');
 const ui=await import(root+'ui.js');
 const {WEAPONS}=await import(root+'weapons.js');
 const {createWeaponVisuals,DROP_GEOMETRY}=await import(root+'weapon-visuals.js');
+const {createAllyVisuals,ALLY_VISUAL}=await import(root+'ally-visuals.js');
 class Element{
  constructor(tag,attrs={},doc){this.tagName=tag.toUpperCase();this.doc=doc;this.attrs=attrs;this.id=attrs.id;this.dataset={};for(const [k,v]of Object.entries(attrs))if(k.startsWith('data-'))this.dataset[k.slice(5).replace(/-([a-z])/g,(_,x)=>x.toUpperCase())]=v;this.value=attrs.value||'';this.checked='checked'in attrs;this.hidden='hidden'in attrs;this.disabled=false;this.textContent='';this.className=attrs.class||'';this.children=[];this.style={setProperty(k,v){this[k]=v}};this.events={};this.classes=new Set((attrs.class||'').split(' ').filter(Boolean));this.classList={toggle:(c,v)=>{if(v===undefined)v=!this.classes.has(c);if(v)this.classes.add(c);else this.classes.delete(c);},contains:c=>this.classes.has(c)};this.captured=new Set();}
  addEventListener(type,fn){(this.events[type]??=[]).push(fn)}
@@ -52,7 +53,7 @@ function setup(storageDenied=false,{seed={},realVisuals=false,width=390,height=8
  class Renderer{constructor(){this.shadowMap={};this.info={render:{calls:0}}}setSize(){}setPixelRatio(){}render(){}}
  const counters={clear:0,sync:0,update:[]};const visual={clear(){counters.clear++},sync(){counters.sync++},update(dt){counters.update.push(dt)},styleBullet(){}};
  const windowEvents={};
- const context=vm.createContext({console,THREE:{...actualTHREE,WebGLRenderer:Renderer},...core,...cameraModule,...keyboard,...ui,WEAPONS,document,localStorage,URLSearchParams,location:{search:''},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:realVisuals?createWeaponVisuals:()=>visual,createBossVisuals,bossVisualScale,applyMapLighting(){},positionCameraFill(){}});
+ const context=vm.createContext({console,THREE:{...actualTHREE,WebGLRenderer:Renderer},...core,...cameraModule,...keyboard,...ui,WEAPONS,document,localStorage,URLSearchParams,location:{search:''},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:realVisuals?createWeaponVisuals:()=>visual,createBossVisuals,bossVisualScale,createAllyVisuals,ALLY_VISUAL,applyMapLighting(){},positionCameraFill(){}});
  context.window=context;context.addEventListener=(t,f)=>{(windowEvents[t]??=[]).push(f)};
  vm.runInContext(fs.readFileSync(root+'main.js','utf8').replace(/^import .*;\n/gm,''),context);
  const qa=context.__PLUSH_QA__,el=id=>document.querySelector('#'+id),run=s=>vm.runInContext(s,context);
@@ -542,6 +543,41 @@ check('in the dark beat of an expiry blink the tracked drop is held (progress ke
 check('an expiring drop in its blink keeps the hover (dark beats do not reset it) and is picked before it expires',()=>{
  const t=hoverGame(),d=addNear(t),p=spot(t,d);d.life=1.9;hoverMove(t,p);hframe(t,16);
  for(let i=0;i<36&&t.qa.game.status==='running';i++)hframe(t,50);assert.equal(t.qa.game.status,'pickup','picked despite dark beats');assert.ok(d.life>0,'taken before expiring');
+});
+
+// ---- boss allies --------------------------------------------------------------------
+function allyGame(){
+ const t=setup();t.el('start').onclick();const g=t.qa.game;
+ g.drops.length=0;g.spawn=1e9;g.dropTimer=1e9;g.nextBossMinute=1e9;g.nextExp=1e9;g.invuln=1e9;g.fire=1e9;g.magicFire=1e9;g.enemies.length=0;
+ t.advance=ms=>{for(let left=ms;left>0;left-=50){t.clock.t+=Math.min(50,left);t.run(`loop(${t.clock.t})`);}};
+ t.rescueBoss=kind=>{const game=t.qa.game;game.spawnBoss(kind,1);t.advance(50);const boss=game.enemies.find(e=>e.boss);game.rescueEnemy(boss);return boss;};
+ t.allyMesh=()=>t.run('[...allyVisuals.models.values()][0]?.mesh');
+ return t;
+}
+check('a rescued boss shrinks into a crowned helper, says so, and leaves after its full time',()=>{
+ const t=allyGame(),g=t.qa.game;t.rescueBoss('big');t.advance(50);
+ assert.equal(t.qa.allyVisuals.models,1);assert.equal(t.qa.allyVisuals.rings,1);
+ assert.match(t.qa.presentation.notice,/大首領變成小夥伴，陪你戰鬥 10 秒/);
+ const mesh=t.allyMesh();assert.ok(mesh.scale.x>ALLY_VISUAL.scale.big,'starts near boss size');
+ t.advance(600);assert.ok(Math.abs(mesh.scale.x-ALLY_VISUAL.scale.big)<1e-6,'then helper size');
+ assert.equal(mesh.userData.allyCrowns.big.visible,true);assert.equal(mesh.userData.allyCrowns.mini.visible,false);
+ const target={id:++g.serial,x:g.player.x+1,z:g.player.z,hp:1e9,type:0,speed:0,angle:0};g.enemies.push(target);
+ let beams=0;for(let i=0;i<30;i++){t.advance(50);beams=Math.max(beams,t.qa.allyVisuals.beams);}assert.ok(beams>0,'helper beams are drawn');assert.ok(target.hp<1e9);
+ t.advance(8000);assert.equal(t.qa.allyVisuals.models,1,'still helping before 10 s');
+ t.advance(1600);assert.equal(g.allies.length,0);assert.equal(t.qa.allyVisuals.models,0);assert.equal(t.qa.allyVisuals.pooled,1,'model returned to its pool');
+ assert.equal(t.qa.allyVisuals.rings,0);
+});
+check('ally time and visuals freeze while paused or choosing',()=>{
+ const t=allyGame(),g=t.qa.game;t.rescueBoss('mini');t.advance(1000);const life=g.allies[0].life;
+ t.qa.pause();t.advance(5000);assert.equal(g.allies[0].life,life,'paused');t.qa.resume();
+ g.exp=g.nextExp=1;t.advance(50);assert.equal(g.status,'upgrade');t.advance(5000);assert.ok(Math.abs(g.allies[0].life-(life-.05))<.06,'upgrade dialog');
+});
+check('restart clears allies and repeated runs reuse the pooled helper model',()=>{
+ const t=allyGame();
+ for(let i=0;i<3;i++){t.rescueBoss('mini');t.advance(200);assert.equal(t.qa.allyVisuals.models,1);t.qa.restart();
+  const g=t.qa.game;g.spawn=1e9;g.dropTimer=1e9;g.nextBossMinute=1e9;g.nextExp=1e9;g.invuln=1e9;g.fire=1e9;g.magicFire=1e9;g.enemies.length=0;g.drops.length=0;
+  assert.equal(t.qa.allyVisuals.models,0);assert.equal(t.qa.game.allies.length,0);}
+ assert.equal(t.qa.allyVisuals.pooled,1,'one mini helper model reused across runs');
 });
 
 console.log(JSON.stringify({method:'Node DOM/renderer stub only; not browser/WebGL verification',passed:checks.length,checks},null,2));

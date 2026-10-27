@@ -16,7 +16,7 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 RUNTIME = [
     'assets/polar-portrait.png', 'assets/pudding-portrait.png',
-    'boss-visuals.js', 'build-info.json', 'camera.js', 'characters.js', 'core.js',
+    'ally-visuals.js', 'boss-visuals.js', 'build-info.json', 'camera.js', 'characters.js', 'core.js',
     'crowd.js', 'effects.js', 'index.html', 'keyboard.js', 'lighting.js', 'main.js',
     'maps.js', 'style.css', 'ui.js',
     'vendor/THREE-LICENSE.txt', 'vendor/three.core.js', 'vendor/three.module.js',

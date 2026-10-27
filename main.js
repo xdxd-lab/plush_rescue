@@ -10,6 +10,7 @@ import {applyMapLighting,positionCameraFill} from './lighting.js';
 import {WEAPONS} from './weapons.js';
 import {createBossVisuals,bossVisualScale} from './boss-visuals.js';
 import {createWeaponVisuals} from './weapon-visuals.js';
+import {createAllyVisuals,ALLY_VISUAL} from './ally-visuals.js';
 import {createTapTracker,createHoverTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,writeSettings,recommendUpgrade,recommendPickup,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
 let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){dialog.innerHTML='<h2>需要 3D 圖形支援</h2><p>請使用支援 WebGL 的瀏覽器，並開啟硬體加速後再試。</p>';throw e;}
@@ -78,7 +79,9 @@ window.addEventListener('keydown',e=>{if(e.key!=='Shift'&&e.key!=='Control'&&e.k
 window.addEventListener('blur',()=>{if(choiceTimer)choiceTimer.away=true;});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&choiceTimer)choiceTimer.away=true;});
 const runTrack={bosses:0,evolved:new Set(),aliveBosses:new Map(),nextAlive:new Map()};
-const crowd=createCrowd(THREE,scene,LIMITS);
+// Boss allies share the crowd's plush batches; reserve room for them.
+const crowd=createCrowd(THREE,scene,{...LIMITS,rescued:LIMITS.rescued+ALLY_VISUAL.reserve});
+const allyVisuals=createAllyVisuals(THREE,scene);
 const weaponVisuals=createWeaponVisuals(THREE,scene);
 const bossVisuals=createBossVisuals(THREE,scene);
 const ordinaryEnemies=[];
@@ -90,7 +93,7 @@ const names=['鈕扣街坊庭院','荒廢溫室花園','月光遊樂場'];const 
 let audio;function sound(kind){if(!audio||volume===0)return;try{const o=audio.createOscillator(),g=audio.createGain();o.type=kind==='hurt'?'triangle':'sine';o.frequency.setValueAtTime(kind==='rescue'?740:kind==='hurt'?120:420,audio.currentTime);o.frequency.exponentialRampToValueAtTime(kind==='rescue'?1100:kind==='hurt'?65:180,audio.currentTime+.08);g.gain.setValueAtTime(volume*(kind==='shot'?.025:.12),audio.currentTime);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.1);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+.11);}catch{}}
 function unlockAudio(){try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();}catch{}}
 function releaseAll(collection,pool){for(const obj of collection.values()){scene.remove(obj.mesh);pool(obj);}collection.clear();}
-function reset(){clearChoiceTimer();renderDirty=true;crowd.clear();weaponVisuals.clear();bossVisuals.clear();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);releaseAll(enemies,o=>enemyPool[o.type].push(o.mesh));releaseAll(rescued,o=>freePool[o.type].push(o.mesh));releaseAll(bullets,o=>bulletPool.push(o.mesh));fx.clear();game=new Game({map:mapIndex(),autoEquip,heroId:selectedHero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();syncHud();}
+function reset(){clearChoiceTimer();renderDirty=true;crowd.clear();weaponVisuals.clear();bossVisuals.clear();allyVisuals.clear();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);releaseAll(enemies,o=>enemyPool[o.type].push(o.mesh));releaseAll(rescued,o=>freePool[o.type].push(o.mesh));releaseAll(bullets,o=>bulletPool.push(o.mesh));fx.clear();game=new Game({map:mapIndex(),autoEquip,heroId:selectedHero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();syncHud();}
 function resetPresentation(){
  noticeTimer=noticePriority=hurtTimer=bumpTimer=0;hudText(hud.notice,'');hudProp(hud.notice,'className','');
  runTrack.bosses=0;runTrack.evolved.clear();runTrack.aliveBosses.clear();runTrack.nextAlive.clear();
@@ -106,7 +109,7 @@ function trackRun(){
  if(magic.evolved&&!runTrack.evolved.has(magic)){runTrack.evolved.add(magic);showNotice(WEAPONS[game.loadout.offhand].name+' 進化了！','magic',2.6,2);}
  const next=runTrack.nextAlive;next.clear();
  for(const e of game.enemies)if(e.boss)next.set(e.id,e.boss);
- for(const [id,kind] of runTrack.aliveBosses)if(!next.has(id)){runTrack.bosses++;showNotice(kind==='big'?'大首領被溫柔救回了！':'首領被溫柔救回了！','good',2.4,2);}
+ for(const [id,kind] of runTrack.aliveBosses)if(!next.has(id)){runTrack.bosses++;showNotice(game.bossAllies?(kind==='big'?'大首領變成小夥伴，陪你戰鬥 10 秒！':'首領變成小夥伴，陪你戰鬥 10 秒！'):(kind==='big'?'大首領被溫柔救回了！':'首領被溫柔救回了！'),'good',2.4,2);}
  runTrack.nextAlive=runTrack.aliveBosses;runTrack.aliveBosses=next;
 }
 function tickPresentation(dt){
@@ -339,7 +342,8 @@ function updateCamera(){
 function syncModels(){
  ordinaryEnemies.length=0;for(const e of game.enemies)if(!e.boss)ordinaryEnemies.push(e);
  syncCollection(ordinaryEnemies,enemies,'enemy');bossVisuals.sync(game);syncCollection(game.rescued,rescued,'free');syncCollection(game.bullets,bullets,'bullet');
- crowd.sync([enemies,rescued],{dirty:true});
+ allyVisuals.sync(game,{reduceMotion:reduceMotion()});
+ crowd.sync([enemies,rescued,allyVisuals.models],{dirty:true});
  hero.position.set(game.player.x,0,game.player.z);hero.rotation.y=game.player.angle;
  // Reduced motion replaces the 12 Hz hurt blink with the steady vignette flash.
  hero.visible=game.invuln===0||reduceMotion()||Math.floor(game.time*12)%2===0;
@@ -410,13 +414,16 @@ function effects(dt){
  for(const event of game.events){
   // A large area rescue can free dozens of friends in the same frame.
   // Keep every visual burst, but never create dozens of audio voices at once.
-  if(!heard.has(event.kind)&&heard.size<4){heard.add(event.kind);sound(event.kind);}
+  // Ally beams are frequent and quiet: they get no voice of their own.
+  if(!event.kind.startsWith('ally')&&!heard.has(event.kind)&&heard.size<4){heard.add(event.kind);sound(event.kind);}
   if(event.kind==='rescue'){fx.burst(event.x,event.z);bumpTimer=.32;}
   else if(event.kind==='hurt')hurtTimer=.5;
   else if(event.kind==='boss')showNotice(event.boss==='big'?'大首領「星冠守護者」來襲！':'小首領「補丁隊長」出現了！',event.boss==='big'?'big':'boss',2.8,3);
+  else if(event.kind==='allyShot')allyVisuals.shot(event);
+  else if(event.kind==='allyLeave')fx.burst(event.x,event.z);
   else if(event.kind==='skill'){const u=UPGRADES.find(x=>x.id===event.upgradeId);if(u)showNotice('獲得技能 · '+u.name+'：'+u.description,'good',2.4,1);}
  }
- fx.update(dt,camera);weaponVisuals.update(dt,game.events,game,camera);
+ fx.update(dt,camera);weaponVisuals.update(dt,game.events,game,camera);allyVisuals.update(dt);
 }
 setQuality(quality);reset();resize();renderBestLine();
 // Visual hero cards drive the original #heroSelect value/change interface.
@@ -447,4 +454,4 @@ function loop(now){
  if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(showStats)syncStats();}
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v12.2.1-hover-pickup-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer&&{remaining:choiceTimer.remaining,target:choiceTimer.label,cancelled:choiceTimer.cancelled};},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v12.2.1-hover-pickup-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer&&{remaining:choiceTimer.remaining,target:choiceTimer.label,cancelled:choiceTimer.cancelled};},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};

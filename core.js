@@ -6,6 +6,12 @@ export const ENEMY_HP_MULTIPLIER=4;
 export function enemyHealth(time){return ENEMY_HP_MULTIPLIER*(2+Math.floor(time/90));}
 export function bossHealth(kind,time){return enemyHealth(time)*(kind==='big'?40:12);}
 export function bossKind(minute){return minute%3===0?'big':'mini';}
+// A rescued boss shrinks into a small helper for ALLY.duration seconds of game
+// time (frozen while paused or choosing), then leaves happily over ALLY.leave.
+// Damage is a small share of the current enemy health: symbolic, not a weapon.
+// No capacity cap: at most one boss per minute exists, so every helper serves
+// its full time. Allies never call this.random().
+export const ALLY=Object.freeze({duration:10,leave:.8,orbit:1.7,speed:6.5,range:6,interval:.7,firstShot:.5,share:Object.freeze({mini:.1,big:.15})});
 export function spawnInterval(time){return Math.max(.18,1.05-time/500)/SPAWN_MULTIPLIER;}
 // Solve the interception from the rotating, off-centre muzzle, not the body.
 // Bolts have world-space velocity: the shooter's motion is NOT inherited.
@@ -42,7 +48,7 @@ function nearestSegmentHit(enemies,ax,az,bx,bz,motions=null,fraction=1){
  return hit;
 }
 export class Game{
- constructor({random=Math.random,map=null,obstacles=[],muzzleOffset={x:0,y:.65,z:.6},autoEquip=false,heroId='pudding'}={}){this.heroId=heroId==='polar'?'polar':'pudding';this.muzzleOffset={...muzzleOffset};this.random=random;this.map=map??Math.min(2,Math.floor(random()*3));this.obstacles=obstacles;this.bounds=18;this.status='ready';this.time=0;this.player={x:0,z:4,hp:5,maxHp:5,speed:4.6,angle:Math.PI};this.enemies=[];this.bullets=[];this.rescued=[];this.events=[];this.level=1;this.exp=0;this.nextExp=8;this.saved=0;this.power=1;this.fireInterval=.28;this.fire=0;this.spawn=.2/SPAWN_MULTIPLIER;this.targetId=null;this.invuln=0;this.serial=0;this.reason='';this.loadout={main:'pulse',offhand:'moonfan'};this.twoHanded=null;this.twoHandedWeapon=null;this.weaponLevels=Object.fromEntries(Object.keys(WEAPONS).map(id=>[id,id==='pulse'||id==='moonfan'?1:0]));this.magicByWeapon=Object.fromEntries(OFFHAND_WEAPONS.map(id=>[id,{charge:0,goal:12,evolved:false}]));this.magic=this.magicByWeapon.moonfan;this.magicFire=3;this.nextBossMinute=1;this.pendingBoss=null;this.hazards=[];this.drops=[];this.bombs=[];this.pendingPickup=null;this.autoEquip=Boolean(autoEquip);this.dropTimer=18;this.burstLeft=0;this.burstTimer=0;}
+ constructor({random=Math.random,map=null,obstacles=[],muzzleOffset={x:0,y:.65,z:.6},autoEquip=false,heroId='pudding',bossAllies=true}={}){this.bossAllies=Boolean(bossAllies);this.allies=[];this.allySerial=0;this.allyRescues=0;this.heroId=heroId==='polar'?'polar':'pudding';this.muzzleOffset={...muzzleOffset};this.random=random;this.map=map??Math.min(2,Math.floor(random()*3));this.obstacles=obstacles;this.bounds=18;this.status='ready';this.time=0;this.player={x:0,z:4,hp:5,maxHp:5,speed:4.6,angle:Math.PI};this.enemies=[];this.bullets=[];this.rescued=[];this.events=[];this.level=1;this.exp=0;this.nextExp=8;this.saved=0;this.power=1;this.fireInterval=.28;this.fire=0;this.spawn=.2/SPAWN_MULTIPLIER;this.targetId=null;this.invuln=0;this.serial=0;this.reason='';this.loadout={main:'pulse',offhand:'moonfan'};this.twoHanded=null;this.twoHandedWeapon=null;this.weaponLevels=Object.fromEntries(Object.keys(WEAPONS).map(id=>[id,id==='pulse'||id==='moonfan'?1:0]));this.magicByWeapon=Object.fromEntries(OFFHAND_WEAPONS.map(id=>[id,{charge:0,goal:12,evolved:false}]));this.magic=this.magicByWeapon.moonfan;this.magicFire=3;this.nextBossMinute=1;this.pendingBoss=null;this.hazards=[];this.drops=[];this.bombs=[];this.pendingPickup=null;this.autoEquip=Boolean(autoEquip);this.dropTimer=18;this.burstLeft=0;this.burstTimer=0;}
  start(){if(this.status==='ready'){this.status='running';for(const [weaponId,dx,dz] of [['shotgun',-2.7,0],['burst',2.7,0],['frostwand',0,-3.2],['ember',-3.4,-3.4],['bomber',3.4,-3.4],['cannon',0,4]])this.addDrop({kind:'weapon',weaponId,x:this.player.x+dx,z:this.player.z+dz});}}
  pause(){if(this.status==='running')this.status='paused';}
  resume(){if(this.status==='paused')this.status='running';}
@@ -99,9 +105,37 @@ export class Game{
  rescueEnemy(enemy){
   const index=this.enemies.indexOf(enemy);if(index<0)return;
   this.enemies.splice(index,1);if(enemy.boss){for(let i=this.hazards.length-1;i>=0;i--)if(this.hazards[i].ownerId===enemy.id)this.hazards.splice(i,1);}this.saved++;this.exp++;this.chargeMagic(1);this.events.push({kind:'rescue',x:enemy.x,z:enemy.z});
-  if(this.rescued.length>=LIMITS.rescued)this.rescued.shift();this.rescued.push({...enemy,life:4,angle:this.random()*Math.PI*2});
+  const angle=this.random()*Math.PI*2;
+  if(enemy.boss&&this.bossAllies)this.addAlly(enemy,angle);
+  else{if(this.rescued.length>=LIMITS.rescued)this.rescued.shift();this.rescued.push({...enemy,life:4,angle});}
   const roll=this.random();if(roll<.02)this.addDrop({kind:'upgrade',upgradeId:UPGRADES[Math.min(UPGRADES.length-1,Math.floor(this.random()*UPGRADES.length))].id,x:enemy.x,z:enemy.z});
   else if(roll<.09){const ids=[...MAIN_WEAPONS,...OFFHAND_WEAPONS,'cannon'];this.addDrop({kind:'weapon',weaponId:ids[Math.min(ids.length-1,Math.floor(this.random()*ids.length))],x:enemy.x,z:enemy.z});}
+ }
+ addAlly(boss,angle){
+  // Allies circle at the same rate; a golden-angle offset from the first keeps
+  // helpers that join together apart.
+  const first=this.allies[0],orbit=first?first.orbit+this.allies.length*2.399963:angle;
+  const ally={id:++this.allySerial,boss:boss.boss,type:boss.type,bossRadius:boss.radius,x:boss.x,z:boss.z,life:ALLY.duration,leaving:0,cooldown:ALLY.firstShot,orbit,rescues:0};this.allies.push(ally);this.events.push({kind:'ally',id:ally.id,boss:ally.boss,x:ally.x,z:ally.z});return ally;}
+ stepAllies(dt){
+  for(let i=this.allies.length-1;i>=0;i--){
+   const a=this.allies[i];
+   if(a.life>0){a.life=Math.max(0,a.life-dt);if(a.life===0){a.leaving=ALLY.leave;this.events.push({kind:'allyLeave',id:a.id,boss:a.boss,x:a.x,z:a.z});}}
+   else{a.leaving-=dt;if(a.leaving<=0){this.allies.splice(i,1);continue;}}
+   a.orbit+=dt*.9;
+   let dx,dz;
+   if(a.life>0){dx=this.player.x+Math.sin(a.orbit)*ALLY.orbit-a.x;dz=this.player.z+Math.cos(a.orbit)*ALLY.orbit-a.z;}
+   else{dx=a.x-this.player.x;dz=a.z-this.player.z;}
+   const d=Math.hypot(dx,dz),step=Math.min(d,(a.life>0?ALLY.speed:1.2)*dt);
+   if(d>1e-6)this.move(a,dx/d*step,dz/d*step,.3);
+   if(!(a.life>0))continue;
+   a.cooldown-=dt;if(a.cooldown>0)continue;
+   let target=null,best=ALLY.range*ALLY.range;
+   for(const e of this.enemies){if(e.boss)continue;const q=(e.x-a.x)**2+(e.z-a.z)**2;if(q<=best){best=q;target=e;}}
+   if(!target){a.cooldown=0;continue;}
+   a.cooldown=ALLY.interval;this.events.push({kind:'allyShot',id:a.id,boss:a.boss,x:a.x,z:a.z,tx:target.x,tz:target.z});
+   const before=this.saved;this.damageEnemy(target,enemyHealth(this.time)*(ALLY.share[a.boss]??ALLY.share.mini));
+   if(this.saved>before){a.rescues++;this.allyRescues++;}
+  }
  }
  damageEnemy(enemy,damage){enemy.hp-=damage;if(enemy.hp<=0)this.rescueEnemy(enemy);}
  fireMain(){
@@ -205,6 +239,7 @@ export class Game{
   }
   if(b.life<=0||Math.abs(b.x)>19||Math.abs(b.z)>19)this.bullets.splice(i,1);
  }
+ if(this.allies.length)this.stepAllies(dt);
  let contactDamage=0;
  for(const e of this.enemies){const motion=motions.get(e);e.x+=motion.dx;e.z+=motion.dz;const dx=this.player.x-e.x,dz=this.player.z-e.z,d=Math.hypot(dx,dz);e.angle=Math.atan2(dx,dz);if(d<(e.radius??.38)+.42)contactDamage=Math.max(contactDamage,e.boss?2:1);}
  for(const h of this.hazards)if(!h.hit&&h.age>=h.windup&&Math.hypot(h.x-this.player.x,h.z-this.player.z)<=h.radius+.35){h.hit=true;contactDamage=Math.max(contactDamage,h.damage);}

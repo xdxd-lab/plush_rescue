@@ -4,8 +4,9 @@
 // core-equivalence.test.mjs). Pass a different Game class to compare versions.
 import crypto from 'node:crypto';
 function seeded(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
-export function signature(Game,seed,{autoEquip=false,steps=7200}={}){
- const g=new Game({random:seeded(seed),map:seed%3,autoEquip});g.start();
+export function signature(Game,seed,{autoEquip=false,bossAllies,steps=7200}={}){
+ // bossAllies is only passed when given, so V11's Game (which has no such option) runs unchanged.
+ const g=new Game({random:seeded(seed),map:seed%3,autoEquip,...(bossAllies===undefined?{}:{bossAllies})});g.start();
  const hash=crypto.createHash('sha256');let replace=false;
  for(let i=0;i<steps;i++){
   g.invuln=1; // survive the whole script so late-game systems (bosses, drops) run
