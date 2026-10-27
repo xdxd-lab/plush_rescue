@@ -394,7 +394,8 @@ check('five rounds of pause, settings changes and resume keep mouse and touch ta
   t.el('showStats').checked=round%2===0;t.el('showStats').onchange({target:t.el('showStats')});
   if(round===3){t.qa.resume();t.qa.pause();}
   t.el('resume').onclick();assert.equal(t.qa.game.status,'running');
-  const g=t.qa.game,d=addNear(t,round%2?'burst':'shotgun',1.5-round,2-round*.5);
+  // Every drop stays beyond LABEL_POLICY.heroClear, so label rounds have a label to tap.
+  const g=t.qa.game,d=addNear(t,round%2?'burst':'shotgun',1.5-round,2.5-round*.5);
   const p=round%2?spot(t,d):labelSpot(t,d,round%4?-.95:.95);
   if(round%2){down(t,9,p.x,p.y);t.clock.t+=80;up(t,9,p.x,p.y);frame(t);}else mouseTap(t,1,p,round===4?650:150);
   assert.equal(g.pendingPickup?.id,d.id,`round ${round}`);settle(t);
