@@ -1,8 +1,8 @@
 {
-  "version": "12.2.1",
-  "revision": "v12.2.1-hover-pickup-r1",
-  "source_commit": "8b5d738",
-  "layout": "Static V12.2.0 export based on V12.1.1 (3a16473); optional 10-second automatic choice for upgrade and weapon comparison, remembered settings, mobile-first rescue UI.",
+  "version": "12.3.0",
+  "revision": "v12.3.0-boss-allies-r1",
+  "source_commit": "4d068df",
+  "layout": "Static V12.3.0 export based on V12.2.1 (af7882f); rescued bosses become 10-second helper allies, nearest non-overlapping drop labels, hover and tap pickup, mobile-first rescue UI.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -26,8 +26,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 260,
-      "sha256": "3796c75b54ae5e1474c8c83dd3fe16ab9661c2aed72af08237402b1b6f15df79"
+      "bytes": 286,
+      "sha256": "ebe2e29904a3cbc35524a480b682f3991eb05ca11463af82ebf50d0068859591"
     },
     {
       "path": "camera.js",
@@ -56,8 +56,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 11356,
-      "sha256": "d617aa45571ba4fdcafb916ba58f3dfb8a0934c0be534a82cf6ddf458261790f"
+      "bytes": 11355,
+      "sha256": "e347cee7691ba06ae37682e7fe785e28089792cd3c7d37399c3cd98a1815a47d"
     },
     {
       "path": "keyboard.js",
@@ -71,8 +71,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 44418,
-      "sha256": "2bcd7fc2d67823844341183df848510cdf9754e3e58a95c63c5bbc8dc5637e4e"
+      "bytes": 44417,
+      "sha256": "f9770d0d9c1654ea7b3c079840c94ba8bf9fa6483907436af48a1d29ac8fc11e"
     },
     {
       "path": "maps.js",

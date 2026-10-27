@@ -39,6 +39,11 @@ Chrome 156 / SwiftShader run used real CDP mouse input to check the visible prog
 re-entering a drop, pickup after re-entry and a HUD-covered drop; all passed. Desktop click and 390×844
 emulated touch pickup checks also passed. This is not a real phone or hardware GPU test.
 
+V12.3.0 (boss allies and drop label policy): Node 24.22.1 passed 111 tests and the DOM smoke passed 78 checks.
+`node qa/browser-chrome.mjs` (Chrome 156 headless / SwiftShader) passed 32 of 32 with no console errors. Hover
+pickup with two allies present, the ally timer freezing during a pickup comparison and the 3-label portrait
+budget were checked separately in headed Chrome at 390×844. This is not a real phone or hardware GPU test.
+
 CDP touch semantics used by `browser-chrome.mjs` (observed in Chrome 156): `touchStart`/`touchMove` list the points that are down;
 `touchEnd` lists the points being released (an empty list releases all). Without explicit `timestamp`s, a slow
 software-rendered frame makes an 80 ms tap arrive as a ~500 ms one.
