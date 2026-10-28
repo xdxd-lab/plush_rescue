@@ -50,6 +50,12 @@ the version-only update; the 30-second notice and ring scale were checked in hea
 Safari passed start, move, pickup, upgrade, pause and reload on v12.3.0 (reported by the main agent), not on
 12.3.1 and not on a phone.
 
+V12.3.2 (main-weapon trails and hit feedback): Node 24.22.1 passed 118 tests and the DOM smoke passed 80 checks
+after the version update. `node qa/browser-chrome.mjs` passed 32 of 32 on d500422 (after the trail-start fix,
+before the version-only update); it does not check the trails or hit effects themselves. The before/after
+screenshots in headed Chrome at 390×844 were taken before the trail-start fix. Reduced motion and low quality
+were checked in Node only. Not tested in Safari, Firefox, on a phone or on a hardware GPU.
+
 CDP touch semantics used by `browser-chrome.mjs` (observed in Chrome 156): `touchStart`/`touchMove` list the points that are down;
 `touchEnd` lists the points being released (an empty list releases all). Without explicit `timestamp`s, a slow
 software-rendered frame makes an 80 ms tap arrive as a ~500 ms one.
