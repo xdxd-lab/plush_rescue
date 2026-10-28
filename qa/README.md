@@ -44,6 +44,12 @@ V12.3.0 (boss allies and drop label policy): Node 24.22.1 passed 111 tests and t
 pickup with two allies present, the ally timer freezing during a pickup comparison and the 3-label portrait
 budget were checked separately in headed Chrome at 390×844. This is not a real phone or hardware GPU test.
 
+V12.3.1 (30-second allies, label hover through dark beats): Node 24.22.1 passed 111 tests and the DOM smoke
+passed 79 checks after the version update. `node qa/browser-chrome.mjs` passed 32 of 32 on 4801d51, before
+the version-only update; the 30-second notice and ring scale were checked in headed Chrome at 390×844. Desktop
+Safari passed start, move, pickup, upgrade, pause and reload on v12.3.0 (reported by the main agent), not on
+12.3.1 and not on a phone.
+
 CDP touch semantics used by `browser-chrome.mjs` (observed in Chrome 156): `touchStart`/`touchMove` list the points that are down;
 `touchEnd` lists the points being released (an empty list releases all). Without explicit `timestamp`s, a slow
 software-rendered frame makes an 80 ms tap arrive as a ~500 ms one.
