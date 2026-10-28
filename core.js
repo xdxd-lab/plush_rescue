@@ -9,9 +9,9 @@ export function bossKind(minute){return minute%3===0?'big':'mini';}
 // A rescued boss shrinks into a small helper for ALLY.duration seconds of game
 // time (frozen while paused or choosing), then leaves happily over ALLY.leave.
 // Damage is a small share of the current enemy health: symbolic, not a weapon.
-// No capacity cap: at most one boss per minute exists, so every helper serves
-// its full time. Allies never call this.random().
-export const ALLY=Object.freeze({duration:10,leave:.8,orbit:1.7,speed:6.5,range:6,interval:.7,firstShot:.5,share:Object.freeze({mini:.1,big:.15})});
+// No capacity cap: at most one boss per minute exists, so at most a few helpers
+// overlap and every helper serves its full time. Allies never call this.random().
+export const ALLY=Object.freeze({duration:30,leave:.8,orbit:1.7,speed:6.5,range:6,interval:.7,firstShot:.5,share:Object.freeze({mini:.1,big:.15})});
 export function spawnInterval(time){return Math.max(.18,1.05-time/500)/SPAWN_MULTIPLIER;}
 // Solve the interception from the rotating, off-centre muzzle, not the body.
 // Bolts have world-space velocity: the shooter's motion is NOT inherited.

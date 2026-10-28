@@ -22,15 +22,16 @@ for(const [key,expected] of Object.entries(V11_SIGNATURES)){
   assert.equal(signature(Game,Number(seed),{autoEquip:auto==='true',bossAllies:false}),expected);
  });
 }
-// Boss allies (default on) pinned when the feature was added; the difference
-// from V11 is the ally behaviour alone (see qa/boss-allies.test.mjs).
+// Boss allies (default on), repinned in V12.4 when ALLY.duration went from 10 to
+// 30 s (no other core change); the difference from V11 is the ally behaviour
+// alone (see qa/boss-allies.test.mjs).
 const ALLY_SIGNATURES={
- '1:false':'bb16c65f5a9927369d90481153ea41a9f7de6e3456e3ec66ec394ca0aad9d619',
- '1:true':'2bc1711ee736a923c364c53e320f200576791e6d5c03d921a97180e120b77b65',
- '2:false':'683ab25823cf777b573ecb2d4361ad4a2f78a3530eb529a816939fef523539e0',
- '2:true':'586bcf7e64f93687f1e92a33d0891bb7786ca004cc73b81cc0df9e0fa9ad255c',
- '3:false':'985e71e233137fa473324b723fa663688be24f25c85e74b8234503928459a150',
- '3:true':'b2d9af6d8c0f7ce7fb11cf317894c958d4103e8c318ac3b74a8d96ae739b50b7',
+ '1:false':'7c2a0e3babd69465e0a61ededb9eaffbfb8026b7e77aad21e3721ed6e5800dc3',
+ '1:true':'76d563395498619900615c3a43a570856a1792645dc7c75f410774f979f463d5',
+ '2:false':'21b0161b807679669594f9c1bcab3474c6420d759f05f7cb467b25cfea64d467',
+ '2:true':'e93e5af007090efcbb1a08ab6577cf9aa1192b2d1001f1a4c7708c2b78be6fdf',
+ '3:false':'efe7dd804f6183d056e6af391500177714f70dfeb68049c4ac7df635cdd5d88c',
+ '3:true':'f1f1f711e28b8a81919e911dc5b218e3319d65792e968cb7a7bcdba1ed0bb044',
 };
 for(const [key,expected] of Object.entries(ALLY_SIGNATURES)){
  const [seed,auto]=key.split(':');

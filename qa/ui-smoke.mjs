@@ -541,6 +541,19 @@ check('in the dark beat of an expiry blink the tracked drop is held (progress ke
  assert.equal(t.run('hover.id'),d.id,'held through the dark beat');assert.equal(t.qa.game.status,'running');
  hoverMove(t,{x:p.x+150,y:p.y});hframe(t,10);assert.equal(t.run('hover.id'),null,'cursor really left while dark: reset');
 });
+check('a hover on the label end of an expiring drop is held through its dark beats, as on the body',()=>{
+ const t=hoverGame(),d=addNear(t),p=labelSpot(t,d,.9);d.life=1.9;
+ const body=t.run(`dropHitShape(game.drops[0],(x,y,z)=>projectToScreen(x,y,z),tapAxes,viewRect(),{labelVisible:false})`);
+ assert.equal(ui.pickDropAt(p,[body],{margin:0}),null,'the spot is on the label only, outside the body shape');
+ hoverMove(t,p);hframe(t,16);hframe(t,100);assert.equal(t.run('hover.id'),d.id);
+ const group=()=>{let found=null;t.qa.scene.traverse(o=>{if(o.isGroup&&/pickup$/.test(o.name)&&o.parent)found=o;});return found;};
+ for(let i=0;i<30&&group().visible;i++)hframe(t,10);assert.equal(group().visible,false,'reached a dark beat');
+ // The hover reads the drops drawn at the previous sync: one more frame resolves it against the dark beat.
+ hframe(t,10);assert.equal(group().visible,false,'still dark');
+ assert.equal(t.run('hover.id'),d.id,'held through the dark beat on the label');assert.equal(t.qa.game.status,'running');
+ const u=hoverGame(),e=addNear(u),q=labelSpot(u,e,.9);e.life=1.9;hoverMove(u,q);hframe(u,16);
+ for(let i=0;i<36&&u.qa.game.status==='running';i++)hframe(u,50);assert.equal(u.qa.game.status,'pickup','picked from the label despite dark beats');assert.ok(e.life>0);
+});
 check('an expiring drop in its blink keeps the hover (dark beats do not reset it) and is picked before it expires',()=>{
  const t=hoverGame(),d=addNear(t),p=spot(t,d);d.life=1.9;hoverMove(t,p);hframe(t,16);
  for(let i=0;i<36&&t.qa.game.status==='running';i++)hframe(t,50);assert.equal(t.qa.game.status,'pickup','picked despite dark beats');assert.ok(d.life>0,'taken before expiring');
@@ -558,13 +571,17 @@ function allyGame(){
 check('a rescued boss shrinks into a crowned helper, says so, and leaves after its full time',()=>{
  const t=allyGame(),g=t.qa.game;t.rescueBoss('big');t.advance(50);
  assert.equal(t.qa.allyVisuals.models,1);assert.equal(t.qa.allyVisuals.rings,1);
- assert.match(t.qa.presentation.notice,/大首領變成小夥伴，陪你戰鬥 10 秒/);
+ assert.match(t.qa.presentation.notice,/^大首領變成小夥伴，陪你戰鬥 30 秒！$/);assert.equal(core.ALLY.duration,30);
  const mesh=t.allyMesh();assert.ok(mesh.scale.x>ALLY_VISUAL.scale.big,'starts near boss size');
  t.advance(600);assert.ok(Math.abs(mesh.scale.x-ALLY_VISUAL.scale.big)<1e-6,'then helper size');
  assert.equal(mesh.userData.allyCrowns.big.visible,true);assert.equal(mesh.userData.allyCrowns.mini.visible,false);
  const target={id:++g.serial,x:g.player.x+1,z:g.player.z,hp:1e9,type:0,speed:0,angle:0};g.enemies.push(target);
  let beams=0;for(let i=0;i<30;i++){t.advance(50);beams=Math.max(beams,t.qa.allyVisuals.beams);}assert.ok(beams>0,'helper beams are drawn');assert.ok(target.hp<1e9);
- t.advance(8000);assert.equal(t.qa.allyVisuals.models,1,'still helping before 10 s');
+ // The foot ring is the visual countdown: its scale follows the time left over the full duration.
+ const ringScale=()=>{const r=t.qa.scene.getObjectByName('Ally time rings'),m=new actualTHREE.Matrix4();r.getMatrixAt(0,m);return new actualTHREE.Vector3().setFromMatrixScale(m).x;};
+ t.advance(13800);const left=g.allies[0].life/core.ALLY.duration;assert.ok(left>.45&&left<.55,'about half way');
+ assert.ok(Math.abs(ringScale()-(.55+.45*left))<1e-6,'ring scale follows the time left');
+ t.advance(13600);assert.equal(t.qa.allyVisuals.models,1,'still helping before 30 s');
  t.advance(1600);assert.equal(g.allies.length,0);assert.equal(t.qa.allyVisuals.models,0);assert.equal(t.qa.allyVisuals.pooled,1,'model returned to its pool');
  assert.equal(t.qa.allyVisuals.rings,0);
 });

@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import {Game,Stick,UPGRADES,LIMITS,healthLabel,bossKind} from './core.js';
+import {Game,Stick,UPGRADES,LIMITS,ALLY,healthLabel,bossKind} from './core.js';
 import {MAPS,buildMap} from './maps.js';
 import {makePlush} from './characters.js';
 import {CAMERA,cameraOffset,cameraFocus,createGameCamera,fitGameCamera,screenToWorldInput,screenToWorldAt} from './camera.js';
@@ -38,8 +38,8 @@ let noticeTimer=0,noticePriority=0,hurtTimer=0,bumpTimer=0,recordedGame=null,rec
 // Short taps on drops (V12.1): each pointer is judged at release; the loop resolves them.
 const taps=createTapTracker(),pendingTaps=[],tapClock=()=>performance.now();
 // V12.2.1 mouse hover pickup: the last mouse position (null until the mouse moves over the game) and whether it moved since the last frame.
-const hover=createHoverTracker();let hoverPoint=null,hoverMoved=false;
-function clearHover(){hover.reset();hoverPoint=null;hoverMoved=false;showHoverRing(null);}
+const hover=createHoverTracker();let hoverPoint=null,hoverMoved=false,hoverLabel=false;
+function clearHover(){hover.reset();hoverPoint=null;hoverMoved=false;hoverLabel=false;showHoverRing(null);}
 function saveSettings(){writeSettings(storage(),{quality,volume,hero:selectedHero,stats:showStats,autoChoose});}
 let choiceTimer=null;
 function clearChoiceTimer(){choiceTimer?.target?.classList.toggle('auto-choice-target',false);choiceTimer=null;}
@@ -109,7 +109,7 @@ function trackRun(){
  if(magic.evolved&&!runTrack.evolved.has(magic)){runTrack.evolved.add(magic);showNotice(WEAPONS[game.loadout.offhand].name+' 進化了！','magic',2.6,2);}
  const next=runTrack.nextAlive;next.clear();
  for(const e of game.enemies)if(e.boss)next.set(e.id,e.boss);
- for(const [id,kind] of runTrack.aliveBosses)if(!next.has(id)){runTrack.bosses++;showNotice(game.bossAllies?(kind==='big'?'大首領變成小夥伴，陪你戰鬥 10 秒！':'首領變成小夥伴，陪你戰鬥 10 秒！'):(kind==='big'?'大首領被溫柔救回了！':'首領被溫柔救回了！'),'good',2.4,2);}
+ for(const [id,kind] of runTrack.aliveBosses)if(!next.has(id)){runTrack.bosses++;showNotice(game.bossAllies?(kind==='big'?'大首領':'首領')+`變成小夥伴，陪你戰鬥 ${ALLY.duration} 秒！`:(kind==='big'?'大首領被溫柔救回了！':'首領被溫柔救回了！'),'good',2.4,2);}
  runTrack.nextAlive=runTrack.aliveBosses;runTrack.aliveBosses=next;
 }
 function tickPresentation(dt){
@@ -363,15 +363,16 @@ function projectToScreen(x,y,z,view=viewRect()){
 // shown or not). Any drop on screen can be tapped; there is no distance limit.
 // The drawn drops as hit shapes, from the camera pose of the last render. With
 // hiddenId, also the shape of that drop when it is still in the game but not drawn
-// (the dark beat of its expiry blink); the label is left out of that shape.
-function dropShapes(hiddenId=null){
+// (the dark beat of its expiry blink), with its label only if hiddenLabel (the label
+// was shown when the drop was last drawn, so a hover on the label is held too).
+function dropShapes(hiddenId=null,hiddenLabel=false){
  camera.updateMatrixWorld();
  tapAxes.right.setFromMatrixColumn(camera.matrixWorld,0).normalize();tapAxes.up.setFromMatrixColumn(camera.matrixWorld,1).normalize();
  const view=viewRect(),drawn=weaponVisuals.drawnDrops?.()??new Map(),project=(x,y,z)=>projectToScreen(x,y,z,view),shapes=[];let hidden=null;
  for(const drop of game.drops){
   const seen=drawn.get(drop.id);
   if(seen&&drop.life>0)shapes.push(dropHitShape(drop,project,tapAxes,view,seen));
-  else if(!seen&&drop.id===hiddenId&&drop.life>0)hidden=dropHitShape(drop,project,tapAxes,view,{labelVisible:false});
+  else if(!seen&&drop.id===hiddenId&&drop.life>0)hidden=dropHitShape(drop,project,tapAxes,view,{labelVisible:hiddenLabel});
  }
  return {shapes,hidden};
 }
@@ -388,11 +389,13 @@ function resolveTaps(){
 // plain running game, or an open dialog, restarts the hover.
 function resolveHover(realDt){
  // Every early return also drops the pending move, so a HUD panel or dialog that goes away never lets an old move start a hover.
- if(!hoverPoint||game.status!=='running'||overlay.classList.contains('shown')||pointCovered(hoverPoint,hudOccluders)){hover.reset();hoverMoved=false;showHoverRing(null);return;}
+ if(!hoverPoint||game.status!=='running'||overlay.classList.contains('shown')||pointCovered(hoverPoint,hudOccluders)){hover.reset();hoverMoved=false;hoverLabel=false;showHoverRing(null);return;}
  // Nothing tracked and no mouse move since the last frame: a hover can only start from a move, so skip the projections.
  if(hover.id===null&&!hoverMoved){showHoverRing(null);return;}
- const {shapes,hidden}=dropShapes(hover.id),hit=pickDropAt(hoverPoint,shapes,{margin:0}),held=!hit&&hidden&&pickDropAt(hoverPoint,[hidden],{margin:0}),
+ const {shapes,hidden}=dropShapes(hover.id,hoverLabel),hit=pickDropAt(hoverPoint,shapes,{margin:0}),held=!hit&&hidden&&pickDropAt(hoverPoint,[hidden],{margin:0}),
   state=hover.update({hitId:hit?hit.id:null,hiddenId:held?held.id:null,dtMs:realDt*1000,moved:hoverMoved});
+ // Remember whether the hovered drop's label was drawn, for its next dark beat (kept while held).
+ if(hit)hoverLabel=Boolean(weaponVisuals.drawnDrops?.().get(hit.id)?.labelVisible);else if(!held)hoverLabel=false;
  hoverMoved=false;
  if(state.fire!==null){
   // After a hover pickup the mouse has to move again before another one can start.
