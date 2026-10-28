@@ -235,7 +235,8 @@ export class Game{
   if(!hit)hit=nearestSegmentHit(this.enemies,ax,az,bx,bz,motions,dt>0?travelDt/dt:0);
   b.x=bx;b.z=bz;b.life-=dt;
   if(hit){
-   const e=hit.enemy;if(b.burn){e.burn=3;e.burnPower=Math.max(e.burnPower||0,b.burn);}if(b.splash){this.events.push({kind:'explosion',weaponId:b.weaponId,x:e.x,z:e.z,radius:b.splash});for(const target of [...this.enemies])if(Math.hypot(target.x-e.x,target.z-e.z)<=b.splash+(target.radius??.38))this.damageEnemy(target,b.damage??this.power);}else this.damageEnemy(e,b.damage??this.power);b.life=0;
+   const e=hit.enemy;{const dx=ax-e.x,dz=az-e.z,d=Math.hypot(dx,dz)||1,r=Math.min(d,e.radius??.38);this.events.push({kind:'hit',weaponId:b.weaponId,x:e.x+dx/d*r,z:e.z+dz/d*r,vx:b.vx,vz:b.vz});}
+   if(b.burn){e.burn=3;e.burnPower=Math.max(e.burnPower||0,b.burn);}if(b.splash){this.events.push({kind:'explosion',weaponId:b.weaponId,x:e.x,z:e.z,radius:b.splash});for(const target of [...this.enemies])if(Math.hypot(target.x-e.x,target.z-e.z)<=b.splash+(target.radius??.38))this.damageEnemy(target,b.damage??this.power);}else this.damageEnemy(e,b.damage??this.power);b.life=0;
   }
   if(b.life<=0||Math.abs(b.x)>19||Math.abs(b.z)>19)this.bullets.splice(i,1);
  }

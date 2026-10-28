@@ -17,6 +17,7 @@ const ui=await import(root+'ui.js');
 const {WEAPONS}=await import(root+'weapons.js');
 const {createWeaponVisuals,DROP_GEOMETRY}=await import(root+'weapon-visuals.js');
 const {createAllyVisuals,ALLY_VISUAL}=await import(root+'ally-visuals.js');
+const {createShotVisuals,SHOT_VISUAL}=await import(root+'shot-visuals.js');
 class Element{
  constructor(tag,attrs={},doc){this.tagName=tag.toUpperCase();this.doc=doc;this.attrs=attrs;this.id=attrs.id;this.dataset={};for(const [k,v]of Object.entries(attrs))if(k.startsWith('data-'))this.dataset[k.slice(5).replace(/-([a-z])/g,(_,x)=>x.toUpperCase())]=v;this.value=attrs.value||'';this.checked='checked'in attrs;this.hidden='hidden'in attrs;this.disabled=false;this.textContent='';this.className=attrs.class||'';this.children=[];this.style={setProperty(k,v){this[k]=v}};this.events={};this.classes=new Set((attrs.class||'').split(' ').filter(Boolean));this.classList={toggle:(c,v)=>{if(v===undefined)v=!this.classes.has(c);if(v)this.classes.add(c);else this.classes.delete(c);},contains:c=>this.classes.has(c)};this.captured=new Set();}
  addEventListener(type,fn){(this.events[type]??=[]).push(fn)}
@@ -53,7 +54,7 @@ function setup(storageDenied=false,{seed={},realVisuals=false,width=390,height=8
  class Renderer{constructor(){this.shadowMap={};this.info={render:{calls:0}}}setSize(){}setPixelRatio(){}render(){}}
  const counters={clear:0,sync:0,update:[]};const visual={clear(){counters.clear++},sync(){counters.sync++},update(dt){counters.update.push(dt)},styleBullet(){}};
  const windowEvents={};
- const context=vm.createContext({console,THREE:{...actualTHREE,WebGLRenderer:Renderer},...core,...cameraModule,...keyboard,...ui,WEAPONS,document,localStorage,URLSearchParams,location:{search:''},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:realVisuals?createWeaponVisuals:()=>visual,createBossVisuals,bossVisualScale,createAllyVisuals,ALLY_VISUAL,applyMapLighting(){},positionCameraFill(){}});
+ const context=vm.createContext({console,THREE:{...actualTHREE,WebGLRenderer:Renderer},...core,...cameraModule,...keyboard,...ui,WEAPONS,document,localStorage,URLSearchParams,location:{search:''},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:realVisuals?createWeaponVisuals:()=>visual,createBossVisuals,bossVisualScale,createAllyVisuals,ALLY_VISUAL,createShotVisuals,SHOT_VISUAL,applyMapLighting(){},positionCameraFill(){}});
  context.window=context;context.addEventListener=(t,f)=>{(windowEvents[t]??=[]).push(f)};
  vm.runInContext(fs.readFileSync(root+'main.js','utf8').replace(/^import .*;\n/gm,''),context);
  const qa=context.__PLUSH_QA__,el=id=>document.querySelector('#'+id),run=s=>vm.runInContext(s,context);
@@ -596,6 +597,14 @@ check('restart clears allies and repeated runs reuse the pooled helper model',()
   const g=t.qa.game;g.spawn=1e9;g.dropTimer=1e9;g.nextBossMinute=1e9;g.nextExp=1e9;g.invuln=1e9;g.fire=1e9;g.magicFire=1e9;g.enemies.length=0;g.drops.length=0;
   assert.equal(t.qa.allyVisuals.models,0);assert.equal(t.qa.game.allies.length,0);}
  assert.equal(t.qa.allyVisuals.pooled,1,'one mini helper model reused across runs');
+});
+
+check('main-weapon bolts draw trails and a hit shows a flash; restart clears them',()=>{
+ const t=allyGame(),g=t.qa.game;g.fire=0;g.player.angle=0;
+ g.enemies.push({id:++g.serial,x:g.player.x,z:g.player.z+4,hp:1e9,type:0,speed:0,angle:0});
+ let trails=0,flashes=0,puffs=0;for(let i=0;i<20;i++){t.advance(50);const s=t.qa.shotVisuals.stats;trails=Math.max(trails,s.trails);flashes=Math.max(flashes,s.flashes);puffs=Math.max(puffs,s.puffs);}
+ assert.ok(trails>0,'trails drawn');assert.ok(flashes>0,'hit flash drawn');assert.ok(puffs>0,'cotton puffs drawn');
+ t.qa.restart();assert.deepEqual(t.qa.shotVisuals.stats,{trails:0,flashes:0,puffs:0});
 });
 
 console.log(JSON.stringify({method:'Node DOM/renderer stub only; not browser/WebGL verification',passed:checks.length,checks},null,2));

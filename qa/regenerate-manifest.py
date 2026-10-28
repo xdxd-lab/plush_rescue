@@ -18,7 +18,7 @@ RUNTIME = [
     'assets/polar-portrait.png', 'assets/pudding-portrait.png',
     'ally-visuals.js', 'boss-visuals.js', 'build-info.json', 'camera.js', 'characters.js', 'core.js',
     'crowd.js', 'effects.js', 'index.html', 'keyboard.js', 'lighting.js', 'main.js',
-    'maps.js', 'style.css', 'ui.js',
+    'maps.js', 'shot-visuals.js', 'style.css', 'ui.js',
     'vendor/THREE-LICENSE.txt', 'vendor/three.core.js', 'vendor/three.module.js',
     'weapon-visuals.js', 'weapons.js',
 ]
