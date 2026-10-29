@@ -1,8 +1,8 @@
 {
-  "version": "12.3.3",
-  "revision": "v12.3.3-brand-r1",
-  "source_commit": "8ae4855",
-  "layout": "Static V12.3.3 export based on V12.3.2 (668ab94); brand favicons, social preview and dialog brand mark, main-weapon bolt trails and hit feedback, 30-second boss helper allies, nearest non-overlapping drop labels, hover and tap pickup, mobile-first rescue UI.",
+  "version": "12.3.4",
+  "revision": "v12.3.4-dialog-actions-r1",
+  "source_commit": "da86f2f",
+  "layout": "Static V12.3.4 export based on V12.3.3 (21abd80); start and resume stay visible in short dialogs, brand favicons and social preview, main-weapon bolt trails and hit feedback, 30-second boss helper allies, nearest non-overlapping drop labels, hover and tap pickup, mobile-first rescue UI.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -56,8 +56,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 312,
-      "sha256": "365acce8f993f44156865c274d8127236ac8c1483dbaa88d5c44e8071ce67a35"
+      "bytes": 366,
+      "sha256": "86ba80b48f9152552be3884a7bac8197ef0ddedc0eed309f6fb6589f89683e06"
     },
     {
       "path": "camera.js",
@@ -86,8 +86,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13102,
-      "sha256": "756f359b074998b6eef87d2e323cba767615d0053b68df7e783cf385cd8c2665"
+      "bytes": 13111,
+      "sha256": "5cf8bd94fe53af6da5738c1811e79a8d20a3756d7200c12e63cd6bfe2aec6705"
     },
     {
       "path": "keyboard.js",
@@ -101,8 +101,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 45847,
-      "sha256": "542e8895f5b395921e38c26eda8e3efdf8768d6ce17852de9f29a68995a600c9"
+      "bytes": 45856,
+      "sha256": "35f7dab9b7c6d2383c359ca034236ed67fe7c4aeba5f9276a7fd0072c16d88d0"
     },
     {
       "path": "maps.js",

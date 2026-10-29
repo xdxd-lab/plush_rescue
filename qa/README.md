@@ -61,6 +61,12 @@ update. `node qa/browser-chrome.mjs` passed 32 of 32 on 2938c73, before the vers
 buttons that need scrolling are the same as in V12.3.2. Start and pause dialog heights were measured unchanged
 in headed Chrome at 360×640, 390×844, 844×390 and 1280×720. Not tested in Safari, Firefox or on a phone.
 
+V12.3.4 (start and resume visible in short dialogs): Node 24.22.1 passed 119 tests and the DOM smoke passed 80
+checks after the version update. On da86f2f, before the version-only update, bounded headless runs passed:
+`--no-pickup --dialogs` 35/35 and `--views=844x390,568x320` 21/21, both with no console errors. An earlier
+unbounded full run on b1efecb was stopped by SIGTERM during the dialog checks; the full pickup suite at
+1280x720, 390x844 and 360x640 was not rerun after da86f2f. Not tested in Safari, Firefox or on a phone.
+
 CDP touch semantics used by `browser-chrome.mjs` (observed in Chrome 156): `touchStart`/`touchMove` list the points that are down;
 `touchEnd` lists the points being released (an empty list releases all). Without explicit `timestamp`s, a slow
 software-rendered frame makes an 80 ms tap arrive as a ~500 ms one.
