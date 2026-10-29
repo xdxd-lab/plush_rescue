@@ -155,6 +155,40 @@ test('touch gestures: the game surface takes no browser pan/zoom, dialogs may sc
 // pause dialog at 844×390 / 568×320 taller than the window (primary button partly below
 // the fold). That is acceptable only while the dialog itself stays a scroll container that
 // touch, wheel and keyboard can reach. These rules keep that true at every viewport.
+// V12.3.4: start and resume must be visible when a dialog opens, in every window. They stick
+// to the scrolling dialog's visible bottom: their wrappers take no box (so the dialog is their
+// sticky container), the offset cancels the dialog's bottom padding up to one ring width, and
+// a ring in the dialog colour covers the content scrolling under them. Where the start screen
+// is two columns the button already sits at the top of its column; where the pause buttons
+// sit side by side the row sticks instead. The real-browser check is qa/browser-chrome.mjs.
+test('start and resume stick to the visible bottom of a dialog taller than the window',()=>{
+ const grid=vp=>vp.h<=500&&vp.w>vp.h&&vp.w>=560;
+ for(const vp of [...VIEWPORTS,{name:'short laptop',w:800,h:600,touch:false}]){
+  for(const sel of ['#start','#resume']){
+   const d=declarationsAt(sel,vp);
+   assert.equal(d.position,'sticky',`${vp.name}: ${sel} sticky`);
+   assert.equal(d.bottom,'calc(var(--ring) - var(--pad-b))',`${vp.name}: ${sel} offset cancels the dialog padding`);
+   assert.ok(px(d['--ring']??declarationsAt('#start',vp)['--ring'])>0,`${vp.name}: ${sel} has a masking ring`);
+   assert.match(d['box-shadow'],/0 0 0 var\(--ring\) var\(--d-bg2\)/,`${vp.name}: ${sel} ring in the dialog colour`);
+  }
+  const dialog=declarationsAt('.dialog',vp);
+  assert.ok(px(dialog['--pad-b'])>0,`${vp.name}: dialog bottom padding is a variable the offset can use`);
+  assert.match(dialog.padding,/var\(--pad-b\)$/,`${vp.name}: dialog padding uses --pad-b`);
+  assert.match(dialog['scroll-padding-bottom'],/^var\(--sticky-clear,\d+px\)$/,`${vp.name}: tabbed-to controls are kept clear of the button`);
+  assert.equal(declarationsAt('.pause-actions',vp).display,'contents',`${vp.name}: pause wrapper takes no box by default`);
+  assert.equal(declarationsAt('.intro-actions',vp).display,'contents',`${vp.name}: start wrapper takes no box by default`);
+  const readyGrid=declarationsAt('.dialog[data-state="ready"] .intro-actions',vp),pauseRow=declarationsAt('.dialog[data-state="paused"] .pause-actions',vp);
+  if(grid(vp)){
+   assert.equal(readyGrid.display,'block',`${vp.name}: two-column start screen keeps its column`);
+   assert.equal(pauseRow.position,'sticky',`${vp.name}: side-by-side pause buttons stick as a row`);
+   assert.equal(pauseRow.bottom,'calc(9px - var(--pad-b))',`${vp.name}: pause row offset`);
+  }else{assert.equal(readyGrid.display,undefined,vp.name);assert.equal(pauseRow.position,undefined,vp.name);}
+ }
+ const main=fs.readFileSync(new URL('../main.js',import.meta.url),'utf8');
+ assert.ok(main.includes("dialog.addEventListener('focusin',e=>{"),'focused controls are scrolled clear of the sticky button');
+ assert.ok(main.includes(".find(el=>getComputedStyle(el).position==='sticky')"),'the scroll fix follows whichever element is sticky');
+});
+
 test('dialogs stay reachable when taller than the window: scroll container, no input capture, focus kept inside',()=>{
  for(const vp of [...VIEWPORTS,{name:'short laptop',w:800,h:600,touch:false}]){
   const d=declarationsAt('.dialog',vp),o=declarationsAt('#overlay',vp);
@@ -165,6 +199,7 @@ test('dialogs stay reachable when taller than the window: scroll container, no i
   for(const sel of ['#start','.primary','.pause-actions'])assert.notEqual(declarationsAt(sel,vp).display,'none',`${vp.name}: ${sel} shown`);
   assert.ok(!['fixed','absolute'].includes(declarationsAt('.primary',vp).position),`${vp.name}: primary stays in the scrolling flow`);
  }
+ // V12.3.4: start and resume stick to the dialog's visible bottom (see the sticky test below).
  const main=fs.readFileSync(new URL('../main.js',import.meta.url),'utf8');
  // Touches on a shown dialog are never claimed by the game, so the browser can scroll it.
  assert.ok(main.includes("if(game.status!=='running'||overlay.classList.contains('shown')||e.defaultPrevented"),'pointerdown ignores dialogs');

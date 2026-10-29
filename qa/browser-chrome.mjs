@@ -368,11 +368,40 @@ if(runPickup&&!onlyViews)await check('blocked localStorage: the game runs, setti
  if(failed)throw failed;
 });
 
+// ---- primary dialog button visible on open (V12.3.4) -------------------------------------
+// Start and resume stick to the dialog's visible bottom: in every window size they are fully
+// visible and on top as soon as the dialog opens, without any scrolling. The rest stays
+// reachable: every control focused in turn is in view and not under the sticky button, and
+// the last line of the dialog shows uncovered once scrolled to the end.
+const STICKY_VIEWS=[{name:'320x568',width:320,height:568,mobile:true},{name:'360x640',width:360,height:640,mobile:true},{name:'390x844',width:390,height:844,mobile:true},{name:'844x390',width:844,height:390,mobile:true},{name:'568x320',width:568,height:320,mobile:true},{name:'800x600',width:800,height:600},{name:'1280x720',width:1280,height:720}];
+const STICKY_PROBE=(primary,last)=>`(async()=>{const d=document.querySelector('#dialog'),wait=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+ const onTop=e=>{const r=e.getBoundingClientRect(),h=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return !!h&&(h===e||e.contains(h));};
+ const inView=e=>{const r=e.getBoundingClientRect(),dr=d.getBoundingClientRect();return r.top>=dr.top-1&&r.bottom<=dr.bottom+1&&r.bottom<=innerHeight+1;};
+ d.scrollTop=0;await wait();const b=document.querySelector('${primary}'),open={inView:inView(b),onTop:onTop(b),scrollTop:d.scrollTop};
+ const hidden=[];for(const c of [...d.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled):not([tabindex="-1"])')].filter(e=>e.getClientRects().length)){c.focus();await wait();if(!inView(c)||!onTop(c))hidden.push(c.id||c.className);}
+ d.scrollTop=d.scrollHeight;await wait();const end=document.querySelector('${last}');
+ return {open,hidden,endOnTop:onTop(end),scrollHeight:d.scrollHeight,clientHeight:d.clientHeight};})()`;
+for(const view of STICKY_VIEWS){
+ await check(`${view.name}: start and resume are fully visible on open; every other control stays reachable`,async()=>{
+  const page=await openPage(view);
+  try{
+   for(const [state,primary,last] of [['ready','#start','.random-note'],['paused','#resume','#restart']]){
+    if(state==='paused'){await page.eval("document.querySelector('#start').click();0");await page.frames(2);await page.eval('__PLUSH_QA__.pause();0');await page.frames(2);}
+    assert.equal(await page.eval('__PLUSH_QA__.game.status'),state);
+    const r=await page.eval(STICKY_PROBE(primary,last));lastDiag={view:view.name,state,...r};
+    assert.ok(r.open.inView&&r.open.onTop&&r.open.scrollTop===0,`${state}: ${primary} visible and on top without scrolling`);
+    assert.deepEqual(r.hidden,[],`${state}: focused controls in view and not under the sticky button`);
+    assert.ok(r.endOnTop,`${state}: ${last} uncovered at the end of the dialog`);
+   }
+  }finally{await page.close();}
+ });
+}
+
 // ---- dialog reachability (--dialogs) -----------------------------------------------------
 // Start and pause dialogs in short and tall windows: measure rects, then reach the end of
 // the content and the primary button with the device's own gesture (wheel or touch drag),
 // operate it, and check that every control tabbed to comes into view and Enter works.
-const DIALOG_VIEWS_ALL=[{name:'800x600',width:800,height:600},{name:'1280x720',width:1280,height:720},{name:'844x390',width:844,height:390,mobile:true,scale:1},{name:'568x320',width:568,height:320,mobile:true,scale:1},{name:'390x844',width:390,height:844,mobile:true,scale:1},{name:'360x640',width:360,height:640,mobile:true,scale:1}];
+const DIALOG_VIEWS_ALL=[{name:'320x568',width:320,height:568,mobile:true,scale:1},{name:'800x600',width:800,height:600},{name:'1280x720',width:1280,height:720},{name:'844x390',width:844,height:390,mobile:true,scale:1},{name:'568x320',width:568,height:320,mobile:true,scale:1},{name:'390x844',width:390,height:844,mobile:true,scale:1},{name:'360x640',width:360,height:640,mobile:true,scale:1}];
 const MEASURE=primary=>`(()=>{const d=document.querySelector('#dialog'),b=document.querySelector('${primary}'),r=b.getBoundingClientRect(),dr=d.getBoundingClientRect();
  const visTop=Math.max(r.top,dr.top,0),visBottom=Math.min(r.bottom,dr.bottom,innerHeight),cy=(visTop+visBottom)/2,hit=visBottom>visTop?document.elementFromPoint(r.left+r.width/2,cy):null;
  return {dialog:{top:Math.round(dr.top),bottom:Math.round(dr.bottom),scrollHeight:d.scrollHeight,clientHeight:d.clientHeight,scrollTop:Math.round(d.scrollTop)},

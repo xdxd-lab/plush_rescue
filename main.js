@@ -186,7 +186,16 @@ document.addEventListener('keydown',e=>{
  if(!dialog.contains(document.activeElement)||(!e.shiftKey&&document.activeElement===last)){e.preventDefault();first.focus();}
  else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
 });
-document.addEventListener('focusin',e=>{if(isInteractiveTarget(e.target))keys.clear();});$('#pause').onclick=pause;
+document.addEventListener('focusin',e=>{if(isInteractiveTarget(e.target))keys.clear();});
+// V12.3.4: the start/resume button (or the pause button row) sticks to the dialog's visible
+// bottom. A control focused underneath it is scrolled clear; browsers skip scroll-padding for
+// a control that is already inside the scrollport.
+dialog.addEventListener('focusin',e=>{
+ const bar=[...dialog.querySelectorAll('.pause-actions,#start,#resume')].find(el=>getComputedStyle(el).position==='sticky');
+ if(!bar||bar.contains(e.target))return;
+ const r=e.target.getBoundingClientRect(),b=bar.getBoundingClientRect(),over=r.bottom-(b.top-14);
+ if(over>0&&r.top<b.bottom)dialog.scrollTop+=over;
+});$('#pause').onclick=pause;
 $('#stowTwoHanded').onclick=()=>{if(game.status!=='running'||!game.twoHandedWeapon)return;keys.clear();game.toggleTwoHanded();renderDirty=true;syncHud();canvas.focus({preventScroll:true});};
 function input(){return screenToWorldAt({x:stick.x+(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0),z:stick.z+(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0)},camera,game.player,innerWidth,innerHeight);}
 // Permanent HUD nodes survive reset; modal controls are intentionally not cached.
