@@ -9,7 +9,7 @@
 | App icon（`exec-a05f7395-….png`） | 1254×1254 PNG | `192cda38ad5c0c37da47bb992b66da87583e12b49d8a8a3d8d657bfcf1415ef9` | 布丁狗頭部特寫，深夜藍背景，身後金色光暈與星光 |
 | 橫幅（`exec-723a4049-….png`） | 2172×724 PNG | `a3cfc1451ebd5d7663d8aa8a5413ff152100063a339a694ec3b656a0b4b42392` | 布丁狗與北極熊並肩、身旁救回的布偶朋友，背景是黎明的遊樂場，左側 PLUSH RESCUE 字樣 |
 
-完整 prompt 未保存在本儲存庫；如需重製請向主代理索取。
+兩張圖的完整 prompt 與參考圖記在 [`PROMPTS.md`](PROMPTS.md)（不屬於遊戲執行檔，不列入 `runtime-manifest.json`）。
 
 ## 衍生檔案（macOS `sips` 縮放與轉檔）
 
@@ -21,4 +21,6 @@
 | `banner.jpg` | 橫幅 | 1280×426，JPEG 品質 82 | `README.md` 首圖（不屬於遊戲執行檔） |
 | `og-image.jpg` | 橫幅 | 1200×630，JPEG 品質 85，上下以 `#101A44` 補邊 | 社群分享預覽（`og:image`、`twitter:image`） |
 
-除 `banner.jpg` 外，其餘檔案都列入 `runtime-manifest.json`。
+除 `banner.jpg` 外，其餘檔案都列入 `runtime-manifest.json`。首次發布於 v12.3.3。
+
+社群預覽的 `og:url` 與圖片網址以 GitHub Pages 為 canonical；Sites 版本共用同一份 `index.html`，兩站的分享預覽相同。

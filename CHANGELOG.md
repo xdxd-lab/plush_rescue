@@ -8,7 +8,8 @@
 
 | 版本 | `revision` | 發布提交 | `source_commit`（基礎） | 建議 tag |
 |---|---|---|---|---|
-| 12.3.2 | `v12.3.2-shot-fx-r1` | （待記錄） | `d500422` | `v12.3.2`（待建立） |
+| 12.3.3 | `v12.3.3-brand-r1` | （待記錄） | `8ae4855` | `v12.3.3`（待建立） |
+| 12.3.2 | `v12.3.2-shot-fx-r1` | `668ab94` | `d500422` | `v12.3.2`（待建立） |
 | 12.3.1 | `v12.3.1-ally-30s-r1` | `b5881f2` | `4801d51` | `v12.3.1`（待建立） |
 | 12.3.0 | `v12.3.0-boss-allies-r1` | `25495b7` | `4d068df` | `v12.3.0`（待建立） |
 | 12.2.1 | `v12.2.1-hover-pickup-r1` | `5a8dd7c` | `8b5d738` | `v12.2.1`（待建立） |
@@ -20,16 +21,23 @@
 
 發布提交之後只改文件或 `qa/`、沒有改執行檔的提交（例如 `4d097de`、`84363c8`、`ef9d208`）不另立版本。
 
-## 未發布：品牌素材整合（`feat/brand-assets`，基礎提交 `668ab94`）
+## V12.3.3：品牌素材
 
-> 尚未定版本號；版本識別維持 v12.3.2。只改頁面標頭、開始／暫停對話框的標籤與 README，未動戰鬥 HUD、相機或任何遊戲邏輯。
+基礎提交 `8ae4855`（`feat/brand-assets`，以 v12.3.2 `668ab94` 為基礎）。
+
+> 只改頁面標頭、開始／暫停對話框的標籤與 README，未動戰鬥 HUD、相機或任何遊戲邏輯。
 
 - **分頁與主畫面圖示：**新增 16、32、192 px favicon 與 180 px `apple-touch-icon`（布丁狗頭像）。
-- **社群分享預覽：**新增 `description`、Open Graph 與 Twitter card 標記；預覽圖 `og-image.jpg` 為 1200×630（橫幅置中、上下補深夜藍邊），網址指向 GitHub Pages。未更動 GitHub 儲存庫的社群預覽設定。
+- **社群分享預覽：**新增 `description`、Open Graph 與 Twitter card 標記；預覽圖 `og-image.jpg` 為 1200×630（橫幅置中、上下補深夜藍邊）。`og:url` 與預覽圖網址一律以 GitHub Pages（`https://xdxd-lab.github.io/plush_rescue/`）為 canonical；Sites 版本使用同一份 `index.html`，因此兩站分享時呈現相同的標題、說明與預覽圖，作為共用識別，Sites 上的分享也會指回 GitHub Pages。未加 `<link rel="canonical">`，也未更動 GitHub 儲存庫的社群預覽設定。
 - **開始與暫停畫面：**標籤「PLUSH RESCUE」「PAUSED」前加 20 px 圓形小標記；以負邊距嵌在原標籤內，對話框高度不變。
 - **README：**開頭加入 1280×426 橫幅（JPEG，約 160 KB）。
-- **素材來源：**兩張主代理以內建影像生成產出的原圖（App icon 1254×1254、橫幅 2172×724，合計約 4.4 MB）不放進儲存庫；衍生檔共約 470 KB，來源、SHA-256、prompt 摘要與衍生方式記在 `assets/brand/README.md`。除 README 橫幅外，衍生檔都列入 `runtime-manifest.json`。
-- **驗證：**`node --test qa/*.test.mjs` 118/118；`node qa/ui-smoke.mjs` 80/80；`python3 verify-export.py` 通過 29 個雜湊、53 個資源引用與 17 個 JavaScript 模組解析。Claude in Chrome（macOS Chrome，iframe）在 360×640、390×844、844×390、1280×720 量測開始與暫停對話框：改動前後的內容高度、可視高度與標籤高度（24 px）完全相同；小標記與四個圖示連結皆正常載入（HTTP 200）。`node qa/browser-chrome.mjs`（Chrome 156 headless、SwiftShader，於 `2938c73` 的檔案上執行）32/32、無 console 錯誤；對話框按鈕需捲動的量測（360×640、844×390 的 #resume，800×600 的 #start、#resume）與 v12.3.2 相同。社群預覽在各平台的實際呈現、iOS 加到主畫面的圖示、Safari／Firefox 與實體手機尚未驗證。
+- **素材用途：**App icon（布丁狗頭部特寫、深夜藍金光）衍生出分頁 favicon、iOS 主畫面圖示與開始／暫停小標記；橫幅（布丁狗與北極熊並肩救回朋友、黎明遊樂場、PLUSH RESCUE 字樣）衍生出 README 首圖與社群預覽圖。
+- **素材來源：**兩張主代理以內建影像生成產出的原圖（App icon 1254×1254、橫幅 2172×724，合計約 4.4 MB）不放進儲存庫；衍生檔共約 470 KB，來源、SHA-256、prompt 摘要與衍生方式記在 `assets/brand/README.md`，兩個完整 imagegen prompt 記在 `assets/brand/PROMPTS.md`（文件，非執行檔）。除 README 橫幅外，衍生檔都列入 `runtime-manifest.json`。
+- **Node 模擬（Node 24.22.1，12.3.3 版本資料更新後重跑）：**`node --test qa/*.test.mjs` 118/118；`node qa/ui-smoke.mjs` 80/80；`python3 verify-export.py` 通過 29 個雜湊、53 個資源引用與 17 個 JavaScript 模組解析。
+- **Claude in Chrome（macOS Chrome，iframe，於 `2938c73` 的檔案上，版本資料更新前）：**在 360×640、390×844、844×390、1280×720 量測開始與暫停對話框，改動前後的內容高度、可視高度與標籤高度（24 px）完全相同；小標記與四個圖示連結皆正常載入（HTTP 200）。
+- **真 Chrome headless（於 `2938c73` 的檔案上，版本資料更新前；之後只改版本識別與文件）：**`node qa/browser-chrome.mjs`（Chrome 156 headless、SwiftShader）32/32、無 console 錯誤。
+- **既有短視窗按鈕問題未增加：**需捲動才看得到的對話框按鈕仍只有 360×640、844×390 的「繼續」與 800×600 的「開始」「繼續」，與 v12.3.2 相同；此問題本版未修正。
+- **尚未驗證：**各社群平台實際呈現的分享預覽、iOS 加到主畫面的圖示、Safari／Firefox、實體手機。
 
 ## V12.3.2：主武器彈道與命中回饋
 

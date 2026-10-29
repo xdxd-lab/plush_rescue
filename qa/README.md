@@ -56,6 +56,11 @@ before the version-only update); it does not check the trails or hit effects the
 screenshots in headed Chrome at 390×844 were taken before the trail-start fix. Reduced motion and low quality
 were checked in Node only. Not tested in Safari, Firefox, on a phone or on a hardware GPU.
 
+V12.3.3 (brand assets): Node 24.22.1 passed 118 tests and the DOM smoke passed 80 checks after the version
+update. `node qa/browser-chrome.mjs` passed 32 of 32 on 2938c73, before the version-only update; the dialog
+buttons that need scrolling are the same as in V12.3.2. Start and pause dialog heights were measured unchanged
+in headed Chrome at 360×640, 390×844, 844×390 and 1280×720. Not tested in Safari, Firefox or on a phone.
+
 CDP touch semantics used by `browser-chrome.mjs` (observed in Chrome 156): `touchStart`/`touchMove` list the points that are down;
 `touchEnd` lists the points being released (an empty list releases all). Without explicit `timestamp`s, a slow
 software-rendered frame makes an 80 ms tap arrive as a ~500 ms one.
