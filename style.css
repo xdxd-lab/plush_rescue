@@ -180,6 +180,8 @@ footer:has(> #stats:not([hidden])){bottom:calc(2px + env(safe-area-inset-bottom)
 #overlay.shown{display:flex}
 .dialog{position:relative;width:100%;max-width:480px;max-height:100%;overflow:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-user-select:text;user-select:text;padding:30px 32px 26px;border-radius:28px;background:linear-gradient(165deg,var(--d-bg),var(--d-bg2));color:var(--d-text);text-align:center;border:2px solid #fff4dc;box-shadow:0 24px 80px rgba(8,12,30,.5),inset 0 0 0 6px var(--d-bg),inset 0 0 0 7.5px rgba(184,160,124,.35)}
 .eyebrow{display:inline-block;padding:4px 12px;border-radius:999px;background:#efe2c9;color:#6d5a44;font-size:11px;font-weight:800;letter-spacing:2px}
+/* Brand mark inside the eyebrow pill: negative vertical margins keep the pill (and the dialog) at its original height. */
+.eyebrow .brand-mark{display:inline-block;width:20px;height:20px;margin:-6px 7px -6px -8px;border-radius:50%;vertical-align:middle;box-shadow:0 0 0 1.5px #fff8}
 h1,h2{color:#3a3c4a;margin:12px 0 6px;letter-spacing:1px}
 h1{font-size:36px}
 h2{font-size:27px}

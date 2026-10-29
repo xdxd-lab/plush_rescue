@@ -15,6 +15,36 @@
       "sha256": "53783999ad814f84d9655a792514a4ebffe3c1fe10a1a91619d984f18fbfc5eb"
     },
     {
+      "path": "assets/brand/apple-touch-icon.png",
+      "bytes": 55145,
+      "sha256": "a973138a8a1bec5cbae4b32ffc6b0bcba1fb2cfc04b8c9a469657ba721479076"
+    },
+    {
+      "path": "assets/brand/brand-mark.png",
+      "bytes": 8593,
+      "sha256": "d182543f736a5c017a47f8e1916bd4dbc82c3c14b1ca4d19c92279544183b464"
+    },
+    {
+      "path": "assets/brand/icon-16.png",
+      "bytes": 887,
+      "sha256": "b34f7fe445be10aa11f222ab3f740adce1b3a5020729cc0cb55c909853bb3a83"
+    },
+    {
+      "path": "assets/brand/icon-192.png",
+      "bytes": 62098,
+      "sha256": "0f9243d7d61083e157110ef2647a90d75bf74ee7f4833be9fde8041841e2f2a1"
+    },
+    {
+      "path": "assets/brand/icon-32.png",
+      "bytes": 2625,
+      "sha256": "34e587669370717f54068ee202fb82c0d3b05de57ed48c5155d3ae30462aec35"
+    },
+    {
+      "path": "assets/brand/og-image.jpg",
+      "bytes": 173956,
+      "sha256": "a8aa563bf59fc48b5217656940d581964fea8f9c98dbe6e20b8e95cd539fa2ba"
+    },
+    {
       "path": "ally-visuals.js",
       "bytes": 7739,
       "sha256": "7ee4a2b47c9c2a8483d34951554ec4d6b8a984e71ab65249277132a8f1458efd"
@@ -56,8 +86,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 11351,
-      "sha256": "08e9d6643e649dd3832404957fc3bc48f1ff2c99ff0f92693767f2bc8407cb55"
+      "bytes": 13104,
+      "sha256": "af541665e62bbffa8891f17067a2edab8e3e769ea9ade248eaac598c5fcf30d9"
     },
     {
       "path": "keyboard.js",
@@ -71,8 +101,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 45146,
-      "sha256": "8578f7355a60d8c43062e60ebb5b7303551cd031835ccbb69cf23e807336a78a"
+      "bytes": 45251,
+      "sha256": "c21aca64f78a9c70f6e9350248a0b5ccdb9919ba4be36dcbe2f6e69f10b56449"
     },
     {
       "path": "maps.js",
@@ -86,8 +116,8 @@
     },
     {
       "path": "style.css",
-      "bytes": 31565,
-      "sha256": "0dc4e33c39f04668e4a38e1d36bcf222da381527b721d244baa58ac55310a061"
+      "bytes": 31849,
+      "sha256": "21a09870daef9f954a9c3dd43a4371b225a00127b2259fb27e656460d9fd94db"
     },
     {
       "path": "ui.js",

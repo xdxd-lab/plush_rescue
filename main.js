@@ -283,7 +283,7 @@ function syncOverlay(){
  clearInput();hurtTimer=0;hudClass(hud.vignette,'hurt',false);
  let autoTarget=null,autoLabel='',autoResolve=null;
  if(game.status==='paused'){
-  dialog.innerHTML=`<div class="eyebrow">PAUSED</div><h2 id="dialogTitle">暫停中</h2><p class="lead">時間已經停下，朋友們會等你回來。</p>`
+  dialog.innerHTML=`<div class="eyebrow"><img class="brand-mark" src="assets/brand/brand-mark.png" alt="" width="20" height="20" decoding="async">PAUSED</div><h2 id="dialogTitle">暫停中</h2><p class="lead">時間已經停下，朋友們會等你回來。</p>`
    +`<div class="run-summary">${statTile(formatClock(game.time),'救援時間')}${statTile(game.saved,'救回朋友')}${statTile('Lv. '+game.level,'目前等級')}</div>`
    +`<div class="settings-columns"><section class="settings-group"><h3>畫面與聲音</h3>`
    +`<label class="setting">音效音量 <input id="volume" type="range" min="0" max="1" step=".05" value="${volume}"></label>`
