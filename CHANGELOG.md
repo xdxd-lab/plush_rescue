@@ -29,7 +29,7 @@
 - **開始與暫停畫面：**標籤「PLUSH RESCUE」「PAUSED」前加 20 px 圓形小標記；以負邊距嵌在原標籤內，對話框高度不變。
 - **README：**開頭加入 1280×426 橫幅（JPEG，約 160 KB）。
 - **素材來源：**兩張主代理以內建影像生成產出的原圖（App icon 1254×1254、橫幅 2172×724，合計約 4.4 MB）不放進儲存庫；衍生檔共約 470 KB，來源、SHA-256、prompt 摘要與衍生方式記在 `assets/brand/README.md`。除 README 橫幅外，衍生檔都列入 `runtime-manifest.json`。
-- **驗證：**`node --test qa/*.test.mjs` 118/118；`node qa/ui-smoke.mjs` 80/80；`python3 verify-export.py` 通過 29 個雜湊、53 個資源引用與 17 個 JavaScript 模組解析。Claude in Chrome（macOS Chrome，iframe）在 360×640、390×844、844×390、1280×720 量測開始與暫停對話框：改動前後的內容高度、可視高度與標籤高度（24 px）完全相同；小標記與四個圖示連結皆正常載入（HTTP 200）。`node qa/browser-chrome.mjs` 於提交時仍在執行，結果另行補記。社群預覽在各平台的實際呈現、iOS 加到主畫面的圖示、Safari／Firefox 與實體手機尚未驗證。
+- **驗證：**`node --test qa/*.test.mjs` 118/118；`node qa/ui-smoke.mjs` 80/80；`python3 verify-export.py` 通過 29 個雜湊、53 個資源引用與 17 個 JavaScript 模組解析。Claude in Chrome（macOS Chrome，iframe）在 360×640、390×844、844×390、1280×720 量測開始與暫停對話框：改動前後的內容高度、可視高度與標籤高度（24 px）完全相同；小標記與四個圖示連結皆正常載入（HTTP 200）。`node qa/browser-chrome.mjs`（Chrome 156 headless、SwiftShader，於 `2938c73` 的檔案上執行）32/32、無 console 錯誤；對話框按鈕需捲動的量測（360×640、844×390 的 #resume，800×600 的 #start、#resume）與 v12.3.2 相同。社群預覽在各平台的實際呈現、iOS 加到主畫面的圖示、Safari／Firefox 與實體手機尚未驗證。
 
 ## V12.3.2：主武器彈道與命中回饋
 
