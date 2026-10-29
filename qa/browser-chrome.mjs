@@ -155,8 +155,10 @@ async function openPage({width,height,mobile=false,scale=1,context=null,blockSto
    const t0=Date.now()/1000,hold=holdMs||80;await page.touch([[x,y,id]],'touchStart',t0);
    const left=t0*1000+hold-Date.now();if(left>0)await sleep(left);await page.touch([[x,y,id]],'touchEnd',t0+hold/1000);
   },
-  // Dialog buttons are scrolled into view first, as a user would; record when that was needed.
-  async click(selector){const r=await page.eval(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});let b=e.getBoundingClientRect();const hidden=b.bottom>innerHeight||b.top<0;if(hidden){e.scrollIntoView({block:'nearest'});b=e.getBoundingClientRect();}return {x:b.left+b.width/2,y:b.top+b.height/2,w:b.width,hidden};})()`);assert.ok(r.w>0,selector+' is laid out');
+  // Dialog controls are scrolled into view first, as a user would; record when that was needed.
+  // A control inside the window but under the sticky start/resume button (V12.3.4) counts as
+  // hidden too: a user scrolls it clear before tapping.
+  async click(selector){const r=await page.eval(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});let b=e.getBoundingClientRect();const top=document.elementFromPoint(b.left+b.width/2,b.top+b.height/2);const covered=!!top&&top!==e&&!e.contains(top)&&!(e.labels&&[...e.labels].some(l=>l.contains(top)));const hidden=b.bottom>innerHeight||b.top<0||covered;if(hidden){e.scrollIntoView({block:'nearest'});b=e.getBoundingClientRect();}return {x:b.left+b.width/2,y:b.top+b.height/2,w:b.width,hidden};})()`);assert.ok(r.w>0,selector+' is laid out');
    if(r.hidden)scrolled.add(`${width}x${height} ${selector}`);
    if(mobile)await page.tap(r.x,r.y,{id:11});else await page.mouse(r.x,r.y);await page.frames(2);},
   async shot(name){if(!shots)return;fs.mkdirSync(shots,{recursive:true});const {data}=await send('Page.captureScreenshot',{format:'png'},s);fs.writeFileSync(path.join(shots,name+'.png'),Buffer.from(data,'base64'));},
