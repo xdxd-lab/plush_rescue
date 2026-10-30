@@ -65,7 +65,11 @@ V12.3.4 (start and resume visible in short dialogs): Node 24.22.1 passed 119 tes
 checks after the version update. On da86f2f, before the version-only update, bounded headless runs passed:
 `--no-pickup --dialogs` 35/35 and `--views=844x390,568x320` 21/21, both with no console errors. An earlier
 unbounded full run on b1efecb was stopped by SIGTERM during the dialog checks; the full pickup suite at
-1280x720, 390x844 and 360x640 was not rerun after da86f2f. Not tested in Safari, Firefox or on a phone.
+1280x720, 390x844 and 360x640 was not rerun after da86f2f before the release. After the release, on f3e171e,
+one bounded run per size (150 s per check) passed `--views=1280x720` 16/16, `--views=390x844` 14/14 and
+`--views=360x640` 14/14 with no console errors; `--dialogs` and the other sizes were not rerun. An independent
+Claude in Chrome check by another agent found start and resume visible and tappable on open at 11 sizes
+(300x400 to 1280x720), with real Tab and Enter only at 360x640. Not tested in Safari, Firefox or on a phone.
 
 CDP touch semantics used by `browser-chrome.mjs` (observed in Chrome 156): `touchStart`/`touchMove` list the points that are down;
 `touchEnd` lists the points being released (an empty list releases all). Without explicit `timestamp`s, a slow
