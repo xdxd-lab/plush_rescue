@@ -298,3 +298,24 @@ test('a label does not flicker at the limit of its slide while the hero edges al
  assert.ok(seq[0]===0,'still hidden at the point it left');
  assert.equal(seq.join('').replace(/0+1+/,''),'','one clean return, no flicker');
 });
+
+// qa/browser-chrome.mjs taps these spots as label ends, with the hero where a run starts.
+// Node catches a spot that loses its label before the slower browser run does.
+test('the spots the browser checks tap as labels keep a label in every window',()=>{
+ const hero={x:0,z:4};
+ for(const [w,h] of [[1280,720],[390,844],[360,640],[844,390],[568,320],[800,600]]){
+  const camera=view(w,h,hero);
+  for(const [dx,dz] of [[-2,-1.5],[-2.5,1],[1.8,-1.8],[-1.6,2],[2.4,-1.2]]){
+   const t=scene([{x:hero.x+dx,z:hero.z+dz}],camera,hero);
+   assert.equal(t.wv.drawnDrops().get(1).labelVisible,true,`${w}x${h} at ${dx},${dz}`);
+  }
+ }
+});
+
+test('a drop straight below the hero loses its label, so the browser checks must not tap it as one',()=>{
+ const hero={x:0,z:4};
+ for(const [w,h] of [[1280,720],[390,844],[844,390]]){
+  const t=scene([{x:hero.x+2,z:hero.z+1.5}],view(w,h,hero),hero);
+  assert.deepEqual([...t.wv.drawnDrops()],[[1,{labelVisible:false}]],`${w}x${h}`);
+ }
+});

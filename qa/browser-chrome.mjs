@@ -174,6 +174,13 @@ const HELPERS=`window.__T={
  async init(){const m=await import('/weapon-visuals.js');this.G=m.DROP_GEOMETRY;this.labelBox=m.dropLabelBox;},
  // How a drop's label is drawn right now: what the game hit-tests against.
  drawn(d){return this.qa.weaponVisuals.drawnDrops().get(d.id)??{labelVisible:false}},
+ // The drop's hit shape as the game builds it, or as it would be with another label state.
+ async shape(d,seen=this.drawn(d)){
+  const ui=await import('/ui.js'),c=this.qa.camera,r=this.rect();
+  const project=(x,y,z)=>{const v=this.V(x,y,z).project(c);return v.z>1||v.z<-1?null:{x:r.left+(v.x+1)/2*r.width,y:r.top+(1-v.y)/2*r.height,z:v.z}};
+  const axes={right:this.V().setFromMatrixColumn(c.matrixWorld,0).normalize(),up:this.V().setFromMatrixColumn(c.matrixWorld,1).normalize()};
+  return ui.dropHitShape(d,project,axes,{left:r.left,top:r.top,width:r.width,height:r.height},seen);
+ },
  get qa(){return window.__PLUSH_QA__},
  V(x=0,y=0,z=0){return new (this.qa.camera.position.constructor)(x,y,z)},
  rect(){return document.querySelector('#world').getBoundingClientRect()},
@@ -207,10 +214,21 @@ async function tapAt(page,p,{mobile,holdMs=0}={}){
  else await page.mouse(p.x,p.y,{holdMs});
  await page.frames(3);return page.eval('__T.state()');
 }
+// A label check has to be about the label. It must be drawn (a drop right below the hero
+// has its label hidden), and the point must miss once the label is gone: at a tiny window
+// the point of a hidden world-size label falls inside the item's tap margin and would pass.
+async function assertOnLabel(page,id,p,mobile){
+ const seen=await page.eval(`(async()=>{const ui=await import('/ui.js'),d=__T.qa.game.drops.find(d=>d.id===${id}),q={...${JSON.stringify(p)},type:'${mobile?'touch':'mouse'}'},bare=await __T.shape(d,{labelVisible:false});
+  return {drawn:__T.drawn(d),withoutLabel:!!ui.pickDropAt(q,[bare].filter(Boolean))};})()`);
+ lastDiag={tap:p,...seen};
+ assert.ok(seen.drawn.labelVisible,'the label is drawn');assert.equal(seen.withoutLabel,false,'the tap lands on the label, not the item or ring');
+}
 // Drop placed, drawn, then tapped at `where`; returns whether that drop was taken.
-async function tapDrop(page,{mobile,dx=2,dz=1.5,where='labelRight',holdMs=0,weapon='shotgun'}){
+// The default spot is up the screen from the hero, where its label is shown in every window.
+async function tapDrop(page,{mobile,dx=-2,dz=-1.5,where='labelRight',holdMs=0,weapon='shotgun'}){
  const id=await page.eval(`__T.near('${weapon}',${dx},${dz}).id`);await page.frames(3);
  const p=await page.eval(`(()=>{const d=__T.qa.game.drops.find(d=>d.id===${id});return ${JSON.stringify(where)}==='ring'?__T.screen(d.x+__T.G.ringRadius*.7,__T.G.ringY,d.z):${JSON.stringify(where)}==='item'?__T.screen(d.x,__T.G.floatY,d.z):__T.label(d,${where==='labelLeft'?-.95:where==='labelRight'?.95:0});})()`);
+ if(where.startsWith('label'))await assertOnLabel(page,id,p,mobile);
  const st=await tapAt(page,p,{mobile,holdMs});const taken=st.pending===id||(!st.drops.includes(id)&&st.status==='running');
  if(!taken)lastDiag=await page.eval(`(async()=>{const ui=await import('/ui.js'),g=__T.qa.game,d=g.drops.find(d=>d.id===${id}),covers=[...document.querySelectorAll(ui.HUD_OCCLUDERS)],q=${JSON.stringify(p)};
   return {where:${JSON.stringify(where)},tap:q,player:{x:g.player.x,z:g.player.z},drop:d&&{x:d.x,z:d.z,life:d.life},drawn:d?__T.qa.weaponVisuals.drawnDrops().get(d.id)??null:'gone',coveredBy:covers.filter(e=>ui.pointCovered(q,[e])).map(e=>e.id||e.className),hit:document.elementFromPoint(q.x,q.y)?.id,state:__T.state()}})()`);
@@ -253,10 +271,7 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
   const x=card.left+card.width/2,at=await page.eval(`__T.ground(${x},${card.top},__T.G.floatY)`);
   const id=await page.eval(`__T.add('ember',${at.x},${at.z}).id`);await page.frames(3);
   // Exact pixels on the drop's real hit area: one inside the card, one just above it.
-  const spots=await page.eval(`(async()=>{const ui=await import('/ui.js'),c=__T.qa.camera,r=__T.rect(),d=__T.qa.game.drops.find(d=>d.id===${id});
-   const project=(x,y,z)=>{const v=__T.V(x,y,z).project(c);return v.z>1||v.z<-1?null:{x:r.left+(v.x+1)/2*r.width,y:r.top+(1-v.y)/2*r.height,z:v.z}};
-   const axes={right:__T.V().setFromMatrixColumn(c.matrixWorld,0).normalize(),up:__T.V().setFromMatrixColumn(c.matrixWorld,1).normalize()};
-   const shape=ui.dropHitShape(d,project,axes,{left:r.left,top:r.top,width:r.width,height:r.height},__T.drawn(d));
+  const spots=await page.eval(`(async()=>{const ui=await import('/ui.js'),d=__T.qa.game.drops.find(d=>d.id===${id}),shape=await __T.shape(d);
    const covers=[...document.querySelectorAll(ui.HUD_OCCLUDERS)],on=q=>ui.pickDropAt({...q,type:'touch'},[shape],{margin:0});
    let inside=null,above=null;
    for(let y=${card.top}+3;y<${card.bottom}&&!inside;y++){const q={x:${x},y};if(on(q))inside=q;}
@@ -283,7 +298,7 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
    assert.equal(after.checked,!before,`round ${round}: the tap toggled the checkbox once`);
    assert.equal(after.stored,after.checked,`round ${round}: stored stats matches the checkbox`);
    await page.click('#resume');assert.equal(await page.eval('__T.qa.game.status'),'running',`round ${round} resumed`);
-   const [dx,dz]=[[2,1.5],[-2.5,1],[1.8,-1.8],[-1.6,2],[2.4,-1.2]][round];
+   const [dx,dz]=[[-2,-1.5],[-2.5,1],[1.8,-1.8],[-1.6,2],[2.4,-1.2]][round];
    assert.ok(await tapDrop(page,{mobile,where:round%2?'labelLeft':'labelRight',dx,dz}),`round ${round} tap`);
   }
   const saved=await page.eval('__T.qa.settings');assert.deepEqual({q:saved.quality,h:saved.hero},{q:'low',h:'polar'});
@@ -321,11 +336,11 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
    // The first finger holds still while the second taps, so the camera does not move between
    // reading the label position and the tap on a slow software-rendered frame.
    await page.eval('__T.qa.game.autoEquip=true');
-   const id=await page.eval("__T.near('shotgun',2,1.5).id");await page.frames(3);
+   const id=await page.eval("__T.near('shotgun',-2,-1.5).id");await page.frames(3);
    const a={x:40,y:view.height*.62};
    await page.touch([[a.x,a.y,1]],'touchStart');await page.frames(2);
    try{
-    const p=await page.eval('__T.label(__T.qa.game.drops[0],.95)'),t0=Date.now()/1000;
+    const p=await page.eval('__T.label(__T.qa.game.drops[0],.95)');await assertOnLabel(page,id,p,true);const t0=Date.now()/1000;
     await page.touch([[a.x,a.y,1],[p.x,p.y,2]],'touchStart',t0);await page.touch([[p.x,p.y,2]],'touchEnd',t0+.08);await page.frames(3);
     const st=await page.eval("({...__T.state(),main:__T.qa.game.loadout.main,stick:document.querySelector('#stick').style.display})");
     assert.ok(!st.drops.includes(id)&&st.status==='running'&&st.main==='shotgun',`second finger picked: ${JSON.stringify(st)}`);
