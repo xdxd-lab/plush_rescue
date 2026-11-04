@@ -122,7 +122,7 @@ function send(method,params={},sessionId){
 }
 
 const errors=[],scrolled=new Set();
-async function openPage({width,height,mobile=false,scale=1,context=null,blockStorage=false}){
+async function openPage({width,height,mobile=false,scale=1,context=null,blockStorage=false,logInputs=false}){
  const {targetId}=await send('Target.createTarget',{url:'about:blank',...(context?{browserContextId:context}:{})});
  const {sessionId:s}=await send('Target.attachToTarget',{targetId,flatten:true});
  listeners.add(m=>{if(m.sessionId!==s)return;
@@ -131,6 +131,8 @@ async function openPage({width,height,mobile=false,scale=1,context=null,blockSto
  await send('Runtime.enable',{},s);await send('Page.enable',{},s);
  await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:scale,mobile},s);
  if(mobile)await send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:5},s);
+ // Every input a page received, from before its own scripts run, for a failure report.
+ if(logInputs)await send('Page.addScriptToEvaluateOnNewDocument',{source:"window.__inputs=[];for(const t of ['click','keydown','pointerdown','touchstart','focus','blur'])addEventListener(t,e=>__inputs.push([t,e.isTrusted,e.target?.id||e.target?.tagName||'window',Math.round(performance.now())]),true);document.addEventListener('visibilitychange',()=>__inputs.push(['visibility',document.visibilityState,Math.round(performance.now())]));"},s);
  if(blockStorage)await send('Page.addScriptToEvaluateOnNewDocument',{source:"Object.defineProperty(window,'localStorage',{get(){throw new DOMException('blocked','SecurityError')}});"},s);
  const page={s,targetId,
   eval:async expr=>{const r=await send('Runtime.evaluate',{expression:expr,awaitPromise:true,returnByValue:true},s);if(r.exceptionDetails)throw new Error(r.exceptionDetails.exception?.description||r.exceptionDetails.text);return r.result.value;},
@@ -404,11 +406,12 @@ const STICKY_PROBE=(primary,last)=>`(async()=>{const d=document.querySelector('#
  return {open,hidden,endOnTop:onTop(end),scrollHeight:d.scrollHeight,clientHeight:d.clientHeight};})()`;
 for(const view of STICKY_VIEWS){
  await check(`${view.name}: start and resume are fully visible on open; every other control stays reachable`,async()=>{
-  const page=await openPage(view);
+  const page=await openPage({...view,logInputs:true});
   try{
    for(const [state,primary,last] of [['ready','#start','.random-note'],['paused','#resume','#restart']]){
     if(state==='paused'){await page.eval("document.querySelector('#start').click();0");await page.frames(2);await page.eval('__PLUSH_QA__.pause();0');await page.frames(2);}
-    assert.equal(await page.eval('__PLUSH_QA__.game.status'),state);
+    lastDiag=await page.eval("({status:__PLUSH_QA__.game.status,time:__PLUSH_QA__.game.time,visibility:document.visibilityState,focused:document.activeElement?.id,inputs:__inputs})");
+    assert.equal(lastDiag.status,state);
     const r=await page.eval(STICKY_PROBE(primary,last));lastDiag={view:view.name,state,...r};
     assert.ok(r.open.inView&&r.open.onTop&&r.open.scrollTop===0,`${state}: ${primary} visible and on top without scrolling`);
     assert.deepEqual(r.hidden,[],`${state}: focused controls in view and not under the sticky button`);
