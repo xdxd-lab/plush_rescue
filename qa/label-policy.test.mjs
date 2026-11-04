@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import * as THREE from '../vendor/three.module.js';
 import {createWeaponVisuals,dropLabelBox,DROP_GEOMETRY as G,LABEL_FONT,LABEL_POLICY as L} from '../weapon-visuals.js';
 import {createGameCamera,cameraFocus,cameraOffset} from '../camera.js';
+import {makePlush} from '../characters.js';
 import * as ui from '../ui.js';
 
 const VIEWS={portrait:[390,844],small:[360,640],landscape:[844,390],desktop:[1280,720]};
@@ -34,9 +35,9 @@ function labelRects(t,camera,width,height){
 // Twelve drops in a ring of radii 2–7 around the player: a crowded opening.
 const crowd=()=>Array.from({length:12},(_,i)=>{const a=i*2.4,r=2+i*.42;return {x:Math.sin(a)*r,z:Math.cos(a)*r};});
 
-test('a crowded frame shows at most 3 labels in portrait and 5 in landscape, never overlapping',()=>{
+test('a crowded frame shows at most 3 labels in portrait or a short window and 5 otherwise, never overlapping',()=>{
  for(const [name,[w,h]] of Object.entries(VIEWS)){
-  const camera=view(w,h),t=scene(crowd(),camera),shown=t.labels(),budget=h>w?L.portrait:L.landscape;
+  const camera=view(w,h),t=scene(crowd(),camera),shown=t.labels(),budget=h<L.shortHeight?L.short:h>w?L.portrait:L.landscape;
   assert.ok(shown.length>=2&&shown.length<=budget,`${name}: ${shown.length} labels`);
   const rects=labelRects(t,camera,w,h);
   for(let i=0;i<rects.length;i++)for(let j=i+1;j<rects.length;j++){const a=rects[i],b=rects[j];
@@ -52,7 +53,8 @@ test('the nearest drops get the labels; drops without one stay drawn',()=>{
 test('a drop right next to the hero shows no label; the label returns as it moves away',()=>{
  const camera=view(390,844),t=scene([{x:.9,z:.4}],camera);
  assert.deepEqual(t.labels(),[]);assert.deepEqual([...t.wv.drawnDrops()],[[1,{labelVisible:false}]]);
- t.game.drops[0].x=2;t.frame();assert.deepEqual(t.labels(),[1]);
+ // Up the screen from the hero, so the label is clear of it.
+ t.game.drops[0].x=-2.6;t.game.drops[0].z=-1.5;t.frame();assert.deepEqual(t.labels(),[1]);
 });
 
 test('labels keep the V11 distance limit',()=>{
@@ -60,11 +62,15 @@ test('labels keep the V11 distance limit',()=>{
  assert.ok(!t.labels().includes(2),'beyond labelDistance');
 });
 
+// Portrait frame: drop 1 nearest (2.51), then 2 (2.83) and 3 (3.40), drop 4 farther
+// (5.50). No label meets another, so each test here is only about the label choice.
+const four=()=>[{x:-1.85,z:1.7},{x:.61,z:-2.76},{x:-2.95,z:-1.7},{x:0,z:5.5}];
+
 test('a label already shown keeps its place over a slightly nearer newcomer (no flicker)',()=>{
- const camera=view(390,844),drops=[{x:-2.2,z:1.2},{x:2.4,z:1.5},{x:0,z:-3},{x:3,z:-4.6}],t=scene(drops,camera);
+ const camera=view(390,844),t=scene(four(),camera);
  assert.deepEqual(t.labels().sort(),[1,2,3]);
  // Drop 4 comes a little nearer than drop 3 (within the keep margin): no swap.
- const d3=Math.hypot(0,-3),d4=t.game.drops[3];const k=(d3-L.keep/2)/Math.hypot(d4.x,d4.z);d4.x*=k;d4.z*=k;t.frame();
+ const d3=Math.hypot(t.game.drops[2].x,t.game.drops[2].z),d4=t.game.drops[3];const k=(d3-L.keep/2)/Math.hypot(d4.x,d4.z);d4.x*=k;d4.z*=k;t.frame();
  assert.deepEqual(t.labels().sort(),[1,2,3]);
  // Clearly nearer: it takes the place.
  d4.x*=.6;d4.z*=.6;t.frame();assert.ok(t.labels().includes(4));
@@ -80,7 +86,7 @@ test('of two drops whose labels would overlap on screen, only the nearer is labe
  for(const [name,[w,h]] of Object.entries(VIEWS)){
   // Side by side along the camera's right axis, closer than a label width.
   const camera=view(w,h),right=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize();
-  const a={x:2.5,z:1},b={x:a.x+right.x*G.labelWidth*.6,z:a.z+right.z*G.labelWidth*.6};
+  const a={x:-3.5,z:-2.5},b={x:a.x+right.x*G.labelWidth*.6,z:a.z+right.z*G.labelWidth*.6};
   const t=scene([a,b],camera);assert.deepEqual(t.labels(),[Math.hypot(a.x,a.z)<Math.hypot(b.x,b.z)?1:2],name);
   assert.equal(t.wv.drawnDrops().size,2,`${name}: both drops are still drawn`);
  }
@@ -92,9 +98,6 @@ function beat(t,camera,dark){
  const target=(Math.floor(t.now*13/(2*Math.PI))+1)*2*Math.PI+(dark?1.5:.5)*Math.PI;
  const dt=target/13-t.now;t.now+=dt;t.wv.update(dt,[],t.game,camera,camera.userData.viewHeight);t.wv.sync(t.game,new THREE.Group());
 }
-// Portrait frame: drop 1 nearest (2.51), 2 and 3 next, drop 4 farther (5.49),
-// placed so all four labels stay clear of each other at their enlarged size.
-const four=()=>[{x:-2.2,z:1.2},{x:2.4,z:1.5},{x:0,z:-3},{x:3.88,z:-3.88}];
 
 test('a drop in the dark beat of its expiry blink neither takes a label slot nor blocks one; it competes again when bright',()=>{
  const camera=view(390,844),t=scene(four(),camera);t.now=0;t.game.drops[0].life=1.5;
@@ -107,7 +110,7 @@ test('a drop in the dark beat of its expiry blink neither takes a label slot nor
  // Overlapping pair: when the nearer one is dark, the farther one is labelled.
  for(const [name,[w,h]] of Object.entries(VIEWS)){
   const cam=view(w,h),right=new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld,0).normalize();
-  const a={x:2.5,z:1},b={x:a.x+right.x*G.labelWidth*.6,z:a.z+right.z*G.labelWidth*.6};
+  const a={x:-3.5,z:-2.5},b={x:a.x+right.x*G.labelWidth*.6,z:a.z+right.z*G.labelWidth*.6};
   const near=Math.hypot(a.x,a.z)<Math.hypot(b.x,b.z)?0:1,u=scene([a,b],cam);u.now=0;u.game.drops[near].life=1.5;
   beat(u,cam,false);assert.deepEqual(u.labels(),[near+1],`${name}: bright, the nearer is labelled`);
   beat(u,cam,true);assert.deepEqual(u.labels(),[2-near],`${name}: dark, the farther is labelled`);
@@ -167,7 +170,7 @@ test('the title is at least 12 px wherever the label is held at minHeight',()=>{
 });
 
 test('a window with room keeps the world size, and reports no scale',()=>{
- const camera=view(1920,1080),t=scene([{x:2,z:1}],camera);
+ const camera=view(1920,1080),t=scene([{x:5.83,z:-.1}],camera);
  assert.deepEqual([...t.wv.drawnDrops()],[[1,{labelVisible:true}]]);
 });
 
@@ -209,4 +212,89 @@ test('a label overlap is judged at the enlarged size',()=>{
  const camera=view(568,320),right=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize();
  const a={x:5,z:-3},b={x:a.x+right.x*G.labelWidth*1.4,z:a.z+right.z*G.labelWidth*1.4},t=scene([a,b],camera);
  assert.equal(t.labels().length,1);
+});
+
+// ---- small windows and the hero -----------------------------------------------------
+test('a window under 480 px tall shows at most three labels; 480 px keeps five',()=>{
+ const spread=()=>Array.from({length:8},(_,i)=>{const a=i/8*Math.PI*2+.3;return {x:Math.sin(a)*(4+i*.5),z:Math.cos(a)*(4+i*.5)};});
+ const count=(w,h)=>scene(spread(),view(w,h)).labels().length;
+ assert.equal(count(1100,480),L.landscape,'480 px tall: five');
+ assert.equal(count(1100,479),L.short,'479 px tall: three');
+ for(const [w,h] of [[844,390],[667,375],[568,320]])assert.ok(count(w,h)<=L.short,`${w}x${h}`);
+});
+
+// The hero's box on screen, in CSS pixels.
+function heroBox(camera,w,h,p={x:0,z:0}){
+ const right=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize(),v=new THREE.Vector3();
+ const pts=[[-1,0],[1,0],[1,L.heroHeight],[-1,L.heroHeight]].map(([s,y])=>{v.set(p.x,y,p.z).addScaledVector(right,s*L.heroHalfWidth).project(camera);return {x:(v.x+1)/2*w,y:(1-v.y)/2*h};});
+ return {left:Math.min(...pts.map(q=>q.x)),right:Math.max(...pts.map(q=>q.x)),top:Math.min(...pts.map(q=>q.y)),bottom:Math.max(...pts.map(q=>q.y))};
+}
+const covers=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+const rightAxis=camera=>new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize();
+
+test('the hero box holds every hero as it is drawn, at any facing, with any weapon',()=>{
+ const v=new THREE.Vector3();
+ for(const heroId of ['pudding','polar'])for(const [main,twoHanded] of [['pulse',null],['bomber',null],['ember',null],['shotgun','cannon']]){
+  const hero=makePlush(THREE,{hero:true,heroId});hero.scale.setScalar(1.1);
+  createWeaponVisuals(THREE,new THREE.Scene()).sync({drops:[],bombs:[],player:{x:0,z:0},loadout:{main,offhand:'moonfan'},twoHanded,weaponLevels:{},magic:{},enemies:[]},hero);
+  hero.updateMatrixWorld(true);let radius=0,top=0;
+  hero.traverse(o=>{
+   for(let q=o;q;q=q.parent)if(!q.visible)return;
+   if(!o.isMesh||o.isInstancedMesh)return;const pos=o.geometry.attributes.position;
+   for(let i=0;i<pos.count;i++){v.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);radius=Math.max(radius,Math.hypot(v.x,v.z));top=Math.max(top,v.y);}
+  });
+  assert.ok(radius<=L.heroHalfWidth,`${heroId}/${twoHanded||main}: radius ${radius}`);assert.ok(top<=L.heroHeight,`${heroId}/${twoHanded||main}: height ${top}`);
+ }
+});
+
+test('no shown label covers the hero, wherever the drops lie, in every window',()=>{
+ for(const [w,h] of [...WINDOWS,[1920,1080]]){
+  const camera=view(w,h),hero=heroBox(camera,w,h);let shown=0;
+  for(let i=0;i<240;i++){
+   const a=i*2.399963,r=1.4+(i%24)*.3,t=scene([{x:Math.sin(a)*r,z:Math.cos(a)*r},{x:Math.sin(a+1.7)*(r+1),z:Math.cos(a+1.7)*(r+1)}],camera),rects=labelRects(t,camera,w,h);
+   shown+=rects.length;for(const q of rects)assert.ok(!covers(q,hero),`${w}x${h} placement ${i}: label ${q.id}`);
+  }
+  assert.ok(shown>200,`${w}x${h}: labels are still shown (${shown})`);
+ }
+});
+
+test('a label that meets the hero slides away, stays over its drop, and the hit area goes with it',()=>{
+ for(const [w,h] of [[844,390],[568,320],[390,844]]){
+  const camera=view(w,h),right=rightAxis(camera);
+  for(const side of [-1,1]){
+   const t=scene([{x:right.x*side*2.6,z:right.z*side*2.6}],camera),seen=t.wv.drawnDrops().get(1);
+   assert.ok(seen.labelVisible,`${w}x${h} side ${side}: still labelled`);
+   assert.equal(Math.sign(seen.labelShift),side,`${w}x${h} side ${side}: away from the hero (shift ${seen.labelShift})`);
+   assert.ok(Math.abs(seen.labelShift)<=dropLabelBox(seen.labelScale).halfWidth+1e-9,'the label still sits over its drop');
+   t.frame();assert.ok(Math.abs(t.wv.drawnDrops().get(1).labelShift-seen.labelShift)<1e-9,'a still frame keeps the label where it is');
+   const [r]=labelRects(t,camera,w,h),drawn=spriteRect(shownSprites(t).get(1),camera,w,h);
+   for(const edge of ['left','right','top','bottom'])assert.ok(Math.abs(drawn[edge]-r[edge])<.01,`${w}x${h} ${edge}: drawn ${drawn[edge]}, hit ${r[edge]}`);
+  }
+ }
+});
+
+test('a label clear of the hero does not slide',()=>{
+ const camera=view(844,390),right=rightAxis(camera),t=scene([{x:right.x*7,z:right.z*7}],camera);
+ assert.equal(t.wv.drawnDrops().get(1).labelShift,undefined);
+});
+
+test('a drop straight below the hero has no room to slide: the label is hidden, the drop stays drawn',()=>{
+ const camera=view(844,390),t=scene([{x:1.39,z:.8}],camera),seen=t.wv.drawnDrops().get(1);
+ assert.equal(seen.labelVisible,false);assert.equal(t.wv.drawnDrops().size,1);
+});
+
+test('slid labels stop overlapping each other too: both sides of the hero keep theirs',()=>{
+ const camera=view(568,320),right=rightAxis(camera),t=scene([{x:-right.x*3.2,z:-right.z*3.2},{x:right.x*3.2,z:right.z*3.2}],camera);
+ assert.deepEqual(t.labels().sort(),[1,2]);
+});
+
+test('a label does not flicker at the limit of its slide while the hero edges along',()=>{
+ const camera=view(844,390),right=rightAxis(camera),t=scene([{x:right.x*4,z:right.z*4}],camera);
+ // Walk the drop in along the right axis to the last step the label is shown.
+ let d=4,last=null;for(;d>0;d-=.01){const m=t.game.drops[0];m.x=right.x*d;m.z=right.z*d;t.frame();if(!t.labels().length)break;last=d;}
+ assert.ok(last,'the label went away at some point');
+ // Coming back it must pass that point by more before it returns, then stay.
+ const seq=[];for(let k=0;k<40;k++){const n=d+k*.01,m=t.game.drops[0];m.x=right.x*n;m.z=right.z*n;t.frame();seq.push(t.labels().length);}
+ assert.ok(seq[0]===0,'still hidden at the point it left');
+ assert.equal(seq.join('').replace(/0+1+/,''),'','one clean return, no flicker');
 });

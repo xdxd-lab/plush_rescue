@@ -32,7 +32,13 @@ export const DROP_GEOMETRY = Object.freeze({
 // are hidden again on release, so a new drop never inherits that bonus.
 // minHeight (CSS pixels) keeps the title at 12 px or more: labels are world
 // sprites, so without it they shrink with the window (3 px on a landscape phone).
-export const LABEL_POLICY = Object.freeze({portrait: 3, landscape: 5, heroClear: 1.3, keep: .6, gap: .02, minHeight: 30});
+// A window under shortHeight shows `short` labels at most. A label that would
+// cover the hero (heroHalfWidth and heroHeight bound every hero and weapon at any
+// facing) slides sideways, away from the hero, by at most half its width so it stays over
+// its drop; one that cannot clear the hero that way is hidden. slideKeep and
+// slideRelease stop a label flickering at those two limits while the hero moves.
+export const LABEL_POLICY = Object.freeze({portrait: 3, landscape: 5, short: 3, shortHeight: 480, heroClear: 1.3, keep: .6, gap: .02, minHeight: 30,
+  heroHalfWidth: 1.12, heroHeight: 1.6, slideKeep: .15, slideRelease: .06});
 // Text sizes on the 384x112 label canvas. On screen a label's title is 45/112 of
 // its height, so a label's height sets how readable it is.
 export const LABEL_FONT = Object.freeze({canvasHeight: 112, title: 45, subtitle: 36});
@@ -403,6 +409,23 @@ export function createWeaponVisuals(THREE, scene) {
     const r=labelViewHeight?labelRect(drop,camera,1):null;
     return r?Math.max(1,LABEL_POLICY.minHeight/((r.top-r.bottom)/2*labelViewHeight)):1;
   }
+  // The hero's upright box in the same units as labelRect.
+  function heroRect(p,camera,aspect) {
+    const L=LABEL_POLICY,r={left:Infinity,right:-Infinity,bottom:Infinity,top:-Infinity};
+    for(const [side,y] of [[-1,0],[1,0],[1,L.heroHeight],[-1,L.heroHeight]]) {
+      const q=labelPoint.set(p.x,y,p.z).addScaledVector(labelRight,side*L.heroHalfWidth).project(camera);
+      r.left=Math.min(r.left,q.x*aspect);r.right=Math.max(r.right,q.x*aspect);r.bottom=Math.min(r.bottom,q.y);r.top=Math.max(r.top,q.y);
+    }
+    return r;
+  }
+  // How far label r must slide to clear the hero: 0 when it is clear by `release`,
+  // null when it cannot. The side is the one r already leans to, so a label never
+  // crosses the hero, and a label near the hero's side eases to 0 rather than jumping.
+  function heroSlide(r,hero,gap,release,reach) {
+    if(r.left>=hero.right+release||r.right<=hero.left-release||r.bottom>=hero.top+release||r.top<=hero.bottom-release) return 0;
+    const slide=(r.left+r.right)/2<(hero.left+hero.right)/2?Math.min(0,hero.left-gap-r.right):Math.max(0,hero.right+gap-r.left);
+    return Math.abs(slide)<=(r.right-r.left)/2*reach?slide:null;
+  }
   function placeLabel(view,scale=1,shift=0) {
     const box=dropLabelBox(scale,shift),width=box.halfWidth*2,height=box.halfHeight*2;
     view.label.scale.set(width,height,1);view.label.center.set(.5-box.x/width,.5-box.y/height);
@@ -414,20 +437,23 @@ export function createWeaponVisuals(THREE, scene) {
       const view=drops.get(drop.id),d=Math.hypot(drop.x-p.x,drop.z-p.z),was=view.label.visible;
       view.label.visible=false;
       if(!view.group.visible||d>=DROP_GEOMETRY.labelDistance||(camera&&d<LABEL_POLICY.heroClear)) continue;
-      candidates.push({drop,view,rank:d-(was?LABEL_POLICY.keep:0)});
+      candidates.push({drop,view,was,rank:d-(was?LABEL_POLICY.keep:0)});
     }
     // Without a camera (first frame, Node tests) the V11 distance rule applies alone.
     if(!camera) {for(const c of candidates) {c.view.label.visible=true;placeLabel(c.view);}return;}
     candidates.sort((a,b)=>a.rank-b.rank||a.drop.id-b.drop.id);
     const aspect=camera.isPerspectiveCamera?camera.aspect:(camera.right-camera.left)/(camera.top-camera.bottom||1);
-    const budget=aspect<1?LABEL_POLICY.portrait:LABEL_POLICY.landscape,gap=LABEL_POLICY.gap;
+    const L=LABEL_POLICY,budget=labelViewHeight>0&&labelViewHeight<L.shortHeight?L.short:aspect<1?L.portrait:L.landscape,gap=L.gap;
     camera.updateMatrixWorld();labelRight.setFromMatrixColumn(camera.matrixWorld,0).normalize();labelUp.setFromMatrixColumn(camera.matrixWorld,1).normalize();
     shownRects.length=0;
+    const hero=heroRect(p,camera,aspect);
     for(const c of candidates) {
       if(shownRects.length>=budget) break;
-      const scale=labelScale(c.drop,camera),r=labelRect(c.drop,camera,aspect,dropLabelBox(scale));if(!r) continue;
+      const scale=labelScale(c.drop,camera),box=dropLabelBox(scale),r=labelRect(c.drop,camera,aspect,box);if(!r) continue;
+      const slide=heroSlide(r,hero,gap,c.was&&c.view.labelShift?L.slideRelease:gap,c.was?1+L.slideKeep:1);if(slide===null) continue;
+      const toWorld=box.halfWidth*2/(r.right-r.left);r.left+=slide;r.right+=slide;
       if(shownRects.some(o=>r.left<o.right+gap&&r.right>o.left-gap&&r.bottom<o.top+gap&&r.top>o.bottom-gap)) continue;
-      shownRects.push(r);c.view.label.visible=true;placeLabel(c.view,scale);
+      shownRects.push(r);c.view.label.visible=true;placeLabel(c.view,scale,slide*toWorld);
     }
   }
 

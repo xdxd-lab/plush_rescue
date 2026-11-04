@@ -434,6 +434,16 @@ const hoverMove=(t,p,extra={})=>move(t,9,p.x,p.y,{pointerType:'mouse',buttons:0,
 // A real-time frame of `ms` (loop takes the absolute time); the first call only syncs the clock.
 const hframe=(t,ms)=>{t.hnow=(t.hnow||5000)+ms;t.run(`loop(${t.hnow})`);};
 const hoverGame=(opts={})=>{const t=tapGame(opts);hframe(t,0);hframe(t,16);return t;};
+check('a label that slid off the hero is tappable where it is drawn, not where it would have been',()=>{
+ const t=tapGame({width:844,height:390}),g=t.qa.game;t.qa.renderOnce();t.run('camera.updateMatrixWorld()');
+ const r=t.run('new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize()'),d=addNear(t,'shotgun',r.x*2.6,r.z*2.6);t.qa.renderOnce();t.qa.renderOnce();
+ const seen=t.qa.weaponVisuals.drawnDrops().get(d.id);assert.ok(seen.labelShift>0,`slid away from the hero (${seen.labelShift})`);
+ const box=dropLabelBox(seen.labelScale),left=labelSpot(t,d,0);
+ // Where the left end was before the slide: inside the unslid label, outside the drawn one.
+ const unslid=t.run(`projectToScreen(${d.x}+${r.x}*${-box.halfWidth*.9},${G.labelY}+${r.y}*${-box.halfWidth*.9}+.3,${d.z}+${r.z}*${-box.halfWidth*.9})`);
+ mouseTap(t,1,unslid);assert.equal(g.pendingPickup,null,'the place the label left');
+ assert.ok(left);mouseTap(t,1,labelSpot(t,d,.97));assert.equal(g.pendingPickup?.id,d.id,'the slid end');
+});
 check('a hover on an enlarged label is held through a dark beat, at the size it was drawn',()=>{
  const t=hoverGame({width:844,height:390}),d=addNear(t,'shotgun',4,-3),p=labelSpot(t,d,.9,.8);hoverMove(t,p);hframe(t,16);
  assert.equal(t.run('hover.id'),d.id);assert.ok(t.run('hoverLabel').labelScale>2,'the drawn size is remembered');
