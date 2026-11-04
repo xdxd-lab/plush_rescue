@@ -30,13 +30,24 @@ export const DROP_GEOMETRY = Object.freeze({
 // A drop in the dark beat of its expiry blink is not drawn, so it neither takes
 // a label slot nor blocks a neighbour's label. Pooled labels start hidden and
 // are hidden again on release, so a new drop never inherits that bonus.
-export const LABEL_POLICY = Object.freeze({portrait: 3, landscape: 5, heroClear: 1.3, keep: .6, gap: .02});
+// minHeight (CSS pixels) keeps the title at 12 px or more: labels are world
+// sprites, so without it they shrink with the window (3 px on a landscape phone).
+export const LABEL_POLICY = Object.freeze({portrait: 3, landscape: 5, heroClear: 1.3, keep: .6, gap: .02, minHeight: 30});
 // Text sizes on the 384x112 label canvas. On screen a label's title is 45/112 of
 // its height, so a label's height sets how readable it is.
 export const LABEL_FONT = Object.freeze({canvasHeight: 112, title: 45, subtitle: 36});
 // The last 30% of a mine's fuse: the blast ring turns bright gold-white. Mines
 // only hurt enemies, so this stays clear of the boss attack's red.
 export const BOMB_VISUAL = Object.freeze({imminent: .3, ringColor: '#fff2c0'});
+
+// A label's box on its camera-facing plane, in world units around
+// (drop.x, labelY, drop.z): scale grows it upward from a fixed bottom edge, so it
+// never covers the item below, and shift moves it along the camera's right axis.
+// Drawing, the overlap check and hit areas all use this one box.
+export function dropLabelBox(scale=1, shift=0) {
+  const D = DROP_GEOMETRY;
+  return {x: shift, y: (scale-1)*D.labelHeight/2, halfWidth: D.labelWidth*scale/2, halfHeight: D.labelHeight*scale/2};
+}
 
 export function createWeaponVisuals(THREE, scene) {
   const root = new THREE.Group();
@@ -122,7 +133,7 @@ export function createWeaponVisuals(THREE, scene) {
   const bombImminent = material(new THREE.MeshBasicMaterial({color:BOMB_VISUAL.ringColor,side:THREE.DoubleSide}));
   const skillMaterials = new Map(Object.entries(SKILLS).map(([id,skill]) => [id, material(new THREE.MeshBasicMaterial({color:skill.color, side:THREE.DoubleSide}))]));
   const labelMaterials = new Map();
-  let now = 0, currentHero = null, originalGun = null, originalGunVisible = true, labelCamera = null;
+  let now = 0, currentHero = null, originalGun = null, originalGunVisible = true, labelCamera = null, labelViewHeight = 0;
   let heldMain = null, heldOffhand = null, mainId = '', offhandId = '', evolved = false;
   const heldModels = new Map(), charmModels = new Map(), carriedModels = new Map();
   const carried = new THREE.Group(); carried.name='Retained main weapon and offhand on backpack';
@@ -319,7 +330,7 @@ export function createWeaponVisuals(THREE, scene) {
     const label=new THREE.Sprite(labelMaterials.get('skill:unknown'));
     label.name='Pickup label'; label.position.y=D.labelY; label.scale.set(D.labelWidth,D.labelHeight,1); label.visible=false; group.add(label);
     group.visible=false;
-    return {group,float,ring,beacon,glyph,label,model:null,kind:'',key:'',id:null,phase:dropPool.length*.77};
+    return {group,float,ring,beacon,glyph,label,labelScale:1,labelShift:0,model:null,kind:'',key:'',id:null,phase:dropPool.length*.77};
   }
   function dropSpec(drop) {
     if (drop.kind==='weapon' && WEAPONS[drop.weaponId]) {
@@ -374,9 +385,9 @@ export function createWeaponVisuals(THREE, scene) {
   const labelPoint=new THREE.Vector3(),labelRight=new THREE.Vector3(),labelUp=new THREE.Vector3(),shownRects=[];
   // The label's screen rectangle in NDC units with x scaled by the aspect, or
   // null when its centre is off screen or behind the camera.
-  function labelRect(drop,camera,aspect) {
+  function labelRect(drop,camera,aspect,box=dropLabelBox()) {
     const D=DROP_GEOMETRY,project=(sx,sy)=>labelPoint.set(drop.x,D.labelY,drop.z)
-      .addScaledVector(labelRight,sx*D.labelWidth/2).addScaledVector(labelUp,sy*D.labelHeight/2).project(camera);
+      .addScaledVector(labelRight,box.x+sx*box.halfWidth).addScaledVector(labelUp,box.y+sy*box.halfHeight).project(camera);
     const c=project(0,0);
     if(!(c.z>-1&&c.z<1)||Math.abs(c.x)>1||Math.abs(c.y)>1) return null;
     let left=Infinity,right=-Infinity,bottom=Infinity,top=-Infinity;
@@ -384,6 +395,18 @@ export function createWeaponVisuals(THREE, scene) {
       const q=project(sx,sy);left=Math.min(left,q.x*aspect);right=Math.max(right,q.x*aspect);bottom=Math.min(bottom,q.y);top=Math.max(top,q.y);
     }
     return {left,right,bottom,top};
+  }
+  // The scale that brings this drop's label up to minHeight on screen. Each drop
+  // gets its own: perspective draws the far side of the arena smaller. Without a
+  // viewport height (first frame, Node tests) labels keep their world size.
+  function labelScale(drop,camera) {
+    const r=labelViewHeight?labelRect(drop,camera,1):null;
+    return r?Math.max(1,LABEL_POLICY.minHeight/((r.top-r.bottom)/2*labelViewHeight)):1;
+  }
+  function placeLabel(view,scale=1,shift=0) {
+    const box=dropLabelBox(scale,shift),width=box.halfWidth*2,height=box.halfHeight*2;
+    view.label.scale.set(width,height,1);view.label.center.set(.5-box.x/width,.5-box.y/height);
+    view.labelScale=scale;view.labelShift=shift;
   }
   function chooseLabels(entities,p) {
     const camera=labelCamera,candidates=[];
@@ -394,7 +417,7 @@ export function createWeaponVisuals(THREE, scene) {
       candidates.push({drop,view,rank:d-(was?LABEL_POLICY.keep:0)});
     }
     // Without a camera (first frame, Node tests) the V11 distance rule applies alone.
-    if(!camera) {for(const c of candidates) c.view.label.visible=true;return;}
+    if(!camera) {for(const c of candidates) {c.view.label.visible=true;placeLabel(c.view);}return;}
     candidates.sort((a,b)=>a.rank-b.rank||a.drop.id-b.drop.id);
     const aspect=camera.isPerspectiveCamera?camera.aspect:(camera.right-camera.left)/(camera.top-camera.bottom||1);
     const budget=aspect<1?LABEL_POLICY.portrait:LABEL_POLICY.landscape,gap=LABEL_POLICY.gap;
@@ -402,9 +425,9 @@ export function createWeaponVisuals(THREE, scene) {
     shownRects.length=0;
     for(const c of candidates) {
       if(shownRects.length>=budget) break;
-      const r=labelRect(c.drop,camera,aspect);if(!r) continue;
+      const scale=labelScale(c.drop,camera),r=labelRect(c.drop,camera,aspect,dropLabelBox(scale));if(!r) continue;
       if(shownRects.some(o=>r.left<o.right+gap&&r.right>o.left-gap&&r.bottom<o.top+gap&&r.top>o.bottom-gap)) continue;
-      shownRects.push(r);c.view.label.visible=true;
+      shownRects.push(r);c.view.label.visible=true;placeLabel(c.view,scale);
     }
   }
 
@@ -577,9 +600,10 @@ export function createWeaponVisuals(THREE, scene) {
     if(!game) return;
     attachRoot();syncHero(game,hero);syncDrops(game);syncBombs(game);syncBurn(game);
   }
-  function update(dt, events=[], game=null, camera=null) {
+  function update(dt, events=[], game=null, camera=null, viewHeight=0) {
     const step=Number.isFinite(dt)?Math.max(0,dt):0;now+=step;
     if(camera) labelCamera=camera;
+    if(viewHeight>0) labelViewHeight=viewHeight;
     // World state is reconciled once by sync(); update only advances visuals.
     for(const effect of effectPool) if(effect.life>0) animateEffect(effect,step);
     for(const event of events || []) if(event.kind==='magic'||event.kind==='explosion'||event.kind==='burn') spawnEffect(event);
@@ -603,16 +627,22 @@ export function createWeaponVisuals(THREE, scene) {
     for(const view of dropPool) {view.id=null;view.group.removeFromParent();view.group.visible=false;view.label.visible=false;}
     for(const view of bombPool) {view.id=null;view.group.removeFromParent();}
     for(const effect of effectPool) {effect.life=0;effect.group.removeFromParent();}
-    root.removeFromParent();root.clear();burnFlames.count=burnCores.count=0;lastBurnKey='';now=0;effectCursor=0;labelCamera=null;
+    root.removeFromParent();root.clear();burnFlames.count=burnCores.count=0;lastBurnKey='';now=0;effectCursor=0;labelCamera=null;labelViewHeight=0;
     // Reusable pools retain a bounded cache. Repeated game resets never grow
     // GPU resources, and no world object or former hero is retained in scene.
   }
   // Read-only view for tap hit-testing: the drops visible in the last drawn
-  // frame and whether each label was shown. An expiring drop in the dark beat
-  // of its blink is not on screen, so it is left out until it shows again.
+  // frame, whether each label was shown, and its scale and shift when they differ
+  // from the defaults. An expiring drop in the dark beat of its blink is not on
+  // screen, so it is left out until it shows again.
   function drawnDrops() {
     const out=new Map();if(!root.parent) return out;
-    for(const [id,view] of drops) if(view.group.visible) out.set(id,{labelVisible:view.label.visible});
+    for(const [id,view] of drops) if(view.group.visible) {
+      const entry={labelVisible:view.label.visible};
+      if(entry.labelVisible&&view.labelScale!==1) entry.labelScale=view.labelScale;
+      if(entry.labelVisible&&view.labelShift) entry.labelShift=view.labelShift;
+      out.set(id,entry);
+    }
     return out;
   }
   return {sync,update,styleBullet,clear,drawnDrops,

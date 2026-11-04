@@ -15,7 +15,7 @@ const cameraModule=await import(root+'camera.js');
 const keyboard=await import(root+'keyboard.js');
 const ui=await import(root+'ui.js');
 const {WEAPONS}=await import(root+'weapons.js');
-const {createWeaponVisuals,DROP_GEOMETRY}=await import(root+'weapon-visuals.js');
+const {createWeaponVisuals,dropLabelBox,DROP_GEOMETRY}=await import(root+'weapon-visuals.js');
 const {createAllyVisuals,ALLY_VISUAL}=await import(root+'ally-visuals.js');
 const {createShotVisuals,SHOT_VISUAL}=await import(root+'shot-visuals.js');
 class Element{
@@ -294,9 +294,9 @@ check('blocked storage: settings and taps still work for the session',()=>{
 });
 // ---- V12.1.1: on-screen hit area, HUD cover, slow mouse, settings rounds ---------------
 const G=DROP_GEOMETRY;
-// A point on a drop's label, fx/fy in -1..1 across its width/height (camera-facing).
+// A point on a drop's label as drawn, fx/fy in -1..1 across its width/height (camera-facing).
 function labelSpot(t,drop,fx,fy=0){
- t.qa.renderOnce();const sx=fx*G.labelWidth/2,sy=fy*G.labelHeight/2;
+ t.qa.renderOnce();const seen=t.qa.weaponVisuals.drawnDrops().get(drop.id)||{},box=dropLabelBox(seen.labelScale,seen.labelShift),sx=box.x+fx*box.halfWidth,sy=box.y+fy*box.halfHeight;
  return t.run(`(()=>{camera.updateMatrixWorld();const r=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize(),u=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,1).normalize();
   return projectToScreen(${drop.x}+r.x*${sx}+u.x*${sy},${G.labelY}+r.y*${sx}+u.y*${sy},${drop.z}+r.z*${sx}+u.z*${sy});})()`);
 }
@@ -422,11 +422,27 @@ check('volume is saved while dragging; quality, volume, next hero, stats and aut
  assert.equal(reload.qa.game.status,'ready','a reload starts from the title screen');assert.equal(reload.qa.game.time,0);assert.equal(reload.qa.game.saved,0);
 });
 
+check('on a landscape phone a label is enlarged, tappable to its drawn end, and not past it',()=>{
+ const t=tapGame({width:844,height:390}),g=t.qa.game,d=addNear(t,'shotgun',4,-3);t.qa.renderOnce();t.qa.renderOnce();
+ assert.ok(t.qa.weaponVisuals.drawnDrops().get(d.id).labelScale>2,'a world-size label would be 11 px tall here');
+ const end=labelSpot(t,d,.97),past=labelSpot(t,d,1),dir=Math.sign(end.x-labelSpot(t,d,0).x);
+ mouseTap(t,1,{x:past.x+dir*20,y:past.y});assert.equal(g.pendingPickup,null,'past the drawn end');
+ mouseTap(t,1,end);assert.equal(g.pendingPickup?.id,d.id,'the drawn end');
+});
 // ---- V12.2.1: mouse hover pickup -------------------------------------------------------
 const hoverMove=(t,p,extra={})=>move(t,9,p.x,p.y,{pointerType:'mouse',buttons:0,...extra});
 // A real-time frame of `ms` (loop takes the absolute time); the first call only syncs the clock.
 const hframe=(t,ms)=>{t.hnow=(t.hnow||5000)+ms;t.run(`loop(${t.hnow})`);};
 const hoverGame=(opts={})=>{const t=tapGame(opts);hframe(t,0);hframe(t,16);return t;};
+check('a hover on an enlarged label is held through a dark beat, at the size it was drawn',()=>{
+ const t=hoverGame({width:844,height:390}),d=addNear(t,'shotgun',4,-3),p=labelSpot(t,d,.9,.8);hoverMove(t,p);hframe(t,16);
+ assert.equal(t.run('hover.id'),d.id);assert.ok(t.run('hoverLabel').labelScale>2,'the drawn size is remembered');
+ d.life=1.5;for(let i=0;i<200&&t.qa.weaponVisuals.drawnDrops().has(d.id);i++){t.qa.weaponVisuals.update(.01);t.qa.renderOnce();}
+ assert.equal(t.qa.weaponVisuals.drawnDrops().has(d.id),false,'dark beat');
+ const held=label=>t.run(`(()=>{const {hidden}=dropShapes(${d.id},${label});return Boolean(hidden&&pickDropAt({x:${p.x},y:${p.y}},[hidden],{margin:0}));})()`);
+ assert.equal(held('hoverLabel'),true,'the pointer is still on the label as drawn');
+ assert.equal(held('{labelVisible:true}'),false,'a world-size label would have lost the pointer');
+});
 check('a mouse resting on a drop takes it after 0.5 s through the normal pickup flow; 0.4 s does not',()=>{
  const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);
  for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running','about 0.4 s');assert.equal(t.el('hoverRing').hidden,false,'progress ring is shown');

@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from '../vendor/three.module.js';
 import {Game} from '../core.js';
-import {createWeaponVisuals,DROP_GEOMETRY} from '../weapon-visuals.js';
+import {createWeaponVisuals,dropLabelBox,DROP_GEOMETRY} from '../weapon-visuals.js';
 import {WEAPONS} from '../weapons.js';
 import {createGameCamera,fitGameCamera,cameraFocus,cameraOffset,CAMERA} from '../camera.js';
 import * as ui from '../ui.js';
@@ -168,6 +168,28 @@ test('ring, floating item and the whole label rectangle (both ends) are tappable
   // The swept item cylinder may reach a little above the label (its far side), never more than 0.25 units.
   const unit=Math.abs(V.onLabel(drop,0,1).y-centre.y);
   assert.ok(top>=V.onLabel(drop,0,G.labelHeight/2).y-.25*unit,`${name}: the hit area does not grow far above the label`);
+ }
+});
+
+test('an enlarged label is a target over the whole drawn rectangle, and not past it',()=>{
+ const scale=2.6,box=dropLabelBox(scale);
+ for(const [w,h,name] of VIEWS){
+  const V=view(w,h),drop={id:7,x:2,z:5},s=ui.dropHitShape(drop,V.project,V.axes,V.viewport,{labelVisible:true,labelScale:scale});
+  const at=(fx,fy)=>V.onLabel(drop,box.x+fx*box.halfWidth,box.y+fy*box.halfHeight);
+  for(const [fx,fy] of [[-.97,0],[.97,0],[-.95,.9],[.95,.9],[.95,-.9]])assert.equal(ui.pickDropAt({...at(fx,fy),type:'mouse'},[s],{margin:0})?.id,7,`${name}: ${fx},${fy}`);
+  // Past the sides and the top of the drawn label there is nothing to hit.
+  const unit=Math.abs(V.onLabel(drop,1,0).x-V.onLabel(drop,0,0).x);
+  for(const [fx,fy] of [[-1,.5],[1,.5],[0,1]]){const p=at(fx,fy),q=fy===1?{x:p.x,y:p.y-.5*unit}:{x:p.x+Math.sign(fx)*Math.sign(V.onLabel(drop,1,0).x-V.onLabel(drop,0,0).x)*.5*unit,y:p.y};
+   assert.equal(ui.pickDropAt({...q,type:'mouse'},[s],{margin:0}),null,`${name}: past ${fx},${fy}`);}
+ }
+});
+
+test('a label shifted sideways is a target where it is drawn, not where it used to be',()=>{
+ const scale=2,shift=2.2,box=dropLabelBox(scale,shift),plain=dropLabelBox(scale);
+ for(const [w,h,name] of VIEWS){
+  const V=view(w,h),drop={id:8,x:2,z:5},s=ui.dropHitShape(drop,V.project,V.axes,V.viewport,{labelVisible:true,labelScale:scale,labelShift:shift});
+  assert.equal(ui.pickDropAt({...V.onLabel(drop,box.x+box.halfWidth*.97,box.y),type:'mouse'},[s],{margin:0})?.id,8,`${name}: the shifted end`);
+  assert.equal(ui.pickDropAt({...V.onLabel(drop,plain.x-plain.halfWidth*.97,plain.y+plain.halfHeight*.5),type:'mouse'},[s],{margin:0}),null,`${name}: the end it left`);
  }
 });
 

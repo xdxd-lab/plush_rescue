@@ -1,6 +1,6 @@
 // V12 presentation helpers. Pure functions only: no DOM, no game mutation.
 // Gameplay values stay in core.js/weapons.js; this module only formats them.
-import {DROP_GEOMETRY} from './weapon-visuals.js';
+import {DROP_GEOMETRY,dropLabelBox} from './weapon-visuals.js';
 
 export const WEAPON_ICONS=Object.freeze({pulse:'i-pulse',shotgun:'i-shotgun',burst:'i-burst',ember:'i-ember',bomber:'i-bomber',moonfan:'i-moonfan',frostwand:'i-frostwand',cannon:'i-cannon',none:'i-empty'});
 export const UPGRADE_ICONS=Object.freeze({power:'i-pulse',rate:'i-bolt',speed:'i-feather',heart:'i-heart'});
@@ -152,9 +152,10 @@ export function pointCovered(point,elements){
 // camera. `axes` holds the camera's world right/up vectors (labels are sprites
 // that always face the camera). `viewport` is {left,top,width,height}.
 // Parts: the ground ring (an ellipse on screen), the bobbing item (the cylinder
-// it sweeps over its whole bob range) and, when shown, the full label rectangle.
+// it sweeps over its whole bob range) and, when shown, the full label rectangle
+// at the scale and shift it was drawn with.
 const RING_STEPS=12;
-export function dropHitShape(drop,project,axes,viewport,{labelVisible=true}={}){
+export function dropHitShape(drop,project,axes,viewport,{labelVisible=true,labelScale=1,labelShift=0}={}){
  const G=DROP_GEOMETRY,parts=[];
  // A point outside the camera's depth range is not drawn (project gives null).
  // A part keeps its other points, so one cut by the far plane stays tappable.
@@ -165,8 +166,8 @@ export function dropHitShape(drop,project,axes,viewport,{labelVisible=true}={}){
  // The item spins and bobs: cover the upright cylinder it sweeps.
  add('item',[...circle(G.floatRadius,G.floatY-G.floatBob+G.floatBottom),...circle(G.floatRadius,G.floatY+G.floatBob+G.floatTop)]);
  if(labelVisible){
-  const w=G.labelWidth/2,h=G.labelHeight/2,R=axes.right,U=axes.up;
-  add('label',[[-1,-1],[1,-1],[1,1],[-1,1]].map(([sx,sy])=>project(drop.x+R.x*w*sx+U.x*h*sy,G.labelY+R.y*w*sx+U.y*h*sy,drop.z+R.z*w*sx+U.z*h*sy)));
+  const box=dropLabelBox(labelScale,labelShift),R=axes.right,U=axes.up;
+  add('label',[[-1,-1],[1,-1],[1,1],[-1,1]].map(([sx,sy])=>{const r=box.x+box.halfWidth*sx,u=box.y+box.halfHeight*sy;return project(drop.x+R.x*r+U.x*u,G.labelY+R.y*r+U.y*u,drop.z+R.z*r+U.z*u);}));
  }
  // Visible when any drawn part overlaps the viewport, even by one corner.
  return parts.some(part=>polygonMeetsRect(part.poly,viewport))?{drop,parts}:null;

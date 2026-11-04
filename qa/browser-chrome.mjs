@@ -136,7 +136,7 @@ async function openPage({width,height,mobile=false,scale=1,context=null,blockSto
   eval:async expr=>{const r=await send('Runtime.evaluate',{expression:expr,awaitPromise:true,returnByValue:true},s);if(r.exceptionDetails)throw new Error(r.exceptionDetails.exception?.description||r.exceptionDetails.text);return r.result.value;},
   async load(){await send('Page.navigate',{url:origin+'/index.html'},s);await page.ready();},
   async reload(){await send('Page.reload',{ignoreCache:true},s);await sleep(200);await page.ready();},
-  async ready(){for(let i=0;i<150;i++){if(run.aborted)throw new Error(`page not ready: run aborted (${run.aborted})`);try{if(await page.eval("document.readyState==='complete'&&!!window.__PLUSH_QA__"))break;}catch{}await sleep(100);}await page.eval(HELPERS+";0");await page.frames(3);},
+  async ready(){for(let i=0;i<150;i++){if(run.aborted)throw new Error(`page not ready: run aborted (${run.aborted})`);try{if(await page.eval("document.readyState==='complete'&&!!window.__PLUSH_QA__"))break;}catch{}await sleep(100);}await page.eval(HELPERS+";__T.init()");await page.frames(3);},
   frames:(n=2)=>page.eval(`new Promise(r=>{let k=${n};const f=()=>--k<=0?r():requestAnimationFrame(f);requestAnimationFrame(f);})`),
   // Input carries explicit hardware-style timestamps (seconds since epoch), as real
   // devices do; otherwise Chrome stamps each event when it gets through a slow
@@ -169,7 +169,11 @@ async function openPage({width,height,mobile=false,scale=1,context=null,blockSto
 
 // In-page helpers: projection with the live camera, ground picking, a quiet arena.
 const HELPERS=`window.__T={
- G:{ringY:.09,ringRadius:.58,floatY:.70,labelY:1.48,labelWidth:2.5,labelHeight:.73},
+ // Filled from the running game's own module by init(), so the checks follow its geometry.
+ G:null,labelBox:null,
+ async init(){const m=await import('/weapon-visuals.js');this.G=m.DROP_GEOMETRY;this.labelBox=m.dropLabelBox;},
+ // How a drop's label is drawn right now: what the game hit-tests against.
+ drawn(d){return this.qa.weaponVisuals.drawnDrops().get(d.id)??{labelVisible:false}},
  get qa(){return window.__PLUSH_QA__},
  V(x=0,y=0,z=0){return new (this.qa.camera.position.constructor)(x,y,z)},
  rect(){return document.querySelector('#world').getBoundingClientRect()},
@@ -177,7 +181,7 @@ const HELPERS=`window.__T={
  add(id,x,z){return this.qa.game.addDrop({kind:'weapon',weaponId:id,x,z})},
  near(id,dx,dz){const p=this.qa.game.player;return this.add(id,p.x+dx,p.z+dz)},
  screen(x,y,z){const c=this.qa.camera,r=this.rect(),v=this.V(x,y,z).project(c);return {x:r.left+(v.x+1)/2*r.width,y:r.top+(1-v.y)/2*r.height}},
- label(d,fx,fy=0){const c=this.qa.camera,R=this.V().setFromMatrixColumn(c.matrixWorld,0).normalize(),U=this.V().setFromMatrixColumn(c.matrixWorld,1).normalize(),w=fx*this.G.labelWidth/2,h=fy*this.G.labelHeight/2;
+ label(d,fx,fy=0){const c=this.qa.camera,R=this.V().setFromMatrixColumn(c.matrixWorld,0).normalize(),U=this.V().setFromMatrixColumn(c.matrixWorld,1).normalize(),seen=this.drawn(d),b=this.labelBox(seen.labelScale,seen.labelShift),w=b.x+fx*b.halfWidth,h=b.y+fy*b.halfHeight;
   return this.screen(d.x+R.x*w+U.x*h,this.G.labelY+R.y*w+U.y*h,d.z+R.z*w+U.z*h)},
  ground(px,py,y){const c=this.qa.camera,r=this.rect(),p=this.V((px-r.left)/r.width*2-1,-(py-r.top)/r.height*2+1,.5).unproject(c),d=p.sub(c.position).normalize(),t=(y-c.position.y)/d.y;return {x:c.position.x+d.x*t,z:c.position.z+d.z*t}},
  state(){const g=this.qa.game;return {status:g.status,pending:g.pendingPickup?.id??null,drops:g.drops.map(d=>d.id)}},
@@ -252,7 +256,7 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
   const spots=await page.eval(`(async()=>{const ui=await import('/ui.js'),c=__T.qa.camera,r=__T.rect(),d=__T.qa.game.drops.find(d=>d.id===${id});
    const project=(x,y,z)=>{const v=__T.V(x,y,z).project(c);return v.z>1||v.z<-1?null:{x:r.left+(v.x+1)/2*r.width,y:r.top+(1-v.y)/2*r.height,z:v.z}};
    const axes={right:__T.V().setFromMatrixColumn(c.matrixWorld,0).normalize(),up:__T.V().setFromMatrixColumn(c.matrixWorld,1).normalize()};
-   const shape=ui.dropHitShape(d,project,axes,{left:r.left,top:r.top,width:r.width,height:r.height},{labelVisible:Math.hypot(d.x-__T.qa.game.player.x,d.z-__T.qa.game.player.z)<8.5});
+   const shape=ui.dropHitShape(d,project,axes,{left:r.left,top:r.top,width:r.width,height:r.height},__T.drawn(d));
    const covers=[...document.querySelectorAll(ui.HUD_OCCLUDERS)],on=q=>ui.pickDropAt({...q,type:'touch'},[shape],{margin:0});
    let inside=null,above=null;
    for(let y=${card.top}+3;y<${card.bottom}&&!inside;y++){const q={x:${x},y};if(on(q))inside=q;}
