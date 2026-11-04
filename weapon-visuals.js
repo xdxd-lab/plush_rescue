@@ -31,6 +31,9 @@ export const DROP_GEOMETRY = Object.freeze({
 // a label slot nor blocks a neighbour's label. Pooled labels start hidden and
 // are hidden again on release, so a new drop never inherits that bonus.
 export const LABEL_POLICY = Object.freeze({portrait: 3, landscape: 5, heroClear: 1.3, keep: .6, gap: .02});
+// Text sizes on the 384x112 label canvas. On screen a label's title is 45/112 of
+// its height, so a label's height sets how readable it is.
+export const LABEL_FONT = Object.freeze({canvasHeight: 112, title: 45, subtitle: 36});
 // The last 30% of a mine's fuse: the blast ring turns bright gold-white. Mines
 // only hurt enemies, so this stays clear of the boss attack's red.
 export const BOMB_VISUAL = Object.freeze({imminent: .3, ringColor: '#fff2c0'});
@@ -230,23 +233,23 @@ export function createWeaponVisuals(THREE, scene) {
         const canvas=document.createElement('canvas'); canvas.width=384; canvas.height=112;
         const ctx=canvas.getContext('2d');
         if (ctx) {
-          ctx.fillStyle='rgba(24,34,46,.88)'; ctx.fillRect(3,3,378,106);
+          ctx.fillStyle='rgba(24,34,46,.96)'; ctx.fillRect(3,3,378,106);
           ctx.strokeStyle=new THREE.Color(color).getStyle(); ctx.lineWidth=4; ctx.strokeRect(3,3,378,106);
           ctx.textAlign='center'; ctx.textBaseline='middle';
-          ctx.fillStyle='#fff7df'; ctx.font='bold 31px sans-serif';
-          ctx.fillText(title,192,39,356);
-          ctx.fillStyle=new THREE.Color(color).getStyle(); ctx.font='bold 21px sans-serif';
-          ctx.fillText(subtitle,192,80,356);
+          ctx.fillStyle='#fff7df'; ctx.font=`bold ${LABEL_FONT.title}px sans-serif`;
+          ctx.fillText(title,192,subtitle?37:56,356);
+          ctx.fillStyle=new THREE.Color(color).getStyle(); ctx.font=`bold ${LABEL_FONT.subtitle}px sans-serif`;
+          if (subtitle) ctx.fillText(subtitle,192,83,356);
           map=new THREE.CanvasTexture(canvas); map.colorSpace=THREE.SRGBColorSpace; textures.add(map);
         }
       } catch { /* Headless rendering and missing 2D canvas are supported. */ }
     }
-    const result=material(new THREE.SpriteMaterial({map,color:map?0xffffff:color,transparent:true,depthWrite:false,opacity:map?1:.85}));
+    const result=material(new THREE.SpriteMaterial({map,color:map?0xffffff:color,transparent:true,depthWrite:false,fog:false,opacity:map?1:.85}));
     labelMaterials.set(key,result); return result;
   }
-  for (const [id,w] of Object.entries(WEAPONS)) labelMaterial(`weapon:${id}`,`${w.icon || '✦'} ${w.name}`,w.slot==='offhand'?'副手魔法 · 靠近拾取':w.slot==='twohand'?'雙手魔能砲 · 靠近拾取':'主武器 · 靠近拾取',w.color);
-  for (const [id,s] of Object.entries(SKILLS)) labelMaterial(`skill:${id}`,`${s.icon} ${s.name}`,'技能強化 · 靠近拾取',s.color);
-  labelMaterial('skill:unknown','✦ 技能強化','靠近拾取','#f9d593');
+  for (const [id,w] of Object.entries(WEAPONS)) labelMaterial(`weapon:${id}`,`${w.icon || '✦'} ${w.name}`,w.slot==='offhand'?'副手魔法':w.slot==='twohand'?'雙手魔能砲':'主武器',w.color);
+  for (const [id,s] of Object.entries(SKILLS)) labelMaterial(`skill:${id}`,`${s.icon} ${s.name}`,'技能強化',s.color);
+  labelMaterial('skill:unknown','✦ 技能強化','','#f9d593');
 
   function attachRoot() { if (!root.parent) scene.add(root); }
   function detachHero() {
