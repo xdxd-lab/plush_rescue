@@ -31,6 +31,9 @@ export const DROP_GEOMETRY = Object.freeze({
 // a label slot nor blocks a neighbour's label. Pooled labels start hidden and
 // are hidden again on release, so a new drop never inherits that bonus.
 export const LABEL_POLICY = Object.freeze({portrait: 3, landscape: 5, heroClear: 1.3, keep: .6, gap: .02});
+// The last 30% of a mine's fuse: the blast ring turns bright gold-white. Mines
+// only hurt enemies, so this stays clear of the boss attack's red.
+export const BOMB_VISUAL = Object.freeze({imminent: .3, ringColor: '#fff2c0'});
 
 export function createWeaponVisuals(THREE, scene) {
   const root = new THREE.Group();
@@ -113,6 +116,7 @@ export function createWeaponVisuals(THREE, scene) {
   const dark = material(new THREE.MeshStandardMaterial({color:'#25344c', roughness:.72}));
   const white = material(new THREE.MeshBasicMaterial({color:'#fffbdc',side:THREE.DoubleSide}));
   const gold = material(new THREE.MeshBasicMaterial({color:'#ffe6a4',side:THREE.DoubleSide}));
+  const bombImminent = material(new THREE.MeshBasicMaterial({color:BOMB_VISUAL.ringColor,side:THREE.DoubleSide}));
   const skillMaterials = new Map(Object.entries(SKILLS).map(([id,skill]) => [id, material(new THREE.MeshBasicMaterial({color:skill.color, side:THREE.DoubleSide}))]));
   const labelMaterials = new Map();
   let now = 0, currentHero = null, originalGun = null, originalGunVisible = true, labelCamera = null;
@@ -243,7 +247,6 @@ export function createWeaponVisuals(THREE, scene) {
   for (const [id,w] of Object.entries(WEAPONS)) labelMaterial(`weapon:${id}`,`${w.icon || '✦'} ${w.name}`,w.slot==='offhand'?'副手魔法 · 靠近拾取':w.slot==='twohand'?'雙手魔能砲 · 靠近拾取':'主武器 · 靠近拾取',w.color);
   for (const [id,s] of Object.entries(SKILLS)) labelMaterial(`skill:${id}`,`${s.icon} ${s.name}`,'技能強化 · 靠近拾取',s.color);
   labelMaterial('skill:unknown','✦ 技能強化','靠近拾取','#f9d593');
-  for(let digit=0;digit<=9;digit++) labelMaterial(`timer:${digit}`,String(digit),'即將綻放','#ffc47a');
 
   function attachRoot() { if (!root.parent) scene.add(root); }
   function detachHero() {
@@ -422,8 +425,7 @@ export function createWeaponVisuals(THREE, scene) {
     const timerMat=material(new THREE.ShaderMaterial({uniforms:{fraction:{value:1},pulse:{value:1}},vertexShader:timerVertex,fragmentShader:timerFragment,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
     const timer=part(group,'Shrinking fuse timer',g.plane,timerMat,[0,.082,0],[.67,.67,.67]);
     timer.rotation.x=-Math.PI/2;
-    const label=new THREE.Sprite(labelMaterials.get('timer:1')); label.position.y=.96; label.scale.set(.87,.42,1); group.add(label);
-    return {group,warning,body,fuse,timer,label,id:null,maxLife:0};
+    return {group,warning,body,fuse,timer,id:null,maxLife:0};
   }
   function syncBombs(game) {
     const entities=(game.bombs || []).slice(0,MAX_BOMBS), live=new Set(entities.map(bomb=>bomb.id));
@@ -439,11 +441,12 @@ export function createWeaponVisuals(THREE, scene) {
       view.group.position.set(bomb.x,0,bomb.z);
       const radius=Math.max(.2,bomb.radius || 1.8); view.warning.scale.setScalar(radius);
       const fraction=clamp((bomb.life || 0)/view.maxLife,0,1);
+      const imminent=fraction<BOMB_VISUAL.imminent;
+      // Swap, never recolour: the normal ring shares the bomber palette with the gun model.
+      view.warning.material=imminent?bombImminent:colors('bomber').light;
       view.timer.material.uniforms.fraction.value=fraction;
-      view.timer.material.uniforms.pulse.value=.72+Math.sin(now*(fraction<.3?25:10))*.28;
-      const digit=clamp(Math.ceil(bomb.life || 0),0,9);
-      view.label.material=labelMaterials.get(`timer:${digit}`);
-      view.group.userData.remaining=bomb.life;view.group.userData.radius=radius;
+      view.timer.material.uniforms.pulse.value=.72+Math.sin(now*(imminent?25:10))*.28;
+      view.group.userData.remaining=bomb.life;view.group.userData.radius=radius;view.group.userData.imminent=imminent;
     }
   }
 
