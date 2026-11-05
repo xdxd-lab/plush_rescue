@@ -402,7 +402,9 @@ const STICKY_PROBE=(primary,last)=>`(async()=>{const d=document.querySelector('#
  d.scrollTop=0;await wait();const b=document.querySelector('${primary}'),open={inView:inView(b),onTop:onTop(b),scrollTop:d.scrollTop};
  const hidden=[];for(const c of [...d.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled):not([tabindex="-1"])')].filter(e=>e.getClientRects().length)){c.focus();await wait();if(!inView(c)||!onTop(c))hidden.push(c.id||c.className);}
  d.scrollTop=d.scrollHeight;await wait();const end=document.querySelector('${last}');
- return {open,hidden,endOnTop:onTop(end),scrollHeight:d.scrollHeight,clientHeight:d.clientHeight};})()`;
+ // With nothing to scroll, no setting may sit under the sticky button or its 9px ring.
+ const barTop=b.getBoundingClientRect().top-9,underBar=d.scrollHeight>d.clientHeight?[]:[...d.querySelectorAll('.setting')].filter(e=>e.getBoundingClientRect().bottom>barTop).map(e=>e.textContent.trim());
+ return {open,hidden,underBar,endOnTop:onTop(end),scrollHeight:d.scrollHeight,clientHeight:d.clientHeight};})()`;
 for(const view of STICKY_VIEWS){
  await check(`${view.name}: start and resume are fully visible on open; every other control stays reachable`,async()=>{
   const page=await openPage({...view,logInputs:true});
@@ -414,6 +416,7 @@ for(const view of STICKY_VIEWS){
     const r=await page.eval(STICKY_PROBE(primary,last));lastDiag={view:view.name,state,...r};
     assert.ok(r.open.inView&&r.open.onTop&&r.open.scrollTop===0,`${state}: ${primary} visible and on top without scrolling`);
     assert.deepEqual(r.hidden,[],`${state}: focused controls in view and not under the sticky button`);
+    assert.deepEqual(r.underBar,[],`${state}: every setting clear of the sticky button's ring`);
     assert.ok(r.endOnTop,`${state}: ${last} uncovered at the end of the dialog`);
    }
   }finally{await page.close();}

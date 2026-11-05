@@ -445,6 +445,8 @@ h2{font-size:27px}
  /* Both pause buttons side by side; the row itself sticks to the visible bottom. */
  .dialog[data-state="paused"] .pause-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:sticky;bottom:calc(9px - var(--pad-b));z-index:2;border-radius:16px;background:var(--d-bg2);box-shadow:0 0 0 9px var(--d-bg2)}
  .dialog[data-state="paused"] #resume{position:relative}
+ /* The sticky row's ring reaches 9px above it: keep the last setting's full 44px clear of it. */
+ .dialog[data-state="paused"] .settings-columns{margin-bottom:12px}
 }
 /* Wide, short windows: the pause dialog spends width to save height. */
 @media(max-height:640px) and (orientation:landscape) and (min-width:560px){
