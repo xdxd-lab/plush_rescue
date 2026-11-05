@@ -281,6 +281,12 @@ function recordRun(){
  recordedGame=game;recordResult=merged;return merged;
 }
 function choiceCountdownMarkup(){return autoChoose?'<div class="choice-countdown" id="choiceCountdown"><span id="choiceCountdownText" role="timer" aria-live="off"></span><span id="choiceCountdownAnnounce" class="visually-hidden" aria-live="polite"></span><span class="choice-countdown-track"><span id="choiceCountdownBar" class="choice-countdown-bar"></span></span></div>':'';}
+const QUALITY_CHOICES=[['low','省電'],['balanced','均衡'],['high','精緻']],HERO_CHOICES=[['pudding','布丁狗'],['polar','北極熊']];
+// Native radios keep arrow keys, Tab order and screen-reader state; CSS only draws them as one row.
+function segmented(name,label,choices,current){
+ return `<div class="setting setting-choice" role="radiogroup" aria-labelledby="${name}Label"><span id="${name}Label">${label}</span><span class="segments">`
+  +choices.map(([value,text])=>`<label class="segment"><input id="${name}-${value}" type="radio" name="${name}" value="${value}" ${value===current?'checked':''}><span>${text}</span></label>`).join('')+`</span></div>`;
+}
 function syncOverlay(){
  // A second pickup can follow the first without leaving the pickup state.
  const statusKey=game.status+':'+(game.pendingPickup?.id??'');
@@ -296,15 +302,15 @@ function syncOverlay(){
    +`<div class="run-summary">${statTile(formatClock(game.time),'救援時間')}${statTile(game.saved,'救回朋友')}${statTile('Lv. '+game.level,'目前等級')}</div>`
    +`<div class="settings-columns"><section class="settings-group"><h3>畫面與聲音</h3>`
    +`<label class="setting">音效音量 <input id="volume" type="range" min="0" max="1" step=".05" value="${volume}"></label>`
-   +`<label class="setting">畫面品質 <select id="quality"><option value="low">省電</option><option value="balanced">均衡</option><option value="high">精緻</option></select></label>`
+   +segmented('quality','畫面品質',QUALITY_CHOICES,quality)
    +`<label class="setting" title="電腦也可以按 F3 切換">顯示效能數字<input id="showStats" type="checkbox" ${showStats?'checked':''}></label></section>`
    +`<section class="settings-group"><h3>遊戲</h3>`
    +`<label class="setting">撿到武器自動換上<input id="autoEquip" type="checkbox" ${autoEquip?'checked':''}></label>`
    +`<label class="setting">10 秒自動選擇<input id="autoChoose" type="checkbox" ${autoChoose?'checked':''}></label>`
-   +`<label class="setting">下一局隊員 <select id="nextHero"><option value="pudding">布丁狗</option><option value="polar">北極熊</option></select></label></section></div>`
+   +segmented('nextHero','下一局隊員',HERO_CHOICES,selectedHero)+`</section></div>`
    +`<div class="pause-actions"><button id="resume" class="primary">繼續救援 ${iconSvg('i-play')}</button><button id="restart" class="secondary">重新開始 · 隨機世界</button></div>`;
-  $('#nextHero').value=selectedHero;$('#nextHero').onchange=e=>{selectedHero=e.target.value==='polar'?'polar':'pudding';saveSettings();};
-  $('#quality').value=quality;$('#quality').onchange=e=>{setQuality(e.target.value);saveSettings();};
+  for(const [value] of HERO_CHOICES)$('#nextHero-'+value).onchange=e=>{selectedHero=e.target.value==='polar'?'polar':'pudding';saveSettings();};
+  for(const [value] of QUALITY_CHOICES)$('#quality-'+value).onchange=e=>{setQuality(e.target.value);saveSettings();};
   $('#volume').oninput=e=>{volume=Number(e.target.value);unlockAudio();saveSettings();};
   $('#volume').onchange=()=>saveSettings();
   $('#autoEquip').onchange=e=>setAutoEquip(e.target.checked);

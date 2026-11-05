@@ -72,7 +72,7 @@ check('hero cards drive the same select interface',()=>{el('heroCardPudding').on
 check('first run defaults to confirmation and renders both equipped names and icons',()=>{assert.equal(qa.game.autoEquip,false);assert.equal(el('mainWeaponName').textContent,WEAPONS.pulse.name+' Lv.1');assert.equal(el('offhandWeaponName').textContent,WEAPONS.moonfan.name+' Lv.1');assert.equal(el('magicLabel').textContent,'魔力 0 / 12');assert.match(el('mainWeaponIcon').innerHTML,/#i-pulse/);assert.match(el('offhandWeaponIcon').innerHTML,/#i-moonfan/)});
 check('next boss countdown is shown before the run starts',()=>{assert.equal(el('bossClockText').textContent,'首領 1:00')});
 el('start').onclick();qa.pause();
-check('pause dialog shows run summary and grouped settings',()=>{const html=el('dialog').innerHTML;for(const id of ['volume','quality','showStats','autoEquip','autoChoose','nextHero','resume','restart'])assert.ok(el(id),id);assert.equal(el('autoChoose').checked,false);assert.match(html,/救援時間/);assert.match(html,/畫面與聲音/);assert.match(html,/撿到武器自動換上/);assert.match(html,/10 秒自動選擇/);assert.doesNotMatch(html,/倒數 10 秒|預設關閉/);assert.match(html,/title="電腦也可以按 F3 切換"/);assert.doesNotMatch(html,/<small>電腦/)});
+check('pause dialog shows run summary and grouped settings',()=>{const html=el('dialog').innerHTML;for(const id of ['volume','quality-low','quality-balanced','quality-high','showStats','autoEquip','autoChoose','nextHero-pudding','nextHero-polar','resume','restart'])assert.ok(el(id),id);assert.match(html,/role="radiogroup" aria-labelledby="qualityLabel"/);assert.match(html,/role="radiogroup" aria-labelledby="nextHeroLabel"/);assert.equal(el('quality-balanced').checked,true);assert.equal(el('quality-high').attrs.type,'radio');assert.equal(el('autoChoose').checked,false);assert.match(html,/救援時間/);assert.match(html,/畫面與聲音/);assert.match(html,/撿到武器自動換上/);assert.match(html,/10 秒自動選擇/);assert.doesNotMatch(html,/倒數 10 秒|預設關閉/);assert.match(html,/title="電腦也可以按 F3 切換"/);assert.doesNotMatch(html,/<small>電腦/)});
 check('settings toggle updates live game and local storage',()=>{const box=el('autoEquip');assert.equal(box.checked,false);box.checked=true;box.onchange({target:box});assert.equal(qa.game.autoEquip,true);assert.equal(h.store.get('plush-rescue:auto-equip'),'true')});
 check('auto-choice setting saves, reloads, and defaults off',()=>{const box=el('autoChoose');box.checked=true;box.onchange({target:box});assert.equal(JSON.parse(h.store.get('plush-rescue:settings')).autoChoose,true);assert.equal(qa.settings.autoChoose,true);box.checked=false;box.onchange({target:box});assert.equal(JSON.parse(h.store.get('plush-rescue:settings')).autoChoose,false)});
 check('restart clears modal and all movement input, preserving setting',()=>{run("keys.add('w');stick.begin(4,20,20);stick.move(4,40,90)");qa.game.pendingPickup={id:999,weaponId:'shotgun',slot:'main'};el('restart').onclick();assert.equal(qa.game.pendingPickup,null);assert.equal(qa.game.autoEquip,true);assert.equal(run('keys.size'),0);assert.equal(run('stick.id'),null);assert.equal(el('overlay').classList.contains('shown'),false)});
@@ -149,6 +149,8 @@ check('weapon comparison auto-resolves; background and blur freeze the countdown
 const down=(h,id,x,y,extra={})=>h.fire(h.document.events,'pointerdown',pointer(h.el('world'),{pointerId:id,clientX:x,clientY:y,...extra}));
 const move=(h,id,x,y,extra={})=>h.fire(h.document.events,'pointermove',pointer(h.el('world'),{pointerId:id,clientX:x,clientY:y,...extra}));
 const up=(h,id,x,y,extra={})=>h.fire(h.document.events,'pointerup',pointer(h.el('world'),{pointerId:id,clientX:x,clientY:y,...extra}));
+// Picks a segmented setting the way a real radio does: it checks, then reports a change.
+const choose=(t,name,value)=>{const radio=t.el(`${name}-${value}`);radio.checked=true;radio.onchange({target:radio});};
 function tapGame(opts={}){
  const t=setup(false,{realVisuals:true,...opts});t.el('start').onclick();const g=t.qa.game;
  g.drops.length=0;g.enemies.length=0;g.spawn=1e9;g.dropTimer=1e9;g.invuln=999;
@@ -253,9 +255,9 @@ check('two drops on screen: only the tapped one is taken, and the pickup flow is
 // ---- V12.1: remembered settings -------------------------------------------------------
 check('quality, volume, next hero and diagnostics are saved when changed in the menu',()=>{
  const t=setup();t.el('start').onclick();t.qa.pause();
- t.el('quality').value='high';t.el('quality').onchange({target:t.el('quality')});
+ choose(t,'quality','high');
  t.el('volume').value='0.6';t.el('volume').oninput({target:t.el('volume')});t.el('volume').onchange({target:t.el('volume')});
- t.el('nextHero').value='polar';t.el('nextHero').onchange({target:t.el('nextHero')});
+ choose(t,'nextHero','polar');
  t.el('showStats').checked=true;t.el('showStats').onchange({target:t.el('showStats')});
  assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'high',volume:.6,hero:'polar',stats:true,autoChoose:false});
 });
@@ -275,7 +277,7 @@ check('a new visit restores the saved settings without any user action',()=>{
  assert.equal(t.run('quality'),'low');assert.equal(t.run('volume'),.4);assert.equal(t.qa.game.heroId,'polar');
  assert.equal(t.el('heroSelect').value,'polar');assert.equal(t.el('heroCardPolar').attrs['aria-pressed'],'true');assert.equal(t.el('heroCardPudding').attrs['aria-pressed'],'false');
  assert.equal(t.el('stats').hidden,false);assert.equal(t.el('heroPortrait').attrs.src,'assets/polar-portrait.png');
- t.el('start').onclick();t.qa.pause();assert.equal(t.el('quality').value,'low');assert.equal(t.el('nextHero').value,'polar');
+ t.el('start').onclick();t.qa.pause();assert.equal(t.el('quality-low').checked,true);assert.equal(t.el('quality-balanced').checked,false);assert.equal(t.el('nextHero-polar').checked,true);
 });
 check('restoring settings does not overwrite them, and corrupt or invalid values fall back safely',()=>{
  const raw=JSON.stringify({quality:'low',volume:.4,hero:'polar',stats:false}),t=setup(false,{seed:{'plush-rescue:settings':raw}});
@@ -287,7 +289,7 @@ check('restoring settings does not overwrite them, and corrupt or invalid values
 });
 check('blocked storage: settings and taps still work for the session',()=>{
  const t=setup(true,{realVisuals:true});assert.equal(t.run('quality'),'balanced');t.el('start').onclick();t.qa.pause();
- t.el('quality').value='high';t.el('quality').onchange({target:t.el('quality')});assert.equal(t.run('quality'),'high');t.el('resume').onclick();
+ choose(t,'quality','high');assert.equal(t.run('quality'),'high');t.el('resume').onclick();
  const g=t.qa.game;g.drops.length=0;g.enemies.length=0;g.spawn=1e9;g.dropTimer=1e9;g.invuln=999;
  const d=addNear(t),p=spot(t,d);down(t,3,p.x,p.y);t.clock.t=60;up(t,3,p.x,p.y);frame(t);assert.equal(g.status,'pickup');
  const again=setup(true);assert.equal(again.run('quality'),'balanced','nothing survives a reload when storage is blocked');assert.equal(again.qa.game.autoEquip,false);
@@ -391,8 +393,8 @@ check('five rounds of pause, settings changes and resume keep mouse and touch ta
  for(let round=0;round<5;round++){
   if(round%2)t.fire(t.windowEvents,'blur',{});else t.qa.pause();
   assert.equal(t.qa.game.status,'paused');
-  t.el('quality').value=qualities[round];t.el('quality').onchange({target:t.el('quality')});
-  t.el('nextHero').value=round%2?'pudding':'polar';t.el('nextHero').onchange({target:t.el('nextHero')});
+  choose(t,'quality',qualities[round]);
+  choose(t,'nextHero',round%2?'pudding':'polar');
   t.el('showStats').checked=round%2===0;t.el('showStats').onchange({target:t.el('showStats')});
   if(round===3){t.qa.resume();t.qa.pause();}
   t.el('resume').onclick();assert.equal(t.qa.game.status,'running');
@@ -410,8 +412,8 @@ check('volume is saved while dragging; quality, volume, next hero, stats and aut
  t.el('volume').value='0.7';t.el('volume').oninput({target:t.el('volume')});
  assert.equal(JSON.parse(t.store.get('plush-rescue:settings')).volume,.7,'saved on input, before any change event');
  t.el('volume').value='0.45';t.el('volume').oninput({target:t.el('volume')});
- t.el('quality').value='low';t.el('quality').onchange({target:t.el('quality')});
- t.el('nextHero').value='polar';t.el('nextHero').onchange({target:t.el('nextHero')});
+ choose(t,'quality','low');
+ choose(t,'nextHero','polar');
  t.el('showStats').checked=true;t.el('showStats').onchange({target:t.el('showStats')});
  t.el('autoEquip').checked=true;t.el('autoEquip').onchange({target:t.el('autoEquip')});
  t.el('autoChoose').checked=true;t.el('autoChoose').onchange({target:t.el('autoChoose')});

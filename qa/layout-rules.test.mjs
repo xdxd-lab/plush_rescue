@@ -79,7 +79,7 @@ test('touch targets stay at least 44px (36px buttons carry a 4px hit-area extens
   const stow=declarationsAt('#stowTwoHanded',vp),after=declarationsAt('#stowTwoHanded::after',vp);
   const extension=after.inset?-px(after.inset)*2:0;
   assert.ok(px(stow['min-height'])+extension>=44,`${vp.name}: two-handed toggle ${stow['min-height']} + ${extension}`);
-  for(const sel of ['.primary','.text-button','.setting'])assert.ok(px(declarationsAt(sel,vp)['min-height'])>=44,`${vp.name}: ${sel}`);
+  for(const sel of ['.primary','.text-button','.setting','.segment'])assert.ok(px(declarationsAt(sel,vp)['min-height'])>=44,`${vp.name}: ${sel}`);
  }
 });
 

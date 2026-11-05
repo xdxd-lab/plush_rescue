@@ -3,8 +3,7 @@
 // It covers what the Node stubs cannot: HUD boxes from real layout, label-end
 // taps against the real render, slow mouse clicks, a busy main thread, settings
 // rounds through the real pause menu, reloads and blocked/separate storage.
-// Not covered: Safari/WebKit, Firefox, physical phones, GPU drivers, native
-// <select> popups (changed by setting value + dispatching change).
+// Not covered: Safari/WebKit, Firefox, physical phones, GPU drivers.
 //
 // Needs Google Chrome and Node 22+ (global WebSocket); on Node 20 add
 // --experimental-websocket. Run from the repository root:
@@ -290,7 +289,7 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
   for(let round=0;round<5;round++){
    if(round%2)await page.eval("window.dispatchEvent(new Event('blur'))");else await page.click('#pause');
    assert.equal(await page.eval('__T.qa.game.status'),'paused',`round ${round} paused`);
-   await page.eval(`(()=>{const q=document.querySelector('#quality');q.value='${qualities[round]}';q.dispatchEvent(new Event('change'));const h=document.querySelector('#nextHero');h.value='${round%2?'pudding':'polar'}';h.dispatchEvent(new Event('change'));})()`);
+   await page.eval(`(()=>{document.querySelector('#quality-${qualities[round]}').click();document.querySelector('#nextHero-${round%2?'pudding':'polar'}').click();})()`);
    // Each tap on the checkbox must toggle it once and store the new value right away.
    const before=await page.eval("document.querySelector('#showStats').checked");
    await page.eval("(()=>{window.__w=[];if(Storage.prototype.__wrapped)return;const set=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){(window.__w||[]).push([k,v,Math.round(performance.now())]);return set.call(this,k,v)};Storage.prototype.__wrapped=1;})()");
@@ -382,7 +381,7 @@ if(runPickup&&!onlyViews)await check('blocked localStorage: the game runs, setti
  try{
   page=await openPage({width:800,height:600,context:browserContextId,blockStorage:true});
   assert.equal(await page.eval("(()=>{try{localStorage;return 'open'}catch{return 'blocked'}})()"),'blocked');
-  await begin(page,false);await page.click('#pause');await page.eval("(()=>{const q=document.querySelector('#quality');q.value='high';q.dispatchEvent(new Event('change'));})()");
+  await begin(page,false);await page.click('#pause');await page.eval("(()=>{document.querySelector('#quality-high').click();})()");
   await page.click('#resume');assert.ok(await tapDrop(page,{mobile:false,where:'labelLeft'}),'taps work without storage');
   await page.reload();assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false});
  }catch(e){failed=e}
@@ -432,7 +431,7 @@ const MEASURE=primary=>`(()=>{const d=document.querySelector('#dialog'),b=docume
   primary:{top:Math.round(r.top),bottom:Math.round(r.bottom),visiblePx:Math.max(0,Math.round(visBottom-visTop)),fullyVisible:r.top>=dr.top-1&&r.bottom<=dr.bottom+1&&r.bottom<=innerHeight+1,hitIsPrimary:!!hit&&(hit===b||b.contains(hit))},
   focused:document.activeElement?.id||document.activeElement?.tagName}})()`;
 async function pressKey(page,keyName,shift=false){
- const code={Tab:9,Enter:13}[keyName],base={key:keyName,code:keyName,windowsVirtualKeyCode:code,nativeVirtualKeyCode:code,modifiers:shift?8:0};
+ const code={Tab:9,Enter:13,ArrowRight:39}[keyName],base={key:keyName,code:keyName,windowsVirtualKeyCode:code,nativeVirtualKeyCode:code,modifiers:shift?8:0};
  // Enter goes as one keyDown with text: in headless Chrome 156 a rawKeyDown Enter turns the page
  // visibilityState 'hidden' and stops requestAnimationFrame, even on a blank page.
  if(keyName==='Enter')await send('Input.dispatchKeyEvent',{type:'keyDown',...base,text:'\r',unmodifiedText:'\r'},page.s);
@@ -454,6 +453,15 @@ async function gestureToEnd(page,mobile){
  }
  return log;
 }
+if(runDialogs)await check('pause settings: Tab reaches a segmented choice and arrow keys change it',async()=>{
+ const page=await openPage({width:800,height:600});
+ try{
+  await openDialogState(page,'paused');await page.eval("document.querySelector('#quality-balanced').focus();0");
+  await pressKey(page,'ArrowRight');await page.frames(2);
+  const s=await page.eval("({checked:document.querySelector('input[name=quality]:checked').value,stored:__PLUSH_QA__.settings.quality,focused:document.activeElement.id,group:document.querySelector('#quality-high').closest('[role=radiogroup]').getAttribute('aria-labelledby'),name:document.querySelector('#qualityLabel').textContent})");
+  assert.deepEqual(s,{checked:'high',stored:'high',focused:'quality-high',group:'qualityLabel',name:'畫面品質'});
+ }finally{await page.close();}
+});
 const DIALOG_VIEWS=DIALOG_VIEWS_ALL.filter(v=>!onlyViews||onlyViews.includes(v.name));
 for(const view of runDialogs?DIALOG_VIEWS:[]){
  const mobile=!!view.mobile;
