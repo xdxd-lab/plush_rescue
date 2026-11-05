@@ -442,11 +442,14 @@ h2{font-size:27px}
  .dialog[data-state="ready"]{display:grid;grid-template-columns:1fr 1fr;column-gap:22px;text-align:left;align-items:start}
  .dialog[data-state="ready"] .intro-actions{display:block;text-align:center}
  .dialog[data-state="ready"] .hero-picker{margin-top:4px}
- /* Pause: settings in two columns. */
- .dialog[data-state="paused"] .settings-columns{display:grid;grid-template-columns:1fr 1fr;column-gap:20px}
  /* Both pause buttons side by side; the row itself sticks to the visible bottom. */
  .dialog[data-state="paused"] .pause-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:sticky;bottom:calc(9px - var(--pad-b));z-index:2;border-radius:16px;background:var(--d-bg2);box-shadow:0 0 0 9px var(--d-bg2)}
  .dialog[data-state="paused"] #resume{position:relative}
+}
+/* Wide, short windows: the pause dialog spends width to save height. */
+@media(max-height:640px) and (orientation:landscape) and (min-width:560px){
+ .dialog[data-state="paused"]{max-width:min(92vw,860px)}
+ .dialog[data-state="paused"] .settings-columns{display:grid;grid-template-columns:1fr 1fr;column-gap:20px}
 }
 /* Narrow landscape (for example 568×320): keep the loadout readable. */
 @media(max-height:500px) and (orientation:landscape) and (max-width:700px){
