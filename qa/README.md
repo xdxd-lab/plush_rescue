@@ -9,7 +9,7 @@ the root `README.md`.
 
 | Command (from the repository root) | Covers |
 |---|---|
-| `node --test qa/*.test.mjs` | layout rules per viewport, invariants (V11-unchanged modules, weapon-visuals drawing identical to V11, V8/V10/V11 markers, manifest, portraits, P2 warning), ui.js helpers, keyboard, tap-to-pick (core, tap detection and timing, DROP_GEOMETRY measured against every model, ring/item/full-label hit area, shape–viewport intersection incl. portrait edges and far-plane cuts, overlap ranking, HUD cover), remembered settings, and gameplay signatures proving core.js matches V11 (`sim-signature.mjs`) |
+| `node --test qa/*.test.mjs` | layout rules per viewport, invariants (V11-unchanged modules, weapon-visuals drawing identical to V11, V8/V10/V11 markers, manifest, portraits, P2 warning), ui.js helpers, keyboard, tap-to-pick (core, tap detection and timing, DROP_GEOMETRY measured against every model, ring/item/full-label hit area, shape–viewport intersection incl. portrait edges and far-plane cuts, overlap ranking, HUD cover), drop label policy, size, texture and hero slide, mine visuals, remembered settings, and gameplay signatures proving core.js matches V11 (`sim-signature.mjs`) |
 | `node --test qa/equip-slots.test.mjs` | focused pickup choices, main/off-hand replacement and separate magic charge, two-handed equip/stow/toggle, repeated cannon pickups, sequential pickups and firing behavior |
 | `node --test qa/hover-pickup.test.mjs` | mouse hover timing, target changes, hidden blink grace, long stalls, reset and repeat prevention |
 | `node qa/ui-smoke.mjs` | DOM/renderer stub with the real Game: hero cards and `#heroSelect`, pause/settings, pickup, level-up (incl. 1–4 keys), cannon, notices, boss clock, V8 drag, records, blocked storage, two-finger tap-to-pick, on-screen taps in four viewports (label ends, far drops, partly visible drops at the portrait edge, HUD cover, expiry and blink dark/bright beats, slow mouse), five pause/settings/resume rounds, settings reload |
@@ -70,6 +70,15 @@ one bounded run per size (150 s per check) passed `--views=1280x720` 16/16, `--v
 `--views=360x640` 14/14 with no console errors; `--dialogs` and the other sizes were not rerun. An independent
 Claude in Chrome check by another agent found start and resume visible and tappable on open at 11 sizes
 (300x400 to 1280x720), with real Tab and Enter only at 360x640. Not tested in Safari, Firefox or on a phone.
+
+V12.3.5 (readable drop labels, mine fuse ring): Node 24.22.1 passed 147 tests and the DOM smoke passed 83
+checks after the version update. On 14aee6a, before the version-only update, Chrome 157 headless passed
+`--dialogs` 67/67 and `--dialogs --views=844x390,568x320` 29/29, with no console errors. Label taps now need a
+drawn label and must miss once it is removed, because the older checks passed on small landscape windows through
+the item's tap margin. One full run on 0a64950 found a new page already running at 390x844 and 800x600 and a
+60 s Enter timeout at 1280x720; repeat runs did not reproduce these and the cause is unknown, so the dialog
+button checks now record page inputs. Not tested in Safari, Firefox, on a phone or a hardware GPU, and label
+legibility at low quality was not checked.
 
 CDP touch semantics used by `browser-chrome.mjs` (observed in Chrome 156): `touchStart`/`touchMove` list the points that are down;
 `touchEnd` lists the points being released (an empty list releases all). Without explicit `timestamp`s, a slow

@@ -1,8 +1,8 @@
 {
-  "version": "12.3.4",
-  "revision": "v12.3.4-dialog-actions-r1",
-  "source_commit": "da86f2f",
-  "layout": "Static V12.3.4 export based on V12.3.3 (21abd80); start and resume stay visible in short dialogs, brand favicons and social preview, main-weapon bolt trails and hit feedback, 30-second boss helper allies, nearest non-overlapping drop labels, hover and tap pickup, mobile-first rescue UI.",
+  "version": "12.3.5",
+  "revision": "v12.3.5-label-legibility-r1",
+  "source_commit": "14aee6a",
+  "layout": "Static V12.3.5 export based on V12.3.4 (f3e171e); readable drop labels with a minimum on-screen size that slide off the hero, mine blast ring replaces countdown digits, start and resume stay visible in short dialogs, brand favicons and social preview, main-weapon bolt trails and hit feedback, 30-second boss helper allies, hover and tap pickup, mobile-first rescue UI.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -56,8 +56,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 366,
-      "sha256": "86ba80b48f9152552be3884a7bac8197ef0ddedc0eed309f6fb6589f89683e06"
+      "bytes": 418,
+      "sha256": "da974b4dbe5944f5627c25fdf6d8b757b5ed02ea7897e3dd8790eed7054b3a9a"
     },
     {
       "path": "camera.js",
@@ -86,8 +86,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13111,
-      "sha256": "5cf8bd94fe53af6da5738c1811e79a8d20a3756d7200c12e63cd6bfe2aec6705"
+      "bytes": 13113,
+      "sha256": "40b7f35c173c388433955e727c651d626f12a277b71e1aaa455090a9d0182977"
     },
     {
       "path": "keyboard.js",
@@ -101,8 +101,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 45856,
-      "sha256": "35f7dab9b7c6d2383c359ca034236ed67fe7c4aeba5f9276a7fd0072c16d88d0"
+      "bytes": 45873,
+      "sha256": "e8a156281a00f12056d85ed8a720573aacb029b5607c0e62d27cd396cdaa98a7"
     },
     {
       "path": "maps.js",
@@ -121,8 +121,8 @@
     },
     {
       "path": "ui.js",
-      "bytes": 15313,
-      "sha256": "727ad6dc0ddcf9e84b96d19228e43cb85f490f251ef8e261779d15215f5f349f"
+      "bytes": 15450,
+      "sha256": "24e307782fda8fcc1018505b93dc1b08d0201da1a71d738fb29b48b5f3b69d96"
     },
     {
       "path": "vendor/THREE-LICENSE.txt",
@@ -141,8 +141,8 @@
     },
     {
       "path": "weapon-visuals.js",
-      "bytes": 35484,
-      "sha256": "75edc4f3e66f77d8e33a9f710d33e71b65eac2de0e4509d87469835f180fdf7c"
+      "bytes": 39847,
+      "sha256": "f2323ca2cc3261bf961913dbc0222e9e17ee5b600c2cd8f340fd4c5506a4b570"
     },
     {
       "path": "weapons.js",
