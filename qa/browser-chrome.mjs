@@ -457,13 +457,14 @@ async function gestureToEnd(page,mobile){
  return log;
 }
 if(runDialogs)await check('pause settings: Tab reaches a segmented choice and arrow keys change it',async()=>{
- const page=await openPage({width:800,height:600});
+ // Its own context: the choice is stored, and later pages must keep starting from defaults.
+ const {browserContextId}=await send('Target.createBrowserContext'),page=await openPage({width:800,height:600,context:browserContextId});
  try{
   await openDialogState(page,'paused');await page.eval("document.querySelector('#quality-balanced').focus();0");
   await pressKey(page,'ArrowRight');await page.frames(2);
   const s=await page.eval("({checked:document.querySelector('input[name=quality]:checked').value,stored:__PLUSH_QA__.settings.quality,focused:document.activeElement.id,group:document.querySelector('#quality-high').closest('[role=radiogroup]').getAttribute('aria-labelledby'),name:document.querySelector('#qualityLabel').textContent})");
   assert.deepEqual(s,{checked:'high',stored:'high',focused:'quality-high',group:'qualityLabel',name:'畫面品質'});
- }finally{await page.close();}
+ }finally{await page.close();await send('Target.disposeBrowserContext',{browserContextId});}
 });
 const DIALOG_VIEWS=DIALOG_VIEWS_ALL.filter(v=>!onlyViews||onlyViews.includes(v.name));
 for(const view of runDialogs?DIALOG_VIEWS:[]){
@@ -486,7 +487,8 @@ for(const view of runDialogs?DIALOG_VIEWS:[]){
    const page=await openPage(view);
    try{
     await openDialogState(page,state);
-    const ids=await page.eval("[...document.querySelector('#dialog').querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled):not([tabindex=\"-1\"])')].filter(e=>e.getClientRects().length).map(e=>e.id||e.className)");
+    // A radio group is one Tab stop, its checked radio; the arrow-key check covers the others.
+    const ids=await page.eval("[...document.querySelector('#dialog').querySelectorAll('button:not(:disabled),input:not(:disabled):not([type=radio]:not(:checked)),select:not(:disabled):not([tabindex=\"-1\"])')].filter(e=>e.getClientRects().length).map(e=>e.id||e.className)");
     const seen={};
     for(let i=0;i<ids.length+1;i++){
      await pressKey(page,'Tab');
