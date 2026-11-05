@@ -241,7 +241,6 @@ h2{font-size:27px}
 .stat.record{border-color:#d7a54b;background:#fff6dc}
 .stat .badge{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:999px;background:#b5802c;color:#fff;font-size:11px;font-weight:800}
 .settings-group{margin-top:14px;text-align:left}
-.settings-group>h3{margin:0 0 2px;font-size:12px;font-weight:800;letter-spacing:2px;color:#7a6550}
 .setting{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;padding:4px 0;border-bottom:1px solid var(--d-line);font-size:15px;text-align:left}
 .setting:last-child{border-bottom:0}
 .setting select{min-height:40px;padding:6px 10px;border-radius:10px;border:1px solid #cdbda3;background:#fffdf6;color:var(--d-text)}

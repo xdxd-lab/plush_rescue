@@ -299,11 +299,11 @@ function syncOverlay(){
  let autoTarget=null,autoLabel='',autoResolve=null;
  if(game.status==='paused'){
   dialog.innerHTML=`<div class="pause-head"><h2 id="dialogTitle">暫停中</h2><p class="run-line">${formatClock(game.time)} · 救回 ${game.saved} · Lv. ${game.level}</p></div>`
-   +`<div class="settings-columns"><section class="settings-group"><h3>畫面與聲音</h3>`
+   +`<div class="settings-columns"><section class="settings-group" aria-label="畫面與聲音">`
    +`<label class="setting">音效音量 <input id="volume" type="range" min="0" max="1" step=".05" value="${volume}"></label>`
    +segmented('quality','畫面品質',QUALITY_CHOICES,quality)
    +`<label class="setting" title="電腦也可以按 F3 切換">顯示效能數字<input id="showStats" type="checkbox" ${showStats?'checked':''}></label></section>`
-   +`<section class="settings-group"><h3>遊戲</h3>`
+   +`<section class="settings-group" aria-label="遊戲">`
    +`<label class="setting">撿到武器自動換上<input id="autoEquip" type="checkbox" ${autoEquip?'checked':''}></label>`
    +`<label class="setting">10 秒自動選擇<input id="autoChoose" type="checkbox" ${autoChoose?'checked':''}></label>`
    +segmented('nextHero','下一局隊員',HERO_CHOICES,selectedHero)+`</section></div>`
