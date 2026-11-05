@@ -299,8 +299,8 @@ function syncOverlay(){
    +`<label class="setting">畫面品質 <select id="quality"><option value="low">省電</option><option value="balanced">均衡</option><option value="high">精緻</option></select></label>`
    +`<label class="setting auto-equip-setting"><span>顯示效能數字<small>電腦也可以按 F3 切換</small></span><input id="showStats" type="checkbox" ${showStats?'checked':''}></label></section>`
    +`<section class="settings-group"><h3>遊戲</h3>`
-   +`<label class="setting auto-equip-setting"><span>撿到武器自動換上<small>預設關閉：先比較，再決定要不要換</small></span><input id="autoEquip" type="checkbox" ${autoEquip?'checked':''}></label>`
-   +`<label class="setting auto-equip-setting"><span>選擇時倒數 10 秒自動決定<small>預設關閉；升級或比較武器時才會倒數</small></span><input id="autoChoose" type="checkbox" ${autoChoose?'checked':''}></label>`
+   +`<label class="setting">撿到武器自動換上<input id="autoEquip" type="checkbox" ${autoEquip?'checked':''}></label>`
+   +`<label class="setting">10 秒自動選擇<input id="autoChoose" type="checkbox" ${autoChoose?'checked':''}></label>`
    +`<label class="setting">下一局隊員 <select id="nextHero"><option value="pudding">布丁狗</option><option value="polar">北極熊</option></select></label></section></div>`
    +`<div class="pause-actions"><button id="resume" class="primary">繼續救援 ${iconSvg('i-play')}</button><button id="restart" class="secondary">重新開始 · 隨機世界</button></div>`;
   $('#nextHero').value=selectedHero;$('#nextHero').onchange=e=>{selectedHero=e.target.value==='polar'?'polar':'pudding';saveSettings();};
