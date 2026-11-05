@@ -232,7 +232,9 @@ h2{font-size:27px}
 .best-line .icon{font-size:16px;color:#b8873d}
 
 /* Pause */
-.run-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0 4px}
+.pause-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 12px;text-align:left}
+.pause-head h2{margin:0}
+.run-line{margin:0;font-size:14px;font-weight:700;color:var(--d-dim);font-variant-numeric:tabular-nums}
 .stat{padding:10px 6px;border-radius:14px;background:var(--d-card);border:1px solid var(--d-line)}
 .stat b{display:block;font-size:20px;color:#3a3c4a;font-variant-numeric:tabular-nums}
 .stat small{display:block;font-size:12px;color:var(--d-dim);margin-top:2px}
@@ -347,7 +349,7 @@ h2{font-size:27px}
  .pickup-card p{font-size:12px}
  .pickup-actions{gap:8px}
  .pickup-actions button{font-size:14px;padding:10px 8px}
- .results,.run-summary{gap:6px}
+ .results{gap:6px}
  .stat b{font-size:18px}
 }
 @media(max-width:360px) and (orientation:portrait){
@@ -390,7 +392,6 @@ h2{font-size:27px}
  .results{margin-top:10px}
  .stat{padding:7px 4px}
  .stat b{font-size:16px}
- .run-summary{margin:10px 0 0}
 }
 @media(max-height:500px) and (orientation:landscape){
  :root{--portrait:46px;--chip-h:38px;--radius:13px;--gut-t:max(8px,env(safe-area-inset-top));--gut-b:max(8px,env(safe-area-inset-bottom))}
