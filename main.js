@@ -297,7 +297,7 @@ function syncOverlay(){
    +`<div class="settings-columns"><section class="settings-group"><h3>畫面與聲音</h3>`
    +`<label class="setting">音效音量 <input id="volume" type="range" min="0" max="1" step=".05" value="${volume}"></label>`
    +`<label class="setting">畫面品質 <select id="quality"><option value="low">省電</option><option value="balanced">均衡</option><option value="high">精緻</option></select></label>`
-   +`<label class="setting auto-equip-setting"><span>顯示效能數字<small>電腦也可以按 F3 切換</small></span><input id="showStats" type="checkbox" ${showStats?'checked':''}></label></section>`
+   +`<label class="setting" title="電腦也可以按 F3 切換">顯示效能數字<input id="showStats" type="checkbox" ${showStats?'checked':''}></label></section>`
    +`<section class="settings-group"><h3>遊戲</h3>`
    +`<label class="setting">撿到武器自動換上<input id="autoEquip" type="checkbox" ${autoEquip?'checked':''}></label>`
    +`<label class="setting">10 秒自動選擇<input id="autoChoose" type="checkbox" ${autoChoose?'checked':''}></label>`

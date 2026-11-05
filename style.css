@@ -245,8 +245,6 @@ h2{font-size:27px}
 .setting select{min-height:40px;padding:6px 10px;border-radius:10px;border:1px solid #cdbda3;background:#fffdf6;color:var(--d-text)}
 .setting input[type=range]{width:min(160px,45%);accent-color:var(--d-primary)}
 .setting input[type=checkbox]{width:24px;height:24px;flex-shrink:0;accent-color:var(--d-primary)}
-.auto-equip-setting span{line-height:1.45}
-.auto-equip-setting small{display:block;font-size:12px;color:var(--d-dim);margin-top:2px}
 
 /* Pickup comparison */
 .dialog[data-state="pickup"]{max-width:620px}
