@@ -70,6 +70,11 @@
       "sha256": "cd2aee11aeee42cd73734446ca8d768aeb4cb263be8016778958977dd6d50000"
     },
     {
+      "path": "choice-timer.js",
+      "bytes": 3776,
+      "sha256": "a3dd3a09392fa792e0b523861cbd2ee9b98f1cda35cfe38e25c14212b29e2cb5"
+    },
+    {
       "path": "core.js",
       "bytes": 30374,
       "sha256": "5e353b22b4f6f1c586234a05b824db43de3dbc4fd928d794aed5589d942f0e36"
@@ -106,8 +111,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 46759,
-      "sha256": "d2084408960aa23ef64ba48432a6abf81fbfa4b36a1f310179edc980a392ad74"
+      "bytes": 44059,
+      "sha256": "3f089e4fc35b529f05829d01dd6835293117011e5b28203a53f9acf2807b1222"
     },
     {
       "path": "maps.js",

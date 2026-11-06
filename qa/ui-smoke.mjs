@@ -132,39 +132,39 @@ check('auto-choice countdown resolves an upgrade once, and cancellation/restart 
  const t=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});
  t.el('start').onclick();t.run("game.status='upgrade';game.level=2;syncOverlay()");
  assert.equal(t.qa.autoChoice.remaining,10);assert.match(t.el('choiceCountdownText').textContent,/10 秒後自動選擇/);
- t.run('cancelChoiceTimer()');for(let i=0;i<44;i++)t.run('advanceChoiceTimer(.25)');
+ t.qa.choiceTimer.cancel();for(let i=0;i<44;i++)t.qa.choiceTimer.advance(.25);
  assert.equal(t.qa.game.status,'upgrade','cancelled countdown does not resolve');assert.equal(t.qa.autoChoice.cancelled,true);
  t.run('syncOverlay()');assert.equal(t.qa.autoChoice.remaining,10,'new choice starts a fresh countdown');
  t.qa.restart();assert.equal(t.qa.autoChoice,null,'restart clears stale pending choice');const power=t.qa.game.power;
- for(let i=0;i<44;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.game.status,'running','stale callback cannot change the restarted run');assert.equal(t.qa.game.power,power);
- t.run("game.status='upgrade';game.level=3;syncOverlay()");for(let i=0;i<40;i++)t.run('advanceChoiceTimer(.25)');
+ for(let i=0;i<44;i++)t.qa.choiceTimer.advance(.25);assert.equal(t.qa.game.status,'running','stale callback cannot change the restarted run');assert.equal(t.qa.game.power,power);
+ t.run("game.status='upgrade';game.level=3;syncOverlay()");for(let i=0;i<40;i++)t.qa.choiceTimer.advance(.25);
  assert.equal(t.qa.game.status,'running','countdown resolves the selected upgrade');assert.ok(t.qa.game.power>power,'recommended power upgrade is applied exactly once');
 });
 check('low frame rate advances the countdown; a very long single frame cannot decide immediately',()=>{
  const t=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});
  t.el('start').onclick();t.run("game.status='upgrade';game.level=2;syncOverlay()");
- t.run('advanceChoiceTimer(30)');assert.equal(t.qa.autoChoice.remaining,8,'a 30-second stall counts at most two seconds');
+ t.qa.choiceTimer.advance(30);assert.equal(t.qa.autoChoice.remaining,8,'a 30-second stall counts at most two seconds');
  assert.equal(t.qa.game.status,'upgrade','one long frame cannot resolve the choice');
- for(let i=0;i<15;i++)t.run('advanceChoiceTimer(.5)');
+ for(let i=0;i<15;i++)t.qa.choiceTimer.advance(.5);
  assert.equal(t.qa.autoChoice.remaining,.5,'0.5-second visible frames continue to advance the timer');
- assert.equal(t.qa.game.status,'upgrade');t.run('advanceChoiceTimer(.5)');
+ assert.equal(t.qa.game.status,'upgrade');t.qa.choiceTimer.advance(.5);
  assert.equal(t.qa.game.status,'running','steady low-FPS frames eventually resolve the choice');
 });
 check('weapon comparison auto-resolves; background and blur freeze the countdown and resume with three seconds',()=>{
  const startPickup=t=>{t.el('start').onclick();t.qa.game.weaponLevels.shotgun=2;t.qa.game.addDrop({kind:'weapon',weaponId:'shotgun',x:t.qa.game.player.x,z:t.qa.game.player.z});t.qa.game.collectDrops();t.qa.renderOnce();assert.equal(t.qa.game.status,'pickup');assert.equal(t.qa.autoChoice.target,'換上新武器')};
  const t=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});startPickup(t);
- for(let i=0;i<36;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.autoChoice.remaining,1);
- t.document.hidden=true;t.fire(t.document.events,'visibilitychange',{});for(let i=0;i<12;i++)t.run('advanceChoiceTimer(.25)');
+ for(let i=0;i<36;i++)t.qa.choiceTimer.advance(.25);assert.equal(t.qa.autoChoice.remaining,1);
+ t.document.hidden=true;t.fire(t.document.events,'visibilitychange',{});for(let i=0;i<12;i++)t.qa.choiceTimer.advance(.25);
  assert.equal(t.qa.autoChoice.remaining,1,'hidden page freezes the countdown');
- t.document.hidden=false;t.fire(t.document.events,'visibilitychange',{});t.run('advanceChoiceTimer(.25)');
+ t.document.hidden=false;t.fire(t.document.events,'visibilitychange',{});t.qa.choiceTimer.advance(.25);
  assert.equal(t.qa.autoChoice.remaining,3,'return from background grants at least three seconds');
- for(let i=0;i<8;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.game.status,'pickup','choice remains available during the grace period');
- for(let i=0;i<4;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.game.status,'running');assert.equal(t.qa.game.loadout.main,'shotgun','recommended replacement is applied once');
+ for(let i=0;i<8;i++)t.qa.choiceTimer.advance(.25);assert.equal(t.qa.game.status,'pickup','choice remains available during the grace period');
+ for(let i=0;i<4;i++)t.qa.choiceTimer.advance(.25);assert.equal(t.qa.game.status,'running');assert.equal(t.qa.game.loadout.main,'shotgun','recommended replacement is applied once');
 
- const b=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});startPickup(b);for(let i=0;i<36;i++)b.run('advanceChoiceTimer(.25)');
- b.document.focused=false;b.fire(b.windowEvents,'blur',{});for(let i=0;i<12;i++)b.run('advanceChoiceTimer(.25)');
+ const b=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});startPickup(b);for(let i=0;i<36;i++)b.qa.choiceTimer.advance(.25);
+ b.document.focused=false;b.fire(b.windowEvents,'blur',{});for(let i=0;i<12;i++)b.qa.choiceTimer.advance(.25);
  assert.equal(b.qa.autoChoice.remaining,1,'unfocused window freezes the countdown');
- b.document.focused=true;b.fire(b.windowEvents,'focus',{});b.run('advanceChoiceTimer(.25)');assert.equal(b.qa.autoChoice.remaining,3,'regaining focus grants at least three seconds');
+ b.document.focused=true;b.fire(b.windowEvents,'focus',{});b.qa.choiceTimer.advance(.25);assert.equal(b.qa.autoChoice.remaining,3,'regaining focus grants at least three seconds');
 });
 
 
