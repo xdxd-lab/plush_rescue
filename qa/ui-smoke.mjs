@@ -18,9 +18,13 @@ const {WEAPONS}=await import(root+'weapons.js');
 const {createWeaponVisuals,dropLabelBox,DROP_GEOMETRY}=await import(root+'weapon-visuals.js');
 const {createAllyVisuals,ALLY_VISUAL}=await import(root+'ally-visuals.js');
 const {createShotVisuals,SHOT_VISUAL}=await import(root+'shot-visuals.js');
+const {createTouchVisuals}=await import(root+'touch-visuals.js');
 class Element{
  constructor(tag,attrs={},doc){this.tagName=tag.toUpperCase();this.doc=doc;this.attrs=attrs;this.id=attrs.id;this.dataset={};for(const [k,v]of Object.entries(attrs))if(k.startsWith('data-'))this.dataset[k.slice(5).replace(/-([a-z])/g,(_,x)=>x.toUpperCase())]=v;this.value=attrs.value||'';this.checked='checked'in attrs;this.hidden='hidden'in attrs;this.disabled=false;this.textContent='';this.className=attrs.class||'';this.children=[];this.style={setProperty(k,v){this[k]=v}};this.events={};this.classes=new Set((attrs.class||'').split(' ').filter(Boolean));this.classList={toggle:(c,v)=>{if(v===undefined)v=!this.classes.has(c);if(v)this.classes.add(c);else this.classes.delete(c);},contains:c=>this.classes.has(c)};this.captured=new Set();}
  addEventListener(type,fn){(this.events[type]??=[]).push(fn)}
+ // Minimal tree edits for touch-visuals.js (created dots and rings).
+ append(child){child.parent=this;this.children.push(child)}
+ remove(){if(this.parent)this.parent.children=this.parent.children.filter(c=>c!==this);this.parent=null}
  setAttribute(k,v){this.attrs[k]=String(v)}
  focus(){this.doc.activeElement=this}
  contains(el){return el===this||this.children.includes(el)}
@@ -43,6 +47,7 @@ class Document{
  querySelectorAll(selectors){return this.all.filter(el=>selectors.split(',').some(s=>el.matches(s)))}
  addEventListener(t,f){(this.events[t]??=[]).push(f)}
  hasFocus(){return this.focused}
+ createElement(tag){return new Element(tag,{},this)}
 }
 // realVisuals: use the real weapon-visuals.js so taps see what is actually drawn.
 function setup(storageDenied=false,{seed={},realVisuals=false,width=390,height=844}={}){
@@ -54,7 +59,7 @@ function setup(storageDenied=false,{seed={},realVisuals=false,width=390,height=8
  class Renderer{constructor(){this.shadowMap={};this.info={render:{calls:0}}}setSize(){}setPixelRatio(){}render(){}}
  const counters={clear:0,sync:0,update:[]};const visual={clear(){counters.clear++},sync(){counters.sync++},update(dt){counters.update.push(dt)},styleBullet(){}};
  const windowEvents={};
- const context=vm.createContext({console,THREE:{...actualTHREE,WebGLRenderer:Renderer},...core,...cameraModule,...keyboard,...ui,WEAPONS,document,localStorage,URLSearchParams,location:{search:''},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:realVisuals?createWeaponVisuals:()=>visual,createBossVisuals,bossVisualScale,createAllyVisuals,ALLY_VISUAL,createShotVisuals,SHOT_VISUAL,applyMapLighting(){},positionCameraFill(){}});
+ const context=vm.createContext({console,THREE:{...actualTHREE,WebGLRenderer:Renderer},...core,...cameraModule,...keyboard,...ui,WEAPONS,document,localStorage,URLSearchParams,location:{search:''},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:realVisuals?createWeaponVisuals:()=>visual,createBossVisuals,bossVisualScale,createAllyVisuals,ALLY_VISUAL,createShotVisuals,SHOT_VISUAL,createTouchVisuals,applyMapLighting(){},positionCameraFill(){}});
  context.window=context;context.addEventListener=(t,f)=>{(windowEvents[t]??=[]).push(f)};
  vm.runInContext(fs.readFileSync(root+'main.js','utf8').replace(/^import .*;\n/gm,''),context);
  const qa=context.__PLUSH_QA__,el=id=>document.querySelector('#'+id),run=s=>vm.runInContext(s,context);
@@ -259,13 +264,13 @@ check('quality, volume, next hero and diagnostics are saved when changed in the 
  t.el('volume').value='0.6';t.el('volume').oninput({target:t.el('volume')});t.el('volume').onchange({target:t.el('volume')});
  choose(t,'nextHero','polar');
  t.el('showStats').checked=true;t.el('showStats').onchange({target:t.el('showStats')});
- assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'high',volume:.6,hero:'polar',stats:true,autoChoose:false});
+ assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'high',volume:.6,hero:'polar',stats:true,autoChoose:false,touchFx:true});
 });
 check('only validated settings are ever written, even if internal state is odd',()=>{
  const t=setup();t.run("quality='ultra';volume=NaN;selectedHero='dragon';showStats='yes';saveSettings()");
- assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false});
+ assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
  t.run("quality='low';volume=7;selectedHero='polar';showStats=true;saveSettings()");
- assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:1,hero:'polar',stats:true,autoChoose:false});
+ assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:1,hero:'polar',stats:true,autoChoose:false,touchFx:true});
 });
 check('the hero cards and F3 are remembered too',()=>{
  const t=setup();t.el('heroCardPolar').onclick();assert.equal(JSON.parse(t.store.get('plush-rescue:settings')).hero,'polar');
@@ -404,7 +409,7 @@ check('five rounds of pause, settings changes and resume keep mouse and touch ta
   if(round%2){down(t,9,p.x,p.y);t.clock.t+=80;up(t,9,p.x,p.y);frame(t);}else mouseTap(t,1,p,round===4?650:150);
   assert.equal(g.pendingPickup?.id,d.id,`round ${round}`);settle(t);
  }
- assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:.25,hero:'polar',stats:true,autoChoose:false});
+ assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:.25,hero:'polar',stats:true,autoChoose:false,touchFx:true});
  assert.equal(t.document.events.pointerdown.length,1,'no listener is added by pausing');assert.equal(t.document.events.pointerup.length,1);
 });
 check('volume is saved while dragging; quality, volume, next hero, stats and auto-equip survive a reload; the run does not',()=>{
@@ -633,6 +638,28 @@ check('main-weapon bolts draw trails and a hit shows a flash; restart clears the
  let trails=0,flashes=0,puffs=0;for(let i=0;i<20;i++){t.advance(50);const s=t.qa.shotVisuals.stats;trails=Math.max(trails,s.trails);flashes=Math.max(flashes,s.flashes);puffs=Math.max(puffs,s.puffs);}
  assert.ok(trails>0,'trails drawn');assert.ok(flashes>0,'hit flash drawn');assert.ok(puffs>0,'cotton puffs drawn');
  t.qa.restart();assert.deepEqual(t.qa.shotVisuals.stats,{trails:0,flashes:0,puffs:0});
+});
+
+// ---- V12.4: mtk-viewer style touch feedback -------------------------------------
+check('touch and pen presses show numbered dots and a ring; mouse never does; setting turns it off',()=>{
+ const t=setup();t.el('start').onclick();const fx=t.el('touchFx'),dots=()=>fx.children.filter(c=>c.className==='touch-dot');
+ assert.equal(t.qa.settings.touchFx,true,'on by default');
+ down(t,1,100,400);down(t,2,200,500,{pointerType:'pen'});
+ assert.deepEqual(dots().map(d=>d.textContent),['1','2'],'finger numbers');
+ assert.equal(fx.children.filter(c=>c.className==='touch-ring').length,2,'one ring per press');
+ assert.equal(dots()[0].style.transform,'translate(100px,400px)');
+ move(t,1,130,420);assert.equal(dots()[0].style.transform,'translate(130px,420px)','dot follows the finger');
+ up(t,1,130,420);assert.deepEqual(dots().map(d=>d.textContent),['2'],'lifted finger leaves');
+ down(t,3,50,50);assert.deepEqual(dots().map(d=>d.textContent).sort(),['1','2'],'lowest free number is reused');
+ up(t,2,0,0);up(t,3,0,0);down(t,4,60,60,{pointerType:'mouse'});assert.equal(dots().length,0,'mouse is ignored');up(t,4,60,60,{pointerType:'mouse'});
+ down(t,5,70,70);t.qa.pause();assert.equal(fx.children.length,0,'pausing clears every dot and ring');
+ const box=t.el('touchFxOn');box.checked=false;box.onchange({target:box});assert.equal(t.qa.settings.touchFx,false);
+ t.el('resume').onclick();down(t,6,80,80);assert.equal(fx.children.length,0,'off: no dot, no ring');up(t,6,80,80);
+});
+check('reduced motion keeps the touch dot but drops the expanding ring',()=>{
+ const t=setup();t.el('start').onclick();
+ t.run("touchFx.begin(9,10,10,'touch',{reduceMotion:true})");const fx=t.el('touchFx');
+ assert.equal(fx.children.filter(c=>c.className==='touch-dot').length,1);assert.equal(fx.children.filter(c=>c.className==='touch-ring').length,0);
 });
 
 console.log(JSON.stringify({method:'Node DOM/renderer stub only; not browser/WebGL verification',passed:checks.length,checks},null,2));

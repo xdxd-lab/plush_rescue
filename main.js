@@ -6,6 +6,7 @@ import {CAMERA,cameraOffset,cameraFocus,createGameCamera,fitGameCamera,screenToW
 import {createEffects} from './effects.js';
 import {isInteractiveTarget,routeKeyDown} from './keyboard.js';
 import {createCrowd} from './crowd.js';
+import {createTouchVisuals} from './touch-visuals.js';
 import {applyMapLighting,positionCameraFill} from './lighting.js';
 import {WEAPONS} from './weapons.js';
 import {createBossVisuals,bossVisualScale} from './boss-visuals.js';
@@ -24,7 +25,7 @@ const fill=new THREE.DirectionalLight('#c7daf1',0);fill.name='Low camera-side mo
 const savedSettings=readSettings((()=>{try{return localStorage;}catch{return null;}})());
 let selectedHero=savedSettings.hero;
 const heroNames={pudding:'布丁狗',polar:'北極熊'};
-let game,map,hero,quality=savedSettings.quality,volume=savedSettings.volume,showStats=savedSettings.stats,autoChoose=savedSettings.autoChoose,lastStatus='',frameTime=0,frames=0,fps=0,renderDirty=true;
+let game,map,hero,quality=savedSettings.quality,volume=savedSettings.volume,showStats=savedSettings.stats,autoChoose=savedSettings.autoChoose,touchFxOn=savedSettings.touchFx,lastStatus='',frameTime=0,frames=0,fps=0,renderDirty=true;
 // Storage can be unavailable in private mode or embedded previews. The default
 // is always to ask; changing the setting still works for this session.
 const autoEquipKey='plush-rescue:auto-equip';
@@ -41,7 +42,7 @@ const taps=createTapTracker(),pendingTaps=[],tapClock=()=>performance.now();
 // V12.2.1 mouse hover pickup: the last mouse position (null until the mouse moves over the game) and whether it moved since the last frame.
 const hover=createHoverTracker();let hoverPoint=null,hoverMoved=false,hoverLabel=null;
 function clearHover(){hover.reset();hoverPoint=null;hoverMoved=false;hoverLabel=null;showHoverRing(null);}
-function saveSettings(){writeSettings(storage(),{quality,volume,hero:selectedHero,stats:showStats,autoChoose});}
+function saveSettings(){writeSettings(storage(),{quality,volume,hero:selectedHero,stats:showStats,autoChoose,touchFx:touchFxOn});}
 let choiceTimer=null;
 function clearChoiceTimer(){choiceTimer?.target?.classList.toggle('auto-choice-target',false);choiceTimer=null;}
 function choiceUnfocused(){return document.hidden||document.hasFocus?.()===false;}
@@ -87,6 +88,8 @@ const weaponVisuals=createWeaponVisuals(THREE,scene);
 const bossVisuals=createBossVisuals(THREE,scene);
 const ordinaryEnemies=[];
 const stick=new Stick(),keys=new Set(),enemies=new Map(),rescued=new Map(),bullets=new Map(),enemyPool=[[],[],[],[]],freePool=[[],[],[],[]],bulletPool=[];
+// V12.4: mtk-viewer style dots and press rings for fingers and pens (never the mouse).
+const touchFx=createTouchVisuals($('#touchFx'),{doc:document});touchFx.setEnabled(touchFxOn);
 const bulletGeometry=new THREE.SphereGeometry(1,12,8),bulletMaterial=new THREE.MeshBasicMaterial({color:'#d8fcff'}),bulletGlowMaterial=new THREE.MeshBasicMaterial({color:'#63e3ff',transparent:true,opacity:.28,depthWrite:false,blending:THREE.AdditiveBlending});
 const fx=createEffects(THREE,scene,LIMITS),cameraDelta=cameraOffset(),cameraTarget=new THREE.Vector3();
 function makeBullet(){const group=new THREE.Group(),core=new THREE.Mesh(bulletGeometry,bulletMaterial),glow=new THREE.Mesh(bulletGeometry,bulletGlowMaterial);core.scale.set(.05,.05,.24);glow.scale.set(.12,.12,.35);group.add(glow,core);return group;}
@@ -135,6 +138,7 @@ document.addEventListener('pointerdown',e=>{
  // Every accepted press may become a tap on a drop, including a second finger
  // while the first one holds the stick. It never takes over movement.
  taps.begin(e.pointerId,e.clientX,e.clientY,eventTime(e,tapClock),e.pointerType);
+ touchFx.begin(e.pointerId,e.clientX,e.clientY,e.pointerType,{reduceMotion:reduceMotion()});
  // Tracked presses (never buttons or dialogs, which returned above) keep the browser
  // from adding its own handling to the extra finger.
  e.preventDefault();
@@ -144,7 +148,7 @@ document.addEventListener('pointerdown',e=>{
 document.addEventListener('pointerout',e=>{if(e.pointerType==='mouse'&&!e.relatedTarget)clearHover();});
 document.addEventListener('gesturestart',e=>{if(game.status==='running'&&!overlay.classList.contains('shown')&&$('#game').contains(e.target))e.preventDefault();},{passive:false});
 document.addEventListener('pointermove',e=>{
- taps.move(e.pointerId,e.clientX,e.clientY);
+ taps.move(e.pointerId,e.clientX,e.clientY);touchFx.move(e.pointerId,e.clientX,e.clientY);
  // Only a mouse with no button down hovers; a drag, a finger or a pen never does.
  if(e.pointerType==='mouse'){
   if(e.buttons!==0||isInteractiveTarget(e.target)||!$('#game').contains(e.target))clearHover();
@@ -161,6 +165,7 @@ for(const type of ['pointerup','pointercancel','lostpointercapture'])document.ad
  // Ignore loss of the original target's implicit capture when it transfers
  // to the canvas; only losing our canvas capture cancels the drag.
  if(type==='lostpointercapture'&&e.target!==canvas)return;
+ touchFx.end(e.pointerId);
  // A tap on an opaque HUD panel is a tap on the panel, not on the world below it.
  if(type==='pointerup'){const tap=taps.end(e.pointerId,e.clientX,e.clientY,eventTime(e,tapClock));if(tap&&game.status==='running'&&!overlay.classList.contains('shown')&&pendingTaps.length<4&&!pointCovered(tap,hudOccluders))pendingTaps.push(tap);}
  // A pointer whose capture was lost can no longer be trusted: its pointerup may arrive
@@ -171,7 +176,7 @@ for(const type of ['pointerup','pointercancel','lostpointercapture'])document.ad
  updateStick();
 });
 function endStick(){const id=stick.id;stick.reset();if(id!==null&&canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);updateStick();}
-function clearInput(){clearHover();taps.clear();pendingTaps.length=0;endStick();keys.clear();}
+function clearInput(){touchFx.clear();clearHover();taps.clear();pendingTaps.length=0;endStick();keys.clear();}
 function pause(){game.pause();clearInput();syncOverlay();}
 window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('resize',()=>{clearInput();resize();});
 window.addEventListener('keydown',e=>{const action=routeKeyDown(e,game.status,keys);if(action==='pause')pause();else if(action==='resume'){game.resume();syncOverlay();}else if(action==='stats'){setStatsVisible(!showStats);}else if(action?.startsWith('upgrade:')){dialog.querySelectorAll('[data-upgrade]')[Number(action.slice(8))-1]?.onclick?.();}});
@@ -302,6 +307,7 @@ function syncOverlay(){
    +`<div class="settings-columns"><section class="settings-group" aria-label="畫面與聲音">`
    +`<label class="setting">音效音量 <input id="volume" type="range" min="0" max="1" step=".05" value="${volume}"></label>`
    +segmented('quality','畫面品質',QUALITY_CHOICES,quality)
+   +`<label class="setting">觸控特效<input id="touchFxOn" type="checkbox" ${touchFxOn?'checked':''}></label>`
    +`<label class="setting" title="電腦也可以按 F3 切換">顯示效能數字<input id="showStats" type="checkbox" ${showStats?'checked':''}></label></section>`
    +`<section class="settings-group" aria-label="遊戲">`
    +`<label class="setting">撿到武器自動換上<input id="autoEquip" type="checkbox" ${autoEquip?'checked':''}></label>`
@@ -314,6 +320,7 @@ function syncOverlay(){
   $('#volume').onchange=()=>saveSettings();
   $('#autoEquip').onchange=e=>setAutoEquip(e.target.checked);
   $('#autoChoose').onchange=e=>{autoChoose=Boolean(e.target.checked);saveSettings();};
+  $('#touchFxOn').onchange=e=>{touchFxOn=Boolean(e.target.checked);touchFx.setEnabled(touchFxOn);saveSettings();};
   $('#showStats').onchange=e=>{setStatsVisible(e.target.checked);};
   $('#resume').onclick=resume;$('#restart').onclick=restart;
  }else if(game.status==='pickup'){

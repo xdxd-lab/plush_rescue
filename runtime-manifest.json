@@ -86,8 +86,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13113,
-      "sha256": "40b7f35c173c388433955e727c651d626f12a277b71e1aaa455090a9d0182977"
+      "bytes": 13157,
+      "sha256": "4dda3a4cd8c39845140db2c7c70bbd778b34edb134cf4d0ce4b68807ea4a109a"
     },
     {
       "path": "keyboard.js",
@@ -101,8 +101,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 45854,
-      "sha256": "2965d82b6f36ab7ada5353bd69db5c50fcc01f90b9b7903b4300a64807098a62"
+      "bytes": 46552,
+      "sha256": "76a4abe448752d4bb996095e51bee5720312fb322ed474501d8e2509fa82ef57"
     },
     {
       "path": "maps.js",
@@ -116,13 +116,18 @@
     },
     {
       "path": "style.css",
-      "bytes": 34180,
-      "sha256": "b2f7c3f4e10a80d5b4108f96236a061b65056b4b78fb8ce15fcda6172bbba72d"
+      "bytes": 35208,
+      "sha256": "bf558ba544b80a42a84bc46b7252ab0ce698a212ac78afd39d998d85e8e786c2"
+    },
+    {
+      "path": "touch-visuals.js",
+      "bytes": 2566,
+      "sha256": "be62f8e95cb858ad1f4423ab66aaff5269633f229ef172e740fc7d17474ab5b2"
     },
     {
       "path": "ui.js",
-      "bytes": 15450,
-      "sha256": "24e307782fda8fcc1018505b93dc1b08d0201da1a71d738fb29b48b5f3b69d96"
+      "bytes": 15529,
+      "sha256": "bb6936f4bf8f0a97806b024c026b16a08e38345c18bceece0f5963dd569c667a"
     },
     {
       "path": "vendor/THREE-LICENSE.txt",

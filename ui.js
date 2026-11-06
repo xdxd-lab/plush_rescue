@@ -242,7 +242,7 @@ function better(a,b){
 export const SETTINGS_KEY='plush-rescue:settings';
 export const QUALITIES=Object.freeze(['low','balanced','high']);
 export const HEROES=Object.freeze(['pudding','polar']);
-export function defaultSettings(){return {quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false};}
+export function defaultSettings(){return {quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true};}
 // One validator for both directions: whatever is read or about to be written is
 // reduced to valid values, one field at a time, so bad data is never persisted.
 export function sanitizeSettings(raw){
@@ -253,6 +253,7 @@ export function sanitizeSettings(raw){
   if(HEROES.includes(raw.hero))settings.hero=raw.hero;
   if(typeof raw.stats==='boolean')settings.stats=raw.stats;
   if(typeof raw.autoChoose==='boolean')settings.autoChoose=raw.autoChoose;
+  if(typeof raw.touchFx==='boolean')settings.touchFx=raw.touchFx;
  }
  return settings;
 }

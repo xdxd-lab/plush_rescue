@@ -361,7 +361,7 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
   const s=await page.eval("({settings:__T.qa.settings,hero:document.querySelector('#heroSelect').value,auto:localStorage.getItem('plush-rescue:auto-equip'),status:__T.qa.game.status,time:__T.qa.game.time,stats:!document.querySelector('#stats').hidden})");
   // Restore first (what was stored comes back), then the expected values of this viewport's run.
   assert.deepEqual(s.settings,JSON.parse(storedBeforeReload),'reload restores what was stored');
-  assert.deepEqual(s.settings,{quality:'low',volume:.65,hero:'polar',stats:true,autoChoose:false});assert.equal(s.auto,'true');assert.equal(s.status,'ready');assert.equal(s.time,0);assert.equal(s.stats,true);assert.equal(s.hero,'polar');
+  assert.deepEqual(s.settings,{quality:'low',volume:.65,hero:'polar',stats:true,autoChoose:false,touchFx:true});assert.equal(s.auto,'true');assert.equal(s.status,'ready');assert.equal(s.time,0);assert.equal(s.stats,true);assert.equal(s.hero,'polar');
  });
  await page.close();await send('Target.disposeBrowserContext',{browserContextId});
 }
@@ -370,7 +370,7 @@ if(runPickup&&!onlyViews)await check('a separate browser profile context starts 
  const {browserContextId}=await send('Target.createBrowserContext');let page,failed;
  try{
   page=await openPage({width:800,height:600,context:browserContextId});
-  assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false});
+  assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
  }catch(e){failed=e}
  try{await page?.close();}catch(e){failed??=e}
  try{await send('Target.disposeBrowserContext',{browserContextId});}catch(e){failed??=e}
@@ -383,7 +383,7 @@ if(runPickup&&!onlyViews)await check('blocked localStorage: the game runs, setti
   assert.equal(await page.eval("(()=>{try{localStorage;return 'open'}catch{return 'blocked'}})()"),'blocked');
   await begin(page,false);await page.click('#pause');await page.eval("(()=>{document.querySelector('#quality-high').click();})()");
   await page.click('#resume');assert.ok(await tapDrop(page,{mobile:false,where:'labelLeft'}),'taps work without storage');
-  await page.reload();assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false});
+  await page.reload();assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
  }catch(e){failed=e}
  try{await page?.close();}catch(e){failed??=e}
  try{await send('Target.disposeBrowserContext',{browserContextId});}catch(e){failed??=e}

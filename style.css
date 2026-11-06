@@ -475,3 +475,12 @@ h2{font-size:27px}
  #vignette.critical::before{opacity:1}
  #notice{transform:translate(-50%,0)}
 }
+
+/* V12.4 touch feedback (touch-visuals.js), after MultiTouchKit's mtk-viewer: a numbered dot
+   per finger and one fading ring per press. Never takes pointer events. */
+#touchFx{position:fixed;inset:0;pointer-events:none;z-index:6;overflow:hidden;contain:strict}
+.touch-dot,.touch-ring{position:absolute;left:0;top:0;pointer-events:none;border-radius:50%;will-change:transform}
+.touch-dot{width:56px;height:56px;margin:-28px 0 0 -28px;display:grid;place-items:center;background:hsl(var(--hue) 70% 62% / .5);box-shadow:0 0 0 2px hsl(var(--hue) 80% 82% / .55),0 0 14px hsl(var(--hue) 80% 60% / .45);color:#fff;font:700 16px/1 ui-monospace,SFMono-Regular,Menlo,monospace;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.touch-ring{width:156px;height:156px;margin:-78px 0 0 -78px;border:4px solid hsl(var(--hue) 80% 62%);box-sizing:border-box;opacity:0;animation:touch-ring .35s linear forwards}
+@keyframes touch-ring{from{opacity:1;scale:calc(26/78)}to{opacity:0;scale:1}}
+@media (prefers-reduced-motion:reduce){.touch-ring{display:none}}
