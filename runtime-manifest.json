@@ -101,8 +101,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 45873,
-      "sha256": "e8a156281a00f12056d85ed8a720573aacb029b5607c0e62d27cd396cdaa98a7"
+      "bytes": 45854,
+      "sha256": "2965d82b6f36ab7ada5353bd69db5c50fcc01f90b9b7903b4300a64807098a62"
     },
     {
       "path": "maps.js",
@@ -116,8 +116,8 @@
     },
     {
       "path": "style.css",
-      "bytes": 33323,
-      "sha256": "fc88148217888ef884287d5e57adba40e2f88ffd7677259b482820e79d4de83a"
+      "bytes": 34180,
+      "sha256": "b2f7c3f4e10a80d5b4108f96236a061b65056b4b78fb8ce15fcda6172bbba72d"
     },
     {
       "path": "ui.js",
