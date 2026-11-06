@@ -338,10 +338,10 @@ function syncOverlay(){
   const replace=recommendPickup(game,pickup);
   autoTarget=replace?$('#replaceWeapon'):$('#keepWeapon');autoLabel=replace?'換上新'+(pickup.slot==='offhand'?'法器':'武器'):isTwoHanded?'保留目前裝備（雙手砲未換上）':'保留目前裝備';autoResolve=()=>resolve(replace);
  }else if(game.status==='upgrade'){
-  dialog.innerHTML=`<div class="eyebrow">LEVEL UP</div><h2 id="dialogTitle">升級了！Lv. ${game.level}</h2><p class="lead">挑一份新的力量，時間會等你。</p><div class="choices">${UPGRADES.map((u,i)=>`<button class="choice" data-upgrade="${u.id}"><kbd>${i+1}</kbd><span class="choice-icon">${iconSvg(UPGRADE_ICONS[u.id]||'i-pulse')}</span><b>${u.name}</b><small>${u.description}</small></button>`).join('')}</div>${choiceCountdownMarkup()}`;
+  dialog.innerHTML=`<div class="eyebrow">LEVEL UP</div><h2 id="dialogTitle">升級了！Lv. ${game.level}</h2><p class="lead">挑一份新的力量，時間會等你。</p><div class="choices">${game.upgradeChoices.map(id=>UPGRADES.find(u=>u.id===id)).filter(Boolean).map((u,i)=>`<button class="choice" data-upgrade="${u.id}"><kbd>${i+1}</kbd><span class="choice-icon">${iconSvg(UPGRADE_ICONS[u.id]||'i-pulse')}</span><b>${u.name}</b><small>${u.description}</small></button>`).join('')}</div>${choiceCountdownMarkup()}`;
   const upgradeGame=game,upgradeLevel=game.level;
   dialog.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=()=>{if(game!==upgradeGame||game.status!=='upgrade'||game.level!==upgradeLevel)return;clearInput();game.upgrade(b.dataset.upgrade);renderDirty=true;lastStatus='';syncHud();syncOverlay();});
-  const upgradeId=recommendUpgrade(game,UPGRADES),upgrade=UPGRADES.find(u=>u.id===upgradeId);
+  const upgradeId=recommendUpgrade(game,UPGRADES.filter(u=>game.upgradeChoices.includes(u.id))),upgrade=UPGRADES.find(u=>u.id===upgradeId);
   autoTarget=[...dialog.querySelectorAll('[data-upgrade]')].find(b=>b.dataset.upgrade===upgradeId);autoLabel=upgrade?.name||'';autoResolve=()=>autoTarget?.onclick?.();
  }else if(game.status==='ended'){
   const survived=game.reason==='survived',{records,beaten}=recordRun(),best=bestWeapon(game.weaponLevels,WEAPONS);

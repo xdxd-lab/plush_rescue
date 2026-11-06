@@ -118,7 +118,7 @@ test('balance: over full 20-minute runs allies make well under 1% of rescues and
   for(let i=0;i<LIMITS.duration/.05+10&&g.status!=='ended';i++){
    g.invuln=1;const a=i*.013;g.step(.05,{x:Math.cos(a),z:Math.sin(a*1.3)});
    for(const e of g.events){if(e.kind==='ally')joined.set(e.id,g.time);if(e.kind==='allyLeave')served.set(e.id,g.time-joined.get(e.id));}
-   if(g.status==='upgrade')g.upgrade(['power','rate','speed','heart'][g.level%4]);
+   if(g.status==='upgrade')g.upgrade(g.upgradeChoices[g.level%g.upgradeChoices.length]);
   }
   assert.ok(g.allyRescues/g.saved<.01,`seed ${seed}: ally rescues ${g.allyRescues}/${g.saved}`);
   assert.ok(joined.size>=10,`seed ${seed}: ${joined.size} bosses rescued`);

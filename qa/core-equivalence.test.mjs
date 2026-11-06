@@ -19,7 +19,7 @@ const V11_SIGNATURES={
 for(const [key,expected] of Object.entries(V11_SIGNATURES)){
  const [seed,auto]=key.split(':');
  test(`gameplay signature matches V11 without boss allies: seed ${seed}, auto-equip ${auto}`,()=>{
-  assert.equal(signature(Game,Number(seed),{autoEquip:auto==='true',bossAllies:false}),expected);
+  assert.equal(signature(Game,Number(seed),{autoEquip:auto==='true',bossAllies:false,upgradeVariety:false,enemyVariety:false}),expected);
  });
 }
 // Boss allies (default on), repinned in V12.4 when ALLY.duration went from 10 to
@@ -36,6 +36,6 @@ const ALLY_SIGNATURES={
 for(const [key,expected] of Object.entries(ALLY_SIGNATURES)){
  const [seed,auto]=key.split(':');
  test(`gameplay signature with boss allies: seed ${seed}, auto-equip ${auto}`,()=>{
-  assert.equal(signature(Game,Number(seed),{autoEquip:auto==='true'}),expected);
+  assert.equal(signature(Game,Number(seed),{autoEquip:auto==='true',upgradeVariety:false,enemyVariety:false}),expected);
  });
 }

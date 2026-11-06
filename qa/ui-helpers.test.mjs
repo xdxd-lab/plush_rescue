@@ -22,7 +22,7 @@ test('boss countdown reads the real schedule without changing it',()=>{
  game.pendingBoss=null;game.nextBossMinute=20;assert.equal(ui.bossClockLabel(ui.nextBossCountdown(game,bossKind,LIMITS.duration)),'撐到天亮');
  // Matches the live schedule through a real 3-minute run.
  const run=new Game({random:()=>.5});run.start();const seen=[];
- for(let t=0;t<185;t+=.05){const before=ui.nextBossCountdown(run,bossKind,LIMITS.duration);run.step(.05,{x:0,z:0});run.invuln=1;run.player.hp=run.player.maxHp;if(run.status==='upgrade')run.upgrade('heart');if(run.status==='pickup')run.resolvePickup(false);for(const e of run.events)if(e.kind==='boss')seen.push([e.boss,before.kind]);}
+ for(let t=0;t<185;t+=.05){const before=ui.nextBossCountdown(run,bossKind,LIMITS.duration);run.step(.05,{x:0,z:0});run.invuln=1;run.player.hp=run.player.maxHp;if(run.status==='upgrade')run.upgrade(run.upgradeChoices.includes('heart')?'heart':run.upgradeChoices[0]);if(run.status==='pickup')run.resolvePickup(false);for(const e of run.events)if(e.kind==='boss')seen.push([e.boss,before.kind]);}
  // A big boss can stay pending while two bosses are alive, so only require the
  // first two arrivals; every arrival must match what the clock announced.
  assert.ok(seen.length>=2,'at least two boss arrivals in three minutes');assert.deepEqual(seen.slice(0,2).map(([actual])=>actual),['mini','mini']);

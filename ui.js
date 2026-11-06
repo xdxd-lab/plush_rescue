@@ -1,9 +1,10 @@
 // V12 presentation helpers. Pure functions only: no DOM, no game mutation.
 // Gameplay values stay in core.js/weapons.js; this module only formats them.
 import {DROP_GEOMETRY,dropLabelBox} from './weapon-visuals.js';
+import {upgradeCanGrow} from './core.js';
 
 export const WEAPON_ICONS=Object.freeze({pulse:'i-pulse',shotgun:'i-shotgun',burst:'i-burst',ember:'i-ember',bomber:'i-bomber',moonfan:'i-moonfan',frostwand:'i-frostwand',cannon:'i-cannon',none:'i-empty'});
-export const UPGRADE_ICONS=Object.freeze({power:'i-pulse',rate:'i-bolt',speed:'i-feather',heart:'i-heart'});
+export const UPGRADE_ICONS=Object.freeze({power:'i-pulse',rate:'i-bolt',speed:'i-feather',heart:'i-heart',magnet:'i-magnet',crit:'i-star',reach:'i-flower',guard:'i-blanket'});
 
 export function iconSvg(symbol,className='icon'){
  return `<svg class="${className}" aria-hidden="true" focusable="false"><use href="#${symbol}"></use></svg>`;
@@ -266,7 +267,7 @@ export function writeSettings(storage,settings){
 
 // A recommendation is predictable and does not consume the game's random stream.
 export function recommendUpgrade(game,upgrades){
- const available=upgrades.filter(u=>u.id==='power'||u.id==='rate'&&game.fireInterval>.075+1e-6||u.id==='speed'&&(game.player.speed<8-1e-6||game.player.hp<game.player.maxHp)||u.id==='heart'&&(game.player.maxHp<12||game.player.hp<game.player.maxHp));
+ const available=upgrades.filter(u=>upgradeCanGrow(game,u.id));
  if(!available.length)return upgrades[0]?.id??null;
  if(game.player.hp<=game.player.maxHp*.4&&available.some(u=>u.id==='heart'))return 'heart';
  return available.find(u=>u.id==='power')?.id??available[0].id;

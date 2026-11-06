@@ -27,7 +27,25 @@ export function interceptTarget(player,target,velocity,muzzle={x:0,z:.6}){
  if(time===undefined)return null;
  return {time,angle:Math.atan2(rx+vx*time,rz+vz*time)-Math.atan2(mx,mz+s*time)};
 }
-export const UPGRADES=[{id:'power',icon:'✦',name:'暖心光束',description:'光束力量 +35%'},{id:'rate',icon:'ϟ',name:'星光連發',description:'發射速度 +20%'},{id:'speed',icon:'➜',name:'輕盈腳步',description:'移動速度 +15%，恢復 1 顆心'},{id:'heart',icon:'♡',name:'柔軟守護',description:'最大生命 +1，恢復 2 顆心'}];
+export const UPGRADES=[{id:'power',icon:'✦',name:'暖心光束',description:'光束力量 +35%'},{id:'rate',icon:'ϟ',name:'星光連發',description:'發射速度 +20%'},{id:'speed',icon:'➜',name:'輕盈腳步',description:'移動速度 +15%，恢復 1 顆心'},{id:'heart',icon:'♡',name:'柔軟守護',description:'最大生命 +1，恢復 2 顆心'},{id:'magnet',icon:'◎',name:'棉花磁鐵',description:'拾取範圍 +50%'},{id:'crit',icon:'★',name:'幸運星星',description:'暴擊率 +12%，暴擊傷害 ×2'},{id:'reach',icon:'❀',name:'擁抱圈圈',description:'副手魔法範圍 +15%'},{id:'guard',icon:'☁',name:'安心毛毯',description:'受傷後無敵時間 +0.35 秒'}];
+// upgradeVariety:false keeps V11: the first four upgrades, always offered in this
+// order, and no extra random draws. With variety, each level-up deals four of the
+// upgrades that can still grow (one partial shuffle, four draws), in table order.
+export const BASE_UPGRADE_IDS=Object.freeze(['power','rate','speed','heart']);
+export const UPGRADE_CHOICES=4;
+export const UPGRADE_CAPS=Object.freeze({fireInterval:.075,speed:8,maxHp:12,pickupRange:2.6,critChance:.48,magicReach:1.6,invulnTime:2.3});
+export function upgradeCanGrow(game,id){
+ const p=game.player,c=UPGRADE_CAPS;
+ if(id==='power')return true;
+ if(id==='rate')return game.fireInterval>c.fireInterval+1e-6;
+ if(id==='speed')return p.speed<c.speed-1e-6||p.hp<p.maxHp;
+ if(id==='heart')return p.maxHp<c.maxHp||p.hp<p.maxHp;
+ if(id==='magnet')return game.pickupRange<c.pickupRange-1e-6;
+ if(id==='crit')return game.critChance<c.critChance-1e-6;
+ if(id==='reach')return game.magicReach<c.magicReach-1e-6;
+ if(id==='guard')return game.invulnTime<c.invulnTime-1e-6;
+ return false;
+}
 export function healthLabel(hp,maxHp){return maxHp>6?`♥ ${Math.max(0,hp)} / ${maxHp}`:'♥'.repeat(Math.max(0,hp))+'♡'.repeat(maxHp-Math.max(0,hp));}
 // Return the first intersection along a finite segment, including a start point
 // already inside the target. This avoids tunnelling at low frame rates.
@@ -48,17 +66,32 @@ function nearestSegmentHit(enemies,ax,az,bx,bz,motions=null,fraction=1){
  return hit;
 }
 export class Game{
- constructor({random=Math.random,map=null,obstacles=[],muzzleOffset={x:0,y:.65,z:.6},autoEquip=false,heroId='pudding',bossAllies=true}={}){this.bossAllies=Boolean(bossAllies);this.allies=[];this.allySerial=0;this.allyRescues=0;this.heroId=heroId==='polar'?'polar':'pudding';this.muzzleOffset={...muzzleOffset};this.random=random;this.map=map??Math.min(2,Math.floor(random()*3));this.obstacles=obstacles;this.bounds=18;this.status='ready';this.time=0;this.player={x:0,z:4,hp:5,maxHp:5,speed:4.6,angle:Math.PI};this.enemies=[];this.bullets=[];this.rescued=[];this.events=[];this.level=1;this.exp=0;this.nextExp=8;this.saved=0;this.power=1;this.fireInterval=.28;this.fire=0;this.spawn=.2/SPAWN_MULTIPLIER;this.targetId=null;this.invuln=0;this.serial=0;this.reason='';this.loadout={main:'pulse',offhand:'moonfan'};this.twoHanded=null;this.twoHandedWeapon=null;this.weaponLevels=Object.fromEntries(Object.keys(WEAPONS).map(id=>[id,id==='pulse'||id==='moonfan'?1:0]));this.magicByWeapon=Object.fromEntries(OFFHAND_WEAPONS.map(id=>[id,{charge:0,goal:12,evolved:false}]));this.magic=this.magicByWeapon.moonfan;this.magicFire=3;this.nextBossMinute=1;this.pendingBoss=null;this.hazards=[];this.drops=[];this.bombs=[];this.pendingPickup=null;this.autoEquip=Boolean(autoEquip);this.dropTimer=18;this.burstLeft=0;this.burstTimer=0;}
+ constructor({random=Math.random,map=null,obstacles=[],muzzleOffset={x:0,y:.65,z:.6},autoEquip=false,heroId='pudding',bossAllies=true,upgradeVariety=true,enemyVariety=true}={}){this.bossAllies=Boolean(bossAllies);this.upgradeVariety=Boolean(upgradeVariety);this.enemyVariety=Boolean(enemyVariety);this.upgradePool=this.upgradeVariety?UPGRADES.map(u=>u.id):[...BASE_UPGRADE_IDS];this.upgradeChoices=[...BASE_UPGRADE_IDS];this.pickupRange=.95;this.critChance=0;this.critMeter=0;this.crits=0;this.magicReach=1;this.invulnTime=1.25;this.allies=[];this.allySerial=0;this.allyRescues=0;this.heroId=heroId==='polar'?'polar':'pudding';this.muzzleOffset={...muzzleOffset};this.random=random;this.map=map??Math.min(2,Math.floor(random()*3));this.obstacles=obstacles;this.bounds=18;this.status='ready';this.time=0;this.player={x:0,z:4,hp:5,maxHp:5,speed:4.6,angle:Math.PI};this.enemies=[];this.bullets=[];this.rescued=[];this.events=[];this.level=1;this.exp=0;this.nextExp=8;this.saved=0;this.power=1;this.fireInterval=.28;this.fire=0;this.spawn=.2/SPAWN_MULTIPLIER;this.targetId=null;this.invuln=0;this.serial=0;this.reason='';this.loadout={main:'pulse',offhand:'moonfan'};this.twoHanded=null;this.twoHandedWeapon=null;this.weaponLevels=Object.fromEntries(Object.keys(WEAPONS).map(id=>[id,id==='pulse'||id==='moonfan'?1:0]));this.magicByWeapon=Object.fromEntries(OFFHAND_WEAPONS.map(id=>[id,{charge:0,goal:12,evolved:false}]));this.magic=this.magicByWeapon.moonfan;this.magicFire=3;this.nextBossMinute=1;this.pendingBoss=null;this.hazards=[];this.drops=[];this.bombs=[];this.pendingPickup=null;this.autoEquip=Boolean(autoEquip);this.dropTimer=18;this.burstLeft=0;this.burstTimer=0;}
  start(){if(this.status==='ready'){this.status='running';for(const [weaponId,dx,dz] of [['shotgun',-2.7,0],['burst',2.7,0],['frostwand',0,-3.2],['ember',-3.4,-3.4],['bomber',3.4,-3.4],['cannon',0,4]])this.addDrop({kind:'weapon',weaponId,x:this.player.x+dx,z:this.player.z+dz});}}
  pause(){if(this.status==='running')this.status='paused';}
  resume(){if(this.status==='paused')this.status='running';}
  end(reason){this.reason=reason;this.status='ended';this.pendingPickup=null;this.burstLeft=0;}
- applyUpgrade(id){if(id==='power')this.power*=1.35;else if(id==='rate')this.fireInterval=Math.max(.075,this.fireInterval*.8);else if(id==='speed'){this.player.speed=Math.min(8,this.player.speed*1.15);this.player.hp=Math.min(this.player.maxHp,this.player.hp+1);}else if(id==='heart'){this.player.maxHp=Math.min(12,this.player.maxHp+1);this.player.hp=Math.min(this.player.maxHp,this.player.hp+2);}else return false;return true;}
- upgrade(id){if(this.status!=='upgrade'||!this.applyUpgrade(id))return;this.continueChoices();}
+ applyUpgrade(id){if(id==='power')this.power*=1.35;else if(id==='rate')this.fireInterval=Math.max(.075,this.fireInterval*.8);else if(id==='speed'){this.player.speed=Math.min(8,this.player.speed*1.15);this.player.hp=Math.min(this.player.maxHp,this.player.hp+1);}else if(id==='heart'){this.player.maxHp=Math.min(12,this.player.maxHp+1);this.player.hp=Math.min(this.player.maxHp,this.player.hp+2);}
+  else if(!this.upgradeVariety)return false;
+  else if(id==='magnet')this.pickupRange=Math.min(UPGRADE_CAPS.pickupRange,this.pickupRange*1.5);
+  else if(id==='crit')this.critChance=Math.min(UPGRADE_CAPS.critChance,this.critChance+.12);
+  else if(id==='reach')this.magicReach=Math.min(UPGRADE_CAPS.magicReach,this.magicReach*1.15);
+  else if(id==='guard')this.invulnTime=Math.min(UPGRADE_CAPS.invulnTime,this.invulnTime+.35);
+  else return false;return true;}
+ upgrade(id){if(this.status!=='upgrade'||!this.upgradeChoices.includes(id)||!this.applyUpgrade(id))return;this.continueChoices();}
+ dealUpgradeChoices(){
+  if(!this.upgradeVariety){this.upgradeChoices=[...BASE_UPGRADE_IDS];return this.upgradeChoices;}
+  const pool=this.upgradePool.filter(id=>upgradeCanGrow(this,id)),order=this.upgradePool;
+  if(pool.length<UPGRADE_CHOICES)for(const id of order)if(pool.length<UPGRADE_CHOICES&&!pool.includes(id))pool.push(id);
+  for(let i=0;i<UPGRADE_CHOICES;i++){const j=i+Math.min(pool.length-1-i,Math.floor(this.random()*(pool.length-i)));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  this.upgradeChoices=pool.slice(0,UPGRADE_CHOICES).sort((a,b)=>order.indexOf(a)-order.indexOf(b));return this.upgradeChoices;
+ }
+ // Deterministic crits: the chance fills a meter on every main shot, so no random draw is used.
+ critMultiplier(){if(!(this.critChance>0))return 1;this.critMeter+=this.critChance;if(this.critMeter<1)return 1;this.critMeter-=1;this.crits++;return 2;}
  continueChoices(){this.status='running';if(this.exp>=this.nextExp)this.levelUp();else this.collectDrops();}
  addDrop(data){
   if(this.drops.length>=LIMITS.drops)return null;
-  if(data.kind==='weapon'&&!WEAPONS[data.weaponId]||data.kind==='upgrade'&&!UPGRADES.some(u=>u.id===data.upgradeId))return null;
+  if(data.kind==='weapon'&&!WEAPONS[data.weaponId]||data.kind==='upgrade'&&!this.upgradePool.includes(data.upgradeId))return null;
   if(data.kind!=='weapon'&&data.kind!=='upgrade')return null;
   const d={...data,id:++this.serial,life:35};this.move(d,0,0,.5);this.drops.push(d);return d;
  }
@@ -86,7 +119,7 @@ export class Game{
  }
  collectDrops(){
   if(this.status!=='running')return;
-  for(let i=0;i<this.drops.length;){const drop=this.drops[i];if(Math.hypot(drop.x-this.player.x,drop.z-this.player.z)>.95){i++;continue;}
+  for(let i=0;i<this.drops.length;){const drop=this.drops[i];if(Math.hypot(drop.x-this.player.x,drop.z-this.player.z)>this.pickupRange){i++;continue;}
    this.drops.splice(i,1);
    if(this.takeDrop(drop))return;
   }
@@ -108,7 +141,7 @@ export class Game{
   const angle=this.random()*Math.PI*2;
   if(enemy.boss&&this.bossAllies)this.addAlly(enemy,angle);
   else{if(this.rescued.length>=LIMITS.rescued)this.rescued.shift();this.rescued.push({...enemy,life:4,angle});}
-  const roll=this.random();if(roll<.02)this.addDrop({kind:'upgrade',upgradeId:UPGRADES[Math.min(UPGRADES.length-1,Math.floor(this.random()*UPGRADES.length))].id,x:enemy.x,z:enemy.z});
+  const roll=this.random();if(roll<.02)this.addDrop({kind:'upgrade',upgradeId:this.upgradePool[Math.min(this.upgradePool.length-1,Math.floor(this.random()*this.upgradePool.length))],x:enemy.x,z:enemy.z});
   else if(roll<.09){const ids=[...MAIN_WEAPONS,...OFFHAND_WEAPONS,'cannon'];this.addDrop({kind:'weapon',weaponId:ids[Math.min(ids.length-1,Math.floor(this.random()*ids.length))],x:enemy.x,z:enemy.z});}
  }
  addAlly(boss,angle){
@@ -141,18 +174,18 @@ export class Game{
  fireMain(){
   const w=WEAPONS[this.twoHanded||this.loadout.main],angle=this.player.angle;
   if(w.id==='bomber'){
-   if(this.bombs.length<LIMITS.bombs){const bomb={id:++this.serial,x:this.player.x+Math.sin(angle)*2.2,z:this.player.z+Math.cos(angle)*2.2,life:1.2,radius:2.5,damage:w.damage*this.power*this.weaponPower(w.id)};this.move(bomb,0,0,.2);this.bombs.push(bomb);this.events.push({kind:'shot'});}return;
+   if(this.bombs.length<LIMITS.bombs){const bomb={id:++this.serial,x:this.player.x+Math.sin(angle)*2.2,z:this.player.z+Math.cos(angle)*2.2,life:1.2,radius:2.5,damage:w.damage*this.power*this.weaponPower(w.id)};{const m=this.critMultiplier();if(m!==1){bomb.damage*=m;bomb.crit=true;}}this.move(bomb,0,0,.2);this.bombs.push(bomb);this.events.push({kind:'shot'});}return;
   }
   const offsets=w.id==='shotgun'?[-.26,-.13,0,.13,.26]:[0];
-  for(const offset of offsets){if(this.bullets.length>=LIMITS.bullets)break;const a=angle+offset;this.bullets.push({id:++this.serial,weaponId:w.id,damage:w.damage*this.power*this.weaponPower(w.id),burn:w.id==='ember'?this.power*this.weaponPower(w.id):0,splash:w.id==='cannon'?3:0,x:this.player.x+Math.cos(angle)*this.muzzleOffset.x+Math.sin(angle)*this.muzzleOffset.z,y:this.muzzleOffset.y,z:this.player.z-Math.sin(angle)*this.muzzleOffset.x+Math.cos(angle)*this.muzzleOffset.z,birthX:this.player.x,birthZ:this.player.z,vx:Math.sin(a)*PROJECTILE.speed,vz:Math.cos(a)*PROJECTILE.speed,life:PROJECTILE.life});}
+  for(const offset of offsets){if(this.bullets.length>=LIMITS.bullets)break;const a=angle+offset,crit=this.critMultiplier();this.bullets.push({id:++this.serial,weaponId:w.id,...(crit!==1?{crit:true}:{}),damage:w.damage*this.power*this.weaponPower(w.id)*crit,burn:w.id==='ember'?this.power*this.weaponPower(w.id):0,splash:w.id==='cannon'?3:0,x:this.player.x+Math.cos(angle)*this.muzzleOffset.x+Math.sin(angle)*this.muzzleOffset.z,y:this.muzzleOffset.y,z:this.player.z-Math.sin(angle)*this.muzzleOffset.x+Math.cos(angle)*this.muzzleOffset.z,birthX:this.player.x,birthZ:this.player.z,vx:Math.sin(a)*PROJECTILE.speed,vz:Math.cos(a)*PROJECTILE.speed,life:PROJECTILE.life});}
   this.events.push({kind:'shot'});
  }
  castMagic(){
-  const id=this.loadout.offhand,evolved=this.magic.evolved,frost=id==='frostwand',radius=evolved?8:5.5,halfAngle=evolved?Math.PI*.58:Math.PI*.36,damage=(frost?2.5:4)*(evolved?2:1)*this.power*this.weaponPower(id);
+  const id=this.loadout.offhand,evolved=this.magic.evolved,frost=id==='frostwand',radius=(evolved?8:5.5)*this.magicReach,halfAngle=evolved?Math.PI*.58:Math.PI*.36,damage=(frost?2.5:4)*(evolved?2:1)*this.power*this.weaponPower(id);
   this.events.push({kind:'magic',weaponId:id,x:this.player.x,z:this.player.z,angle:this.player.angle,radius,halfAngle,evolved});
   for(const e of [...this.enemies]){const dx=e.x-this.player.x,dz=e.z-this.player.z,d=Math.hypot(dx,dz),dot=(dx*Math.sin(this.player.angle)+dz*Math.cos(this.player.angle))/Math.max(d,1e-8);if(d<=radius+(e.radius??.38)&&(d<.8||dot>=Math.cos(halfAngle))){if(frost)e.slow=Math.max(e.slow||0,evolved?3:1.8);this.damageEnemy(e,damage);}}
  }
- levelUp(){this.exp-=this.nextExp;this.level++;this.nextExp=Math.round(this.nextExp*1.35);this.status='upgrade';}
+ levelUp(){this.exp-=this.nextExp;this.level++;this.nextExp=Math.round(this.nextExp*1.35);this.dealUpgradeChoices();this.status='upgrade';}
  move(entity,dx,dz,r=.4){entity.x=Math.max(-this.bounds+r,Math.min(this.bounds-r,entity.x+dx));entity.z=Math.max(-this.bounds+r,Math.min(this.bounds-r,entity.z+dz));for(const o of this.obstacles){let x=entity.x-o.x,z=entity.z-o.z,d=Math.hypot(x,z),min=o.r+r;if(d<min){if(d<.001){x=1;z=0;d=1;}entity.x=o.x+x/d*min;entity.z=o.z+z/d*min;}}entity.x=Math.max(-this.bounds+r,Math.min(this.bounds-r,entity.x));entity.z=Math.max(-this.bounds+r,Math.min(this.bounds-r,entity.z));}
  steerEnemy(e){
   const dx=this.player.x-e.x,dz=this.player.z-e.z,d=Math.hypot(dx,dz);
@@ -197,7 +230,7 @@ export class Game{
   for(const e of this.enemies)if(e.boss){e.skillTimer-=dt;if(e.skillTimer<=0&&Math.hypot(e.x-this.player.x,e.z-this.player.z)<=12){e.skillTimer=e.boss==='big'?4.5:5.5;this.addHazard(e,this.player.x,this.player.z);if(e.boss==='big'){this.addHazard(e,this.player.x+3.8,this.player.z);this.addHazard(e,this.player.x-3.8,this.player.z);}}}
   for(let i=this.hazards.length-1;i>=0;i--){const h=this.hazards[i];h.age+=dt;if(h.age>=h.windup+h.duration)this.hazards.splice(i,1);}
  }
- hurtPlayer(damage){if(this.invuln>0||this.status!=='running')return false;this.player.hp=Math.max(0,this.player.hp-damage);this.invuln=1.25;this.events.push({kind:'hurt'});if(this.player.hp<=0)this.end('fallen');return true;}
+ hurtPlayer(damage){if(this.invuln>0||this.status!=='running')return false;this.player.hp=Math.max(0,this.player.hp-damage);this.invuln=this.invulnTime;this.events.push({kind:'hurt'});if(this.player.hp<=0)this.end('fallen');return true;}
  step(dt,input={x:0,z:0}){this.events.length=0;if(this.status!=='running')return;dt=Math.min(.05,Math.max(0,dt));this.time=Math.min(LIMITS.duration,this.time+dt);if(this.time>=LIMITS.duration){this.end('survived');return;}this.invuln=Math.max(0,this.invuln-dt);let mag=Math.hypot(input.x||0,input.z||0);if(mag>0)this.move(this.player,(input.x||0)/Math.max(1,mag)*this.player.speed*dt,(input.z||0)/Math.max(1,mag)*this.player.speed*dt);
  // Consume every scheduled attempt, including capped attempts; never bank a burst.
  this.spawn-=dt;while(this.spawn<=1e-10){this.spawnEnemy();this.spawn+=spawnInterval(this.time+this.spawn);}

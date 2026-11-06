@@ -71,8 +71,8 @@
     },
     {
       "path": "core.js",
-      "bytes": 23527,
-      "sha256": "7680fae0b5542f6688a52375c0ef898e2120bb8d6db3948e7d09038489fe6847"
+      "bytes": 26814,
+      "sha256": "f9c39b4c9f55cfe8be2a79fa719c8b3c8027fdf761bfa2cd91f7e0ef0d4f9468"
     },
     {
       "path": "crowd.js",
@@ -86,8 +86,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13157,
-      "sha256": "4dda3a4cd8c39845140db2c7c70bbd778b34edb134cf4d0ce4b68807ea4a109a"
+      "bytes": 13814,
+      "sha256": "1f9dc1fee5b90d8b0c8591ae40d555a533137bd78be0d9ed006727f20c572346"
     },
     {
       "path": "keyboard.js",
@@ -101,8 +101,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 46552,
-      "sha256": "76a4abe448752d4bb996095e51bee5720312fb322ed474501d8e2509fa82ef57"
+      "bytes": 46662,
+      "sha256": "0cb363e997a1680b3b7d26d509dbc152c12ab9330ee30d81f8f320e2c32f546e"
     },
     {
       "path": "maps.js",
@@ -126,8 +126,8 @@
     },
     {
       "path": "ui.js",
-      "bytes": 15529,
-      "sha256": "bb6936f4bf8f0a97806b024c026b16a08e38345c18bceece0f5963dd569c667a"
+      "bytes": 15453,
+      "sha256": "f44a0de4815efc2b99963c0aaaaadba29dbc156ecb8eb33d1f6acff4980bcbc1"
     },
     {
       "path": "vendor/THREE-LICENSE.txt",
