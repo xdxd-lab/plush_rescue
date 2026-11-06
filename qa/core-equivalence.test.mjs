@@ -1,5 +1,5 @@
-// core.js gameplay is unchanged from V11 apart from boss allies (switchable with
-// bossAllies:false), even though takeDrop()/tapPickup() were added: six scripted
+// core.js gameplay is unchanged from V11 apart from boss allies, upgrade variety and enemy variety (each switchable with
+// bossAllies/upgradeVariety/enemyVariety:false), even though takeDrop()/tapPickup() were added: six scripted
 // 6-minute sessions (three seeds, manual and auto equip, bosses, drops, serialized
 // pickups, level-ups) hash to the signatures that V11's core.js (cbfa10e) produced. Run: node --test qa/*.test.mjs
 import test from 'node:test';
@@ -37,5 +37,22 @@ for(const [key,expected] of Object.entries(ALLY_SIGNATURES)){
  const [seed,auto]=key.split(':');
  test(`gameplay signature with boss allies: seed ${seed}, auto-equip ${auto}`,()=>{
   assert.equal(signature(Game,Number(seed),{autoEquip:auto==='true',upgradeVariety:false,enemyVariety:false}),expected);
+ });
+}
+// All defaults: boss allies, upgrade variety and enemy variety on (V12.5). The
+// sets above prove each new system can be switched off bit for bit; the
+// upgrade-only set lives in qa/upgrade-variety.test.mjs.
+const VARIETY_SIGNATURES={
+ '1:false':'768cf6f02a11ca90e2bec1d9198c8d9f40de8364251a7d5638f4967407cc825f',
+ '1:true':'ce77464e05a621826ad3f562a182ab50a5ebc598578e0cbad75fe35ba0560c94',
+ '2:false':'65bcaaccf5bd4f51371a5684ae401a2ace558dd27fa099f5738822468910c406',
+ '2:true':'42d369cde86d820e07479193288abe4286228c6cf91b33a59e9c2ca3e5b94db9',
+ '3:false':'3e980895265671a0e155911c86a699457adbf2e3b1e816034eba72abff8e7242',
+ '3:true':'82b60dd89d72d1d1b6d8112b518ee970a2f83fbf93275c46cf5289898f3ed4e6',
+};
+for(const [key,expected] of Object.entries(VARIETY_SIGNATURES)){
+ const [seed,auto]=key.split(':');
+ test(`gameplay signature with every default on: seed ${seed}, auto-equip ${auto}`,()=>{
+  assert.equal(signature(Game,Number(seed),{autoEquip:auto==='true'}),expected);
  });
 }

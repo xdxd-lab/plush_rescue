@@ -12,6 +12,20 @@ export function bossKind(minute){return minute%3===0?'big':'mini';}
 // No capacity cap: at most one boss per minute exists, so at most a few helpers
 // overlap and every helper serves its full time. Allies never call this.random().
 export const ALLY=Object.freeze({duration:30,leave:.8,orbit:1.7,speed:6.5,range:6,interval:.7,firstShot:.5,share:Object.freeze({mini:.1,big:.15})});
+// Enemy variety: two behaviours on the existing four plush species (e.role; no
+// new type). Both are telegraphed and dodgeable. A spitter keeps its distance,
+// flashes (aim), then lobs a ground warning whose ring equals its hit area.
+// A dasher stops, locks a direction (the lane is shown and fills), dashes in a
+// straight line, then rests. At most maxAlive of each role at once keeps the
+// warnings few. enemyVariety:false draws no extra random numbers.
+export const ENEMY_ROLES=Object.freeze({
+ start:30,maxAlive:8,chance:Object.freeze({base:.04,perSecond:1/3000,max:.12}),
+ spitter:Object.freeze({keep:6.5,band:.6,range:11,aim:.45,cooldown:4.2,first:2,radius:1.1,windup:.9,duration:.3,damage:1,reserve:3}),
+ dasher:Object.freeze({trigger:5.5,windup:.8,dash:.4,speed:11,recover:1,cooldown:3.5,first:1}),
+});
+// Each role's share of new spawns: none before ENEMY_ROLES.start seconds.
+export function roleChance(time){const c=ENEMY_ROLES.chance;return time<ENEMY_ROLES.start?0:Math.min(c.max,c.base+(time-ENEMY_ROLES.start)*c.perSecond);}
+export function dashLength(){const d=ENEMY_ROLES.dasher;return d.speed*d.dash;}
 export function spawnInterval(time){return Math.max(.18,1.05-time/500)/SPAWN_MULTIPLIER;}
 // Solve the interception from the rotating, off-centre muzzle, not the body.
 // Bolts have world-space velocity: the shooter's motion is NOT inherited.
@@ -66,7 +80,7 @@ function nearestSegmentHit(enemies,ax,az,bx,bz,motions=null,fraction=1){
  return hit;
 }
 export class Game{
- constructor({random=Math.random,map=null,obstacles=[],muzzleOffset={x:0,y:.65,z:.6},autoEquip=false,heroId='pudding',bossAllies=true,upgradeVariety=true,enemyVariety=true}={}){this.bossAllies=Boolean(bossAllies);this.upgradeVariety=Boolean(upgradeVariety);this.enemyVariety=Boolean(enemyVariety);this.upgradePool=this.upgradeVariety?UPGRADES.map(u=>u.id):[...BASE_UPGRADE_IDS];this.upgradeChoices=[...BASE_UPGRADE_IDS];this.pickupRange=.95;this.critChance=0;this.critMeter=0;this.crits=0;this.magicReach=1;this.invulnTime=1.25;this.allies=[];this.allySerial=0;this.allyRescues=0;this.heroId=heroId==='polar'?'polar':'pudding';this.muzzleOffset={...muzzleOffset};this.random=random;this.map=map??Math.min(2,Math.floor(random()*3));this.obstacles=obstacles;this.bounds=18;this.status='ready';this.time=0;this.player={x:0,z:4,hp:5,maxHp:5,speed:4.6,angle:Math.PI};this.enemies=[];this.bullets=[];this.rescued=[];this.events=[];this.level=1;this.exp=0;this.nextExp=8;this.saved=0;this.power=1;this.fireInterval=.28;this.fire=0;this.spawn=.2/SPAWN_MULTIPLIER;this.targetId=null;this.invuln=0;this.serial=0;this.reason='';this.loadout={main:'pulse',offhand:'moonfan'};this.twoHanded=null;this.twoHandedWeapon=null;this.weaponLevels=Object.fromEntries(Object.keys(WEAPONS).map(id=>[id,id==='pulse'||id==='moonfan'?1:0]));this.magicByWeapon=Object.fromEntries(OFFHAND_WEAPONS.map(id=>[id,{charge:0,goal:12,evolved:false}]));this.magic=this.magicByWeapon.moonfan;this.magicFire=3;this.nextBossMinute=1;this.pendingBoss=null;this.hazards=[];this.drops=[];this.bombs=[];this.pendingPickup=null;this.autoEquip=Boolean(autoEquip);this.dropTimer=18;this.burstLeft=0;this.burstTimer=0;}
+ constructor({random=Math.random,map=null,obstacles=[],muzzleOffset={x:0,y:.65,z:.6},autoEquip=false,heroId='pudding',bossAllies=true,upgradeVariety=true,enemyVariety=true}={}){this.spits=0;this.dashes=0;this.bossAllies=Boolean(bossAllies);this.upgradeVariety=Boolean(upgradeVariety);this.enemyVariety=Boolean(enemyVariety);this.upgradePool=this.upgradeVariety?UPGRADES.map(u=>u.id):[...BASE_UPGRADE_IDS];this.upgradeChoices=[...BASE_UPGRADE_IDS];this.pickupRange=.95;this.critChance=0;this.critMeter=0;this.crits=0;this.magicReach=1;this.invulnTime=1.25;this.allies=[];this.allySerial=0;this.allyRescues=0;this.heroId=heroId==='polar'?'polar':'pudding';this.muzzleOffset={...muzzleOffset};this.random=random;this.map=map??Math.min(2,Math.floor(random()*3));this.obstacles=obstacles;this.bounds=18;this.status='ready';this.time=0;this.player={x:0,z:4,hp:5,maxHp:5,speed:4.6,angle:Math.PI};this.enemies=[];this.bullets=[];this.rescued=[];this.events=[];this.level=1;this.exp=0;this.nextExp=8;this.saved=0;this.power=1;this.fireInterval=.28;this.fire=0;this.spawn=.2/SPAWN_MULTIPLIER;this.targetId=null;this.invuln=0;this.serial=0;this.reason='';this.loadout={main:'pulse',offhand:'moonfan'};this.twoHanded=null;this.twoHandedWeapon=null;this.weaponLevels=Object.fromEntries(Object.keys(WEAPONS).map(id=>[id,id==='pulse'||id==='moonfan'?1:0]));this.magicByWeapon=Object.fromEntries(OFFHAND_WEAPONS.map(id=>[id,{charge:0,goal:12,evolved:false}]));this.magic=this.magicByWeapon.moonfan;this.magicFire=3;this.nextBossMinute=1;this.pendingBoss=null;this.hazards=[];this.drops=[];this.bombs=[];this.pendingPickup=null;this.autoEquip=Boolean(autoEquip);this.dropTimer=18;this.burstLeft=0;this.burstTimer=0;}
  start(){if(this.status==='ready'){this.status='running';for(const [weaponId,dx,dz] of [['shotgun',-2.7,0],['burst',2.7,0],['frostwand',0,-3.2],['ember',-3.4,-3.4],['bomber',3.4,-3.4],['cannon',0,4]])this.addDrop({kind:'weapon',weaponId,x:this.player.x+dx,z:this.player.z+dz});}}
  pause(){if(this.status==='running')this.status='paused';}
  resume(){if(this.status==='paused')this.status='running';}
@@ -137,7 +151,7 @@ export class Game{
  resolvePickup(replace){if(this.status!=='pickup'||!this.pendingPickup)return false;const pickup=this.pendingPickup;this.pendingPickup=null;if(replace===true)this.equipWeapon(pickup.weaponId);this.continueChoices();return true;}
  rescueEnemy(enemy){
   const index=this.enemies.indexOf(enemy);if(index<0)return;
-  this.enemies.splice(index,1);if(enemy.boss){for(let i=this.hazards.length-1;i>=0;i--)if(this.hazards[i].ownerId===enemy.id)this.hazards.splice(i,1);}this.saved++;this.exp++;this.chargeMagic(1);this.events.push({kind:'rescue',x:enemy.x,z:enemy.z});
+  this.enemies.splice(index,1);if(enemy.boss||enemy.role){for(let i=this.hazards.length-1;i>=0;i--)if(this.hazards[i].ownerId===enemy.id)this.hazards.splice(i,1);}this.saved++;this.exp++;this.chargeMagic(1);this.events.push({kind:'rescue',x:enemy.x,z:enemy.z});
   const angle=this.random()*Math.PI*2;
   if(enemy.boss&&this.bossAllies)this.addAlly(enemy,angle);
   else{if(this.rescued.length>=LIMITS.rescued)this.rescued.shift();this.rescued.push({...enemy,life:4,angle});}
@@ -207,7 +221,42 @@ export class Game{
   let x=-nz*route.side+nx*radial,z=nx*route.side+nz*radial,len=Math.hypot(x,z);
   return{x:x/len,z:z/len};
  }
- spawnEnemy(){let ordinary=0;for(const e of this.enemies)if(!e.boss)ordinary++;if(ordinary>=LIMITS.enemies)return;const a=this.random()*Math.PI*2;let e={id:++this.serial,x:this.player.x+Math.sin(a)*13,z:this.player.z+Math.cos(a)*13,hp:enemyHealth(this.time),type:Math.floor(this.random()*4),speed:.65+Math.min(1.15,this.time/380)+this.random()*.25,angle:0};this.move(e,0,0);this.enemies.push(e);}
+ spawnEnemy(){let ordinary=0;for(const e of this.enemies)if(!e.boss)ordinary++;if(ordinary>=LIMITS.enemies)return;const a=this.random()*Math.PI*2;let e={id:++this.serial,x:this.player.x+Math.sin(a)*13,z:this.player.z+Math.cos(a)*13,hp:enemyHealth(this.time),type:Math.floor(this.random()*4),speed:.65+Math.min(1.15,this.time/380)+this.random()*.25,angle:0};
+  // The roll is always drawn when variety is on; at most maxAlive of each role at once.
+  if(this.enemyVariety){const roll=this.random(),p=roleChance(this.time),alive=role=>{let n=0;for(const x of this.enemies)if(x.role===role)n++;return n;};
+   if(roll<p){if(alive('spitter')<ENEMY_ROLES.maxAlive){e.role='spitter';e.roleTimer=ENEMY_ROLES.spitter.first;e.aim=0;}}
+   else if(roll<2*p&&alive('dasher')<ENEMY_ROLES.maxAlive){e.role='dasher';e.dash={phase:'chase',t:0,cooldown:ENEMY_ROLES.dasher.first,dx:0,dz:0};}}
+  this.move(e,0,0);this.enemies.push(e);}
+ // Ordinary spitters leave ENEMY_ROLES.spitter.reserve hazard slots for bosses.
+ addSpit(e){
+  const c=ENEMY_ROLES.spitter;if(this.hazards.length>=LIMITS.hazards-c.reserve)return false;
+  this.hazards.push({id:++this.serial,ownerId:e.id,kind:'spit',x:this.player.x,z:this.player.z,fromX:e.x,fromZ:e.z,radius:c.radius,age:0,windup:c.windup,duration:c.duration,damage:c.damage,hit:false});
+  this.spits++;this.events.push({kind:'spit',id:e.id,x:e.x,z:e.z,tx:this.player.x,tz:this.player.z});return true;
+ }
+ // Movement and timers of a role enemy: returns a unit direction and a speed.
+ steerRole(e,dt){
+  const dx=this.player.x-e.x,dz=this.player.z-e.z,d=Math.hypot(dx,dz),still={x:0,z:0,speed:0};
+  if(e.role==='spitter'){
+   const c=ENEMY_ROLES.spitter;
+   if(e.aim>0){e.aim=Math.max(0,e.aim-dt);if(e.aim===0){e.roleTimer=this.addSpit(e)?c.cooldown:1;}return still;}
+   e.roleTimer-=dt;
+   if(e.roleTimer<=0){if(d<=c.range){e.aim=c.aim;return still;}e.roleTimer=0;}
+   if(d>c.keep+c.band)return{...this.steerEnemy(e),speed:e.speed};
+   if(d<c.keep-c.band&&d>1e-6)return{x:-dx/d,z:-dz/d,speed:e.speed*.8};
+   return still;
+  }
+  const c=ENEMY_ROLES.dasher,s=e.dash;
+  if(s.phase==='chase'){
+   s.cooldown-=dt;
+   if(s.cooldown<=0&&d<=c.trigger&&d>1e-6){s.phase='windup';s.t=c.windup;s.dx=dx/d;s.dz=dz/d;s.x=e.x;s.z=e.z;return still;}
+   return{...this.steerEnemy(e),speed:e.speed};
+  }
+  s.t-=dt;
+  if(s.phase==='windup'){if(s.t<=0){s.phase='dash';s.t+=c.dash;this.dashes++;this.events.push({kind:'dash',id:e.id,x:e.x,z:e.z});}return still;}
+  if(s.phase==='dash'){if(s.t<=0){s.phase='recover';s.t+=c.recover;return still;}return{x:s.dx,z:s.dz,speed:c.speed};}
+  if(s.t<=0){s.phase='chase';s.cooldown=c.cooldown;}
+  return still;
+ }
  spawnBoss(kind,minute){
   let count=0;for(const e of this.enemies)if(e.boss)count++;
   if(count>=LIMITS.bosses)return false;
@@ -242,9 +291,10 @@ export class Game{
  for(let i=this.bombs.length-1;i>=0;i--){const b=this.bombs[i];b.life-=dt;if(b.life<=0){this.bombs.splice(i,1);this.events.push({kind:'explosion',x:b.x,z:b.z,radius:b.radius});for(const e of [...this.enemies])if(Math.hypot(e.x-b.x,e.z-b.z)<=b.radius+(e.radius??.38))this.damageEnemy(e,b.damage);}}
  const motions=new Map();
  for(const e of this.enemies){
-  const steering=this.steerEnemy(e),next={x:e.x,z:e.z};
-  this.move(next,steering.x*e.speed*(e.slow>0?.45:1)*dt,steering.z*e.speed*(e.slow>0?.45:1)*dt,e.radius??.38);
-  motions.set(e,{dx:next.x-e.x,dz:next.z-e.z,x:dt>0?(next.x-e.x)/dt:steering.x*e.speed,z:dt>0?(next.z-e.z)/dt:steering.z*e.speed});
+  // Role enemies set their own speed; ordinary ones keep the V11 expressions exactly.
+  const steering=e.role?this.steerRole(e,dt):this.steerEnemy(e),speed=e.role?steering.speed:e.speed,next={x:e.x,z:e.z};
+  this.move(next,steering.x*speed*(e.slow>0?.45:1)*dt,steering.z*speed*(e.slow>0?.45:1)*dt,e.radius??.38);
+  motions.set(e,{dx:next.x-e.x,dz:next.z-e.z,x:dt>0?(next.x-e.x)/dt:steering.x*speed,z:dt>0?(next.z-e.z)/dt:steering.z*speed});
  }
  // No sticky lock: re-evaluate current distances and reachable intercepts each tick.
  let nearest=null,aim=null,nd=Infinity;for(const e of this.enemies){

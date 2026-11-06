@@ -144,7 +144,8 @@ export function createBossVisuals(THREE,scene){
     hazardCount=0;
     for(let i=0;i<hazards.length&&hazardCount<BOSS_VISUAL_LIMITS.hazards;i++){
       const hazard=hazards[i],age=Math.max(0,hazard.age||0),windup=Math.max(0,hazard.windup||0),duration=Math.max(0,hazard.duration||0);
-      if(age>=windup+duration||!Number.isFinite(hazard.radius)||hazard.radius<=0)continue;
+      // Role-enemy warnings (hazard.kind) are drawn by enemy-visuals.js.
+      if(hazard.kind||age>=windup+duration||!Number.isFinite(hazard.radius)||hazard.radius<=0)continue;
       const slot=hazardPool[hazardCount++],isActive=age>=windup;
       const progress=isActive?1:clamp(age/Math.max(windup,.001),0,1);
       slot.group.visible=true;slot.group.position.set(hazard.x,0,hazard.z);slot.group.scale.set(hazard.radius,1,hazard.radius);

@@ -51,8 +51,8 @@
     },
     {
       "path": "boss-visuals.js",
-      "bytes": 11481,
-      "sha256": "c46fcff3a51c6fd0c1f79d21e0dec1484bb8ea89ef6cf935a9ba72d097cf7ce9"
+      "bytes": 11568,
+      "sha256": "aa250182f37c216eccbed85293f97c46afc7faa010cbd8267d0558dd3c6cad46"
     },
     {
       "path": "build-info.json",
@@ -71,8 +71,8 @@
     },
     {
       "path": "core.js",
-      "bytes": 26814,
-      "sha256": "f9c39b4c9f55cfe8be2a79fa719c8b3c8027fdf761bfa2cd91f7e0ef0d4f9468"
+      "bytes": 30374,
+      "sha256": "5e353b22b4f6f1c586234a05b824db43de3dbc4fd928d794aed5589d942f0e36"
     },
     {
       "path": "crowd.js",
@@ -83,6 +83,11 @@
       "path": "effects.js",
       "bytes": 5327,
       "sha256": "0fc31b61cb5a7594c25fc12ed11f17f4ca74cf7f0f7cc0ab3eba1af656d5b9a0"
+    },
+    {
+      "path": "enemy-visuals.js",
+      "bytes": 6412,
+      "sha256": "b2a7d439fed67e2e9d173bf8eb750d90a4691c34ede78cc1fd0d1bffa9b52229"
     },
     {
       "path": "index.html",
@@ -101,8 +106,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 46662,
-      "sha256": "0cb363e997a1680b3b7d26d509dbc152c12ab9330ee30d81f8f320e2c32f546e"
+      "bytes": 46884,
+      "sha256": "91f60da2d81ec8c4e581ce1e23aae516aec4d0d56c0c3be8773561270668fa5e"
     },
     {
       "path": "maps.js",
