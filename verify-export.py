@@ -54,7 +54,8 @@ for filename in sorted(paths):
                           for url in re.findall(r'url\(\s*([^)]*?)\s*\)', code))
         assert '@import' not in code, 'Review CSS imports before exporting'
 
-main = (ROOT / 'main.js').read_text()
+# The HUD hero portrait (hud.js since the main.js split) builds its path from the hero id.
+main = (ROOT / 'main.js').read_text() + (ROOT / 'hud.js').read_text()
 assert "'assets/'+game.heroId+'-portrait.png'" in main, 'Review changed portrait expression'
 for hero in ('pudding', 'polar'):
     references.append(('index.html', f'assets/{hero}-portrait.png'))

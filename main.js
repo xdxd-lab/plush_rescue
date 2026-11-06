@@ -17,6 +17,7 @@ import {createShotVisuals} from './shot-visuals.js';
 import {createSettingsStore} from './settings-store.js';
 import {createChoiceTimer} from './choice-timer.js';
 import {createAudio} from './audio.js';
+import {createHud} from './hud.js';
 import {createTapTracker,createHoverTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,recommendUpgrade,recommendPickup,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
 let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){dialog.innerHTML='<h2>需要 3D 圖形支援</h2><p>請使用支援 WebGL 的瀏覽器，並開啟硬體加速後再試。</p>';throw e;}
@@ -36,7 +37,7 @@ function setAutoEquip(value){game.autoEquip=settings.setAutoEquip(value);}
 const storage=settings.storage;
 const motionQuery=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
 const reduceMotion=()=>Boolean(motionQuery?.matches);
-let noticeTimer=0,noticePriority=0,hurtTimer=0,bumpTimer=0,recordedGame=null,recordResult=null;
+let recordedGame=null,recordResult=null;
 // Short taps on drops (V12.1): each pointer is judged at release; the loop resolves them.
 const taps=createTapTracker(),pendingTaps=[],tapClock=()=>performance.now();
 // V12.2.1 mouse hover pickup: the last mouse position (null until the mouse moves over the game) and whether it moved since the last frame.
@@ -61,15 +62,10 @@ const names=['鈕扣街坊庭院','荒廢溫室花園','月光遊樂場'];const 
 // Sound effects (audio.js); unlocked from the first gesture that starts or resumes play.
 const sfx=createAudio({getContextClass:()=>window.AudioContext||window.webkitAudioContext,volume:()=>prefs.volume});
 function releaseAll(collection,pool){for(const obj of collection.values()){scene.remove(obj.mesh);pool(obj);}collection.clear();}
-function reset(){choiceTimer.clear();renderDirty=true;crowd.clear();weaponVisuals.clear();bossVisuals.clear();enemyVisuals.clear();allyVisuals.clear();shotVisuals.clear();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);releaseAll(enemies,o=>enemyPool[o.type].push(o.mesh));releaseAll(rescued,o=>freePool[o.type].push(o.mesh));releaseAll(bullets,o=>bulletPool.push(o.mesh));fx.clear();game=new Game({map:mapIndex(),autoEquip:prefs.autoEquip,heroId:prefs.hero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();syncHud();}
+function reset(){choiceTimer.clear();renderDirty=true;crowd.clear();weaponVisuals.clear();bossVisuals.clear();enemyVisuals.clear();allyVisuals.clear();shotVisuals.clear();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);releaseAll(enemies,o=>enemyPool[o.type].push(o.mesh));releaseAll(rescued,o=>freePool[o.type].push(o.mesh));releaseAll(bullets,o=>bulletPool.push(o.mesh));fx.clear();game=new Game({map:mapIndex(),autoEquip:prefs.autoEquip,heroId:prefs.hero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();hudView.sync(game);}
 function resetPresentation(){
- noticeTimer=noticePriority=hurtTimer=bumpTimer=0;hudText(hud.notice,'');hudProp(hud.notice,'className','');
+ hudView.resetFeedback();
  runTrack.bosses=0;runTrack.evolved.clear();runTrack.aliveBosses.clear();runTrack.nextAlive.clear();
-}
-function showNotice(text,tone,seconds,priority){
- // A big-boss warning is not replaced by a smaller event while it is still showing.
- if(noticeTimer>0&&priority<noticePriority)return;
- noticeTimer=seconds;noticePriority=priority;hudText(hud.notice,text);hudProp(hud.notice,'className','show '+tone);
 }
 // Bosses leave game.enemies only through rescue (or a reset, which clears this record).
 function trackRun(){
@@ -79,11 +75,6 @@ function trackRun(){
  for(const e of game.enemies)if(e.boss)next.set(e.id,e.boss);
  for(const [id,kind] of runTrack.aliveBosses)if(!next.has(id)){runTrack.bosses++;showNotice(game.bossAllies?(kind==='big'?'大首領':'首領')+`變成小夥伴，陪你戰鬥 ${ALLY.duration} 秒！`:(kind==='big'?'大首領被溫柔救回了！':'首領被溫柔救回了！'),'good',2.4,2);}
  runTrack.nextAlive=runTrack.aliveBosses;runTrack.aliveBosses=next;
-}
-function tickPresentation(dt){
- if(noticeTimer>0){noticeTimer=Math.max(0,noticeTimer-dt);if(noticeTimer===0){noticePriority=0;hudProp(hud.notice,'className','');}}
- hurtTimer=Math.max(0,hurtTimer-dt);bumpTimer=Math.max(0,bumpTimer-dt);
- hudClass(hud.vignette,'hurt',hurtTimer>0);hudClass(hud.rescues,'bump',bumpTimer>0);
 }
 function resize(){let w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio,prefs.quality==='high'?2:prefs.quality==='balanced'?1.6:1));fitGameCamera(camera,w,h);}
 function setQuality(v){prefs.quality=v;renderer.shadowMap.enabled=v!=='low';renderer.shadowMap.needsUpdate=true;resize();}
@@ -165,71 +156,13 @@ dialog.addEventListener('focusin',e=>{
  const r=e.target.getBoundingClientRect(),b=bar.getBoundingClientRect(),over=r.bottom-(b.top-14);
  if(over>0&&r.top<b.bottom)dialog.scrollTop+=over;
 });$('#pause').onclick=pause;
-$('#stowTwoHanded').onclick=()=>{if(game.status!=='running'||!game.twoHandedWeapon)return;keys.clear();game.toggleTwoHanded();renderDirty=true;syncHud();canvas.focus({preventScroll:true});};
+$('#stowTwoHanded').onclick=()=>{if(game.status!=='running'||!game.twoHandedWeapon)return;keys.clear();game.toggleTwoHanded();renderDirty=true;hudView.sync(game);canvas.focus({preventScroll:true});};
 function input(){return screenToWorldAt({x:stick.x+(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0),z:stick.z+(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0)},camera,game.player,innerWidth,innerHeight);}
-// Permanent HUD nodes survive reset; modal controls are intentionally not cached.
-const hud=Object.fromEntries(["heroPortrait", "bossPanel", "bossName", "bossHp", "bossFill", "hearts", "healthFill", "timer", "saved", "level", "xpFill", "xpLabel", "mainWeapon", "offhandWeapon", "mainWeaponName", "offhandWeaponName", "mainWeaponIcon", "offhandWeaponIcon", "game", "twoHandedBar", "twoHandedName", "twoHandedSlotLabel", "stowTwoHanded", "mainSlotLabel", "offhandSlotLabel", "magicFill", "magicLabel", "magicMeter", "stats", "vignette", "notice", "bossClock", "bossClockText"].map(id=>[id,$('#'+id)]));
-hud.loadout=$('.loadout');hud.rescues=$('.rescues');hud.root=$('#hud');
-// Opaque HUD panels that hide the world under them (see pointCovered in ui.js).
-const hudOccluders=[...document.querySelectorAll(HUD_OCCLUDERS)];
-const hudValues=new WeakMap();
-function hudWrite(el,key,value,apply){
- let values=hudValues.get(el);if(!values){values=new Map();hudValues.set(el,values);}
- if(values.has(key)&&values.get(key)===value)return;
- apply();values.set(key,value);
-}
-function hudText(el,value){value=String(value);hudWrite(el,'text',value,()=>{el.textContent=value;});}
-function hudProp(el,key,value){hudWrite(el,'prop:'+key,value,()=>{el[key]=value;});}
-function hudAttr(el,key,value){value=String(value);hudWrite(el,'attr:'+key,value,()=>{el.setAttribute(key,value);});}
-function hudStyle(el,key,value){hudWrite(el,'style:'+key,value,()=>{el.style.setProperty(key,value);});}
-function hudClass(el,key,value){value=Boolean(value);hudWrite(el,'class:'+key,value,()=>{el.classList.toggle(key,value);});}
-function syncStats(){
- // Enemy count includes bosses; ground bombs (mines) have their own count.
- hudText(hud.stats,`${fps} FPS · ${game.enemies.length} 敵 / ${game.rescued.length} 自由 / ${game.bullets.length} 光束 / ${game.bombs.length} 地雷 · ${renderer.info.render.calls} calls · ${prefs.quality}`);
-}
+// The HUD (hud.js): permanent nodes, change-only writes, notices and hit/rescue feedback.
+const hudView=createHud({doc:document,heroNames}),hud=hudView.els,hudOccluders=hudView.occluders;
+const showNotice=hudView.showNotice;
+function syncStats(){hudView.syncStats({fps,game,calls:renderer.info.render.calls,quality:prefs.quality});}
 function setStatsVisible(value,persist=true){prefs.stats=Boolean(value);hud.stats.hidden=!prefs.stats;if(prefs.stats)syncStats();if(persist)settings.save();}
-function syncHud(){
- const p=game.player;
- hudAttr(hud.heroPortrait,'src','assets/'+game.heroId+'-portrait.png');hudAttr(hud.heroPortrait,'alt',heroNames[game.heroId]+'救援隊員');
- let active=null;for(const e of game.enemies)if(e.boss&&(!active||e.boss==='big'&&active.boss!=='big'))active=e;
- hudProp(hud.bossPanel,'hidden',!active);if(active){const boss=active;hudText(hud.bossName,(boss.boss==='big'?'大首領 · 星冠守護者':'小首領 · 補丁隊長'));hudText(hud.bossHp,Math.ceil(boss.hp)+' / '+boss.maxHp);hudStyle(hud.bossFill,'width',Math.max(0,boss.hp/boss.maxHp*100)+'%');}
-
- hudText(hud.hearts,healthLabel(p.hp,p.maxHp));hudStyle(hud.healthFill,'width',p.hp/p.maxHp*100+'%');
- hudAttr(hud.hearts,'role','img');hudAttr(hud.hearts,'aria-label','生命 '+Math.max(0,p.hp)+' / '+p.maxHp);
- const critical=game.status==='running'&&p.hp>0&&p.hp<=1;hudClass(hud.vignette,'critical',critical);hudClass(hud.root,'critical',critical);
- hudClass(hud.game,'hero-polar',game.heroId==='polar');
- // The movement hint frees its footer row once the opening seconds have passed.
- hudClass(hud.game,'hint-done',game.time>12);
- const nextBoss=nextBossCountdown(game,bossKind,LIMITS.duration);hudText(hud.bossClockText,bossClockLabel(nextBoss));
- hudClass(hud.bossClock,'big',nextBoss.kind==='big'&&nextBoss.state!=='none');hudClass(hud.bossClock,'calm',nextBoss.state==='none');
- hudClass(hud.bossClock,'imminent',nextBoss.state==='soon'&&nextBoss.seconds<=10&&game.status==='running');
- hudText(hud.timer,formatClock(game.time));
- hudText(hud.saved,game.saved);hudText(hud.level,'Lv. '+game.level);hudStyle(hud.xpFill,'width',game.exp/game.nextExp*100+'%');hudText(hud.xpLabel,game.exp+' / '+game.nextExp);
- for(const slot of ['main','offhand']){
-  const weapon=WEAPONS[game.loadout[slot]],card=hud[slot+'Weapon'];
-  hudText(hud[slot+'WeaponName'],weapon.name+' Lv.'+game.weaponLevel(weapon.id));const icon=hud[slot+'WeaponIcon'];hudWrite(icon,'icon',weapon.id,()=>{icon.innerHTML=weaponIcon(weapon.id);});
-  hudStyle(card,'--weapon-color',weapon.color);hudProp(card,'title',weapon.description);
- }
- const twoHanded=WEAPONS[game.twoHanded],storedTwoHanded=WEAPONS[game.twoHandedWeapon];
- hudClass(hud.game,'has-twohand',Boolean(storedTwoHanded));
- hudProp(hud.twoHandedBar,'hidden',!storedTwoHanded);
- hudClass(hud.twoHandedBar,'active',Boolean(twoHanded));
- if(storedTwoHanded)hudText(hud.twoHandedName,storedTwoHanded.name+' Lv.'+game.weaponLevel(storedTwoHanded.id));
- hudText(hud.twoHandedSlotLabel,twoHanded?'雙手 · 使用中':'雙手 · 背負');
- hudText(hud.stowTwoHanded,twoHanded?'收起雙手砲':'使用雙手砲');
- hudAttr(hud.stowTwoHanded,'aria-pressed',String(Boolean(twoHanded)));
- hudText(hud.mainSlotLabel,twoHanded?'主手 · 背負':'主手');
- hudText(hud.offhandSlotLabel,twoHanded?'副手 · 暫停':'副手');
- hudClass(hud.loadout,'stowed',Boolean(twoHanded));
- const magic=game.magic,charge=Math.min(magic.goal,Math.max(0,magic.charge));
- hudStyle(hud.magicFill,'width',(magic.evolved?100:charge/magic.goal*100)+'%');hudStyle(hud.offhandWeapon,'--charge',String(magic.evolved?100:Math.round(charge/magic.goal*100)));
- hudText(hud.magicLabel,(magic.evolved?'法器已進化':'魔力 '+charge+' / '+magic.goal)+(twoHanded?' · 暫停':''));
- hudClass(hud.magicMeter,'evolved',magic.evolved);
- hudAttr(hud.magicMeter,'aria-label',(magic.evolved?'副手法器已進化，本局保留此法器的進化':'副手魔力 '+charge+' / '+magic.goal+'，救援朋友可充能')+(twoHanded?'。使用雙手砲時暫停，收起後恢復。':''));
- hudAttr(hud.magicMeter,'aria-valuenow',magic.evolved?magic.goal:charge);hudAttr(hud.magicMeter,'aria-valuemax',magic.goal);
- hudClass(hud.offhandWeapon,'evolved',magic.evolved);
- hudProp(hud.stowTwoHanded,'disabled',game.status!=='running');
-}
 function restart(){debugMap=null;reset();game.start();syncOverlay();}
 function resume(){clearInput();sfx.unlock();game.resume();syncOverlay();}
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -263,7 +196,7 @@ function syncOverlay(){
  lastStatus=statusKey;overlay.classList.toggle('shown',game.status!=='running');
  overlay.setAttribute('aria-hidden',game.status==='running'?'true':'false');dialog.dataset.state=game.status;
  if(game.status==='running'){if(dialog.contains(document.activeElement))canvas.focus({preventScroll:true});return;}
- clearInput();hurtTimer=0;hudClass(hud.vignette,'hurt',false);
+ clearInput();hudView.clearHurt();
  let autoTarget=null,autoLabel='',autoResolve=null;
  if(game.status==='paused'){
   dialog.innerHTML=`<div class="pause-head"><h2 id="dialogTitle">暫停中</h2><p class="run-line">${formatClock(game.time)} · 救回 ${game.saved} · Lv. ${game.level}</p></div>`
@@ -296,14 +229,14 @@ function syncOverlay(){
   const stowNote=game.twoHanded&&!isTwoHanded?' 換裝後，雙手砲會背在身上保留。':'';
   dialog.innerHTML=`<div class="eyebrow">NEW GEAR</div><h2 id="dialogTitle">撿到${slotName}</h2><p class="lead">時間已暫停。無論保留或換裝，這次拾取的強化都會保留。</p><div class="pickup-comparison">${pickupCard(current,'目前裝備','current')}${pickupCard(incoming,'剛剛撿到','incoming')}</div><p class="pickup-note">${note}${stowNote}</p><div class="pickup-actions"><button id="keepWeapon" class="secondary">保留目前裝備</button><button id="replaceWeapon" class="primary">${same?'使用這把武器':'換上新'+(pickup.slot==='offhand'?'法器':'武器')}</button></div>${choiceTimer.markup()}<p class="pickup-tip">想要撿到就自動換上，可以到右上角「設定」開啟。</p><button id="pickupRestart" class="text-button">重新開始 · 隨機世界</button>`;
   const pickupGame=game;
-  const resolve=replace=>{if(game!==pickupGame||game.status!=='pickup'||game.pendingPickup?.id!==pickup.id)return;clearInput();game.resolvePickup(replace);renderDirty=true;lastStatus='';syncHud();syncOverlay();};
+  const resolve=replace=>{if(game!==pickupGame||game.status!=='pickup'||game.pendingPickup?.id!==pickup.id)return;clearInput();game.resolvePickup(replace);renderDirty=true;lastStatus='';hudView.sync(game);syncOverlay();};
   $('#keepWeapon').onclick=()=>resolve(false);$('#replaceWeapon').onclick=()=>resolve(true);$('#pickupRestart').onclick=restart;
   const replace=recommendPickup(game,pickup);
   autoTarget=replace?$('#replaceWeapon'):$('#keepWeapon');autoLabel=replace?'換上新'+(pickup.slot==='offhand'?'法器':'武器'):isTwoHanded?'保留目前裝備（雙手砲未換上）':'保留目前裝備';autoResolve=()=>resolve(replace);
  }else if(game.status==='upgrade'){
   dialog.innerHTML=`<div class="eyebrow">LEVEL UP</div><h2 id="dialogTitle">升級了！Lv. ${game.level}</h2><p class="lead">挑一份新的力量，時間會等你。</p><div class="choices">${game.upgradeChoices.map(id=>UPGRADES.find(u=>u.id===id)).filter(Boolean).map((u,i)=>`<button class="choice" data-upgrade="${u.id}"><kbd>${i+1}</kbd><span class="choice-icon">${iconSvg(UPGRADE_ICONS[u.id]||'i-pulse')}</span><b>${u.name}</b><small>${u.description}</small></button>`).join('')}</div>${choiceTimer.markup()}`;
   const upgradeGame=game,upgradeLevel=game.level;
-  dialog.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=()=>{if(game!==upgradeGame||game.status!=='upgrade'||game.level!==upgradeLevel)return;clearInput();game.upgrade(b.dataset.upgrade);renderDirty=true;lastStatus='';syncHud();syncOverlay();});
+  dialog.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=()=>{if(game!==upgradeGame||game.status!=='upgrade'||game.level!==upgradeLevel)return;clearInput();game.upgrade(b.dataset.upgrade);renderDirty=true;lastStatus='';hudView.sync(game);syncOverlay();});
   const upgradeId=recommendUpgrade(game,UPGRADES.filter(u=>game.upgradeChoices.includes(u.id))),upgrade=UPGRADES.find(u=>u.id===upgradeId);
   autoTarget=[...dialog.querySelectorAll('[data-upgrade]')].find(b=>b.dataset.upgrade===upgradeId);autoLabel=upgrade?.name||'';autoResolve=()=>autoTarget?.onclick?.();
  }else if(game.status==='ended'){
@@ -404,8 +337,8 @@ function effects(dt){
   // Keep every visual burst, but never create dozens of audio voices at once.
   // Ally beams and bolt hits are frequent and quiet: they get no voice of their own.
   if(!event.kind.startsWith('ally')&&event.kind!=='hit'&&!heard.has(event.kind)&&heard.size<4){heard.add(event.kind);sfx.play(event.kind);}
-  if(event.kind==='rescue'){fx.burst(event.x,event.z);bumpTimer=.32;}
-  else if(event.kind==='hurt')hurtTimer=.5;
+  if(event.kind==='rescue'){fx.burst(event.x,event.z);hudView.bump();}
+  else if(event.kind==='hurt')hudView.hurt();
   else if(event.kind==='boss')showNotice(event.boss==='big'?'大首領「星冠守護者」來襲！':'小首領「補丁隊長」出現了！',event.boss==='big'?'big':'boss',2.8,3);
   else if(event.kind==='allyShot')allyVisuals.shot(event);
   else if(event.kind==='hit')shotVisuals.hit(event,{reduceMotion:reduceMotion(),quality:prefs.quality});
@@ -431,16 +364,16 @@ function loop(now){
   hero.userData.getMuzzleOffset(game.muzzleOffset);
  }
  game.step(dt,movement);
- if(active){trackRun();tickPresentation(dt);}
+ if(active){trackRun();hudView.tick(dt);}
  if(active)resolveTaps();
  resolveHover(realDt);
  updateCamera();
  if(active)effects(dt);else{fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);}
- if(active||renderDirty){syncModels();syncHud();renderDirty=false;}
+ if(active||renderDirty){syncModels();hudView.sync(game);renderDirty=false;}
  else crowd.sync(null,{dirty:false});
  syncOverlay();choiceTimer.advance(realDt);renderer.render(scene,camera);
  frameTime+=realDt;frames++;
  if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(prefs.stats)syncStats();}
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v12.4.0-variety-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v12.4.0-variety-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get hud(){return hudView;},get presentation(){return {notice:hud.notice.textContent,noticeTimer:hudView.noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);hudView.sync(game);syncOverlay();renderDirty=false;renderer.render(scene,camera);}};

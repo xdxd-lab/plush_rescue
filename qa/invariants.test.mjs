@@ -51,18 +51,21 @@ test('weapon-visuals.js draws drops exactly as V11 did, now from DROP_GEOMETRY',
 });
 
 test('V8 fullscreen drag, V10 HUD diff writes and V11 rescued-boss scale remain in main.js',()=>{
- const main=read('main.js','utf8');
+ const main=read('main.js','utf8'),hud=read('hud.js','utf8');
  for(const marker of [
   "document.addEventListener('pointerdown'",
   "isInteractiveTarget(e.target)",
   "try{canvas.setPointerCapture(e.pointerId);}catch{stick.reset();",
   "(e.pointerType==='mouse'&&(e.buttons&1)===0)",
   "if(type==='lostpointercapture'&&e.target!==canvas)return;",
-  "function hudWrite(el,key,value,apply)",
   "bossVisualScale(e,o.mesh.userData.radius)",
+ ])assert.ok(main.includes(marker),marker);
+ // The HUD (V10 diff writes, hero portrait, hint footer row) moved from main.js to hud.js.
+ for(const marker of [
+  "function hudWrite(el,key,value,apply)",
   "footer",
   "'assets/'+game.heroId+'-portrait.png'",
- ])assert.ok(main.includes(marker),marker);
+ ])assert.ok(main.includes(marker)||hud.includes(marker),marker);
  // Hurt blinking is unchanged unless the player asks for reduced motion.
  assert.match(main,/hero\.visible=game\.invuln===0\|\|reduceMotion\(\)\|\|Math\.floor\(game\.time\*12\)%2===0;/);
 });

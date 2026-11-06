@@ -100,6 +100,11 @@
       "sha256": "b2a7d439fed67e2e9d173bf8eb750d90a4691c34ede78cc1fd0d1bffa9b52229"
     },
     {
+      "path": "hud.js",
+      "bytes": 7769,
+      "sha256": "3053eae24cd14ed9c1c5cdb400ead3cbe552c00a0d9b5e4c614f28f102fafb61"
+    },
+    {
       "path": "index.html",
       "bytes": 13805,
       "sha256": "40c2f66461c69012afe7a32e13e2b5791092d4d4b8abaa2f18a9cae912d1f0b0"
@@ -116,8 +121,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 43625,
-      "sha256": "8c1bc446f04aa1062b0a2b7d648b4c8fe29d482a77cd4399bb990b404995b5ff"
+      "bytes": 37570,
+      "sha256": "79fc268b568eff27454ccb5d1371f2a956a8f7e40a86dc8f32545532bb5cb681"
     },
     {
       "path": "maps.js",
