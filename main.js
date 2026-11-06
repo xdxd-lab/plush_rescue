@@ -14,7 +14,8 @@ import {createEnemyVisuals} from './enemy-visuals.js';
 import {createWeaponVisuals} from './weapon-visuals.js';
 import {createAllyVisuals,ALLY_VISUAL} from './ally-visuals.js';
 import {createShotVisuals} from './shot-visuals.js';
-import {createTapTracker,createHoverTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,writeSettings,recommendUpgrade,recommendPickup,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
+import {createSettingsStore} from './settings-store.js';
+import {createTapTracker,createHoverTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,recommendUpgrade,recommendPickup,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
 let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){dialog.innerHTML='<h2>需要 3D 圖形支援</h2><p>請使用支援 WebGL 的瀏覽器，並開啟硬體加速後再試。</p>';throw e;}
 renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
@@ -23,18 +24,14 @@ const camera=createGameCamera(innerWidth,innerHeight,{orthographic:new URLSearch
 const sun=new THREE.DirectionalLight('#ffe6bf',3.0);sun.position.set(-14,26,8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-24,right:24,top:24,bottom:-24,near:1,far:65});sun.shadow.normalBias=.018;sun.shadow.radius=2;sun.shadow.bias=-.0002;scene.add(sun);scene.add(sun.target);
 const rim=new THREE.DirectionalLight('#d0e8f0',.85);rim.position.set(8,9,-15);scene.add(rim);
 const fill=new THREE.DirectionalLight('#c7daf1',0);fill.name='Low camera-side moon bounce';fill.visible=false;fill.castShadow=false;scene.add(fill,fill.target);
-const savedSettings=readSettings((()=>{try{return localStorage;}catch{return null;}})());
-let selectedHero=savedSettings.hero;
+// Remembered settings (settings-store.js); prefs holds the values used this session.
+const settings=createSettingsStore({getStorage:()=>{try{return localStorage;}catch{return null;}}}),prefs=settings.prefs;
 const heroNames={pudding:'布丁狗',polar:'北極熊'};
-let game,map,hero,quality=savedSettings.quality,volume=savedSettings.volume,showStats=savedSettings.stats,autoChoose=savedSettings.autoChoose,touchFxOn=savedSettings.touchFx,lastStatus='',frameTime=0,frames=0,fps=0,renderDirty=true;
-// Storage can be unavailable in private mode or embedded previews. The default
-// is always to ask; changing the setting still works for this session.
-const autoEquipKey='plush-rescue:auto-equip';
-let autoEquip=false;
-try{autoEquip=localStorage.getItem(autoEquipKey)==='true';}catch{}
-function setAutoEquip(value){autoEquip=Boolean(value);game.autoEquip=autoEquip;try{localStorage.setItem(autoEquipKey,String(autoEquip));}catch{}}
+let game,map,hero,lastStatus='',frameTime=0,frames=0,fps=0,renderDirty=true;
+// Auto-equip is stored on its own key; a failed write still applies for this session.
+function setAutoEquip(value){game.autoEquip=settings.setAutoEquip(value);}
 // V12 presentation state. It observes game events and state; it never changes gameplay.
-function storage(){try{return localStorage;}catch{return null;}}
+const storage=settings.storage;
 const motionQuery=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
 const reduceMotion=()=>Boolean(motionQuery?.matches);
 let noticeTimer=0,noticePriority=0,hurtTimer=0,bumpTimer=0,recordedGame=null,recordResult=null;
@@ -43,7 +40,6 @@ const taps=createTapTracker(),pendingTaps=[],tapClock=()=>performance.now();
 // V12.2.1 mouse hover pickup: the last mouse position (null until the mouse moves over the game) and whether it moved since the last frame.
 const hover=createHoverTracker();let hoverPoint=null,hoverMoved=false,hoverLabel=null;
 function clearHover(){hover.reset();hoverPoint=null;hoverMoved=false;hoverLabel=null;showHoverRing(null);}
-function saveSettings(){writeSettings(storage(),{quality,volume,hero:selectedHero,stats:showStats,autoChoose,touchFx:touchFxOn});}
 let choiceTimer=null;
 function clearChoiceTimer(){choiceTimer?.target?.classList.toggle('auto-choice-target',false);choiceTimer=null;}
 function choiceUnfocused(){return document.hidden||document.hasFocus?.()===false;}
@@ -58,7 +54,7 @@ function renderChoiceTimer(){
  if(seconds!==timer.shown){timer.shown=seconds;if(announce&&(seconds===10||seconds===3))announce.textContent=label.textContent;}
 }
 function startChoiceTimer(target,label,resolve){
- if(!autoChoose||!target)return;
+ if(!prefs.autoChoose||!target)return;
  choiceTimer={game,key:lastStatus,target,label,resolve,remaining:10,shown:-1,cancelled:false,away:choiceUnfocused()};
  target.classList.toggle('auto-choice-target',true);renderChoiceTimer();
 }
@@ -90,15 +86,15 @@ const bossVisuals=createBossVisuals(THREE,scene),enemyVisuals=createEnemyVisuals
 const ordinaryEnemies=[];
 const stick=new Stick(),keys=new Set(),enemies=new Map(),rescued=new Map(),bullets=new Map(),enemyPool=[[],[],[],[]],freePool=[[],[],[],[]],bulletPool=[];
 // V12.4: mtk-viewer style dots and press rings for fingers and pens (never the mouse).
-const touchFx=createTouchVisuals($('#touchFx'),{doc:document});touchFx.setEnabled(touchFxOn);
+const touchFx=createTouchVisuals($('#touchFx'),{doc:document});touchFx.setEnabled(prefs.touchFx);
 const bulletGeometry=new THREE.SphereGeometry(1,12,8),bulletMaterial=new THREE.MeshBasicMaterial({color:'#d8fcff'}),bulletGlowMaterial=new THREE.MeshBasicMaterial({color:'#63e3ff',transparent:true,opacity:.28,depthWrite:false,blending:THREE.AdditiveBlending});
 const fx=createEffects(THREE,scene,LIMITS),cameraDelta=cameraOffset(),cameraTarget=new THREE.Vector3();
 function makeBullet(){const group=new THREE.Group(),core=new THREE.Mesh(bulletGeometry,bulletMaterial),glow=new THREE.Mesh(bulletGeometry,bulletGlowMaterial);core.scale.set(.05,.05,.24);glow.scale.set(.12,.12,.35);group.add(glow,core);return group;}
 const names=['鈕扣街坊庭院','荒廢溫室花園','月光遊樂場'];const params=new URLSearchParams(location.search);let debugMap=params.get('map');const mapIndex=()=>{if(debugMap===null)return null;const n=Number(debugMap);if(Number.isInteger(n)&&n>=0&&n<=2)return n;const i=MAPS.findIndex(x=>x.id===debugMap);return i>=0?i:null;};
-let audio;function sound(kind){if(!audio||volume===0)return;try{const o=audio.createOscillator(),g=audio.createGain();o.type=kind==='hurt'?'triangle':'sine';o.frequency.setValueAtTime(kind==='rescue'?740:kind==='hurt'?120:420,audio.currentTime);o.frequency.exponentialRampToValueAtTime(kind==='rescue'?1100:kind==='hurt'?65:180,audio.currentTime+.08);g.gain.setValueAtTime(volume*(kind==='shot'?.025:.12),audio.currentTime);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.1);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+.11);}catch{}}
+let audio;function sound(kind){if(!audio||prefs.volume===0)return;try{const o=audio.createOscillator(),g=audio.createGain();o.type=kind==='hurt'?'triangle':'sine';o.frequency.setValueAtTime(kind==='rescue'?740:kind==='hurt'?120:420,audio.currentTime);o.frequency.exponentialRampToValueAtTime(kind==='rescue'?1100:kind==='hurt'?65:180,audio.currentTime+.08);g.gain.setValueAtTime(prefs.volume*(kind==='shot'?.025:.12),audio.currentTime);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.1);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+.11);}catch{}}
 function unlockAudio(){try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();}catch{}}
 function releaseAll(collection,pool){for(const obj of collection.values()){scene.remove(obj.mesh);pool(obj);}collection.clear();}
-function reset(){clearChoiceTimer();renderDirty=true;crowd.clear();weaponVisuals.clear();bossVisuals.clear();enemyVisuals.clear();allyVisuals.clear();shotVisuals.clear();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);releaseAll(enemies,o=>enemyPool[o.type].push(o.mesh));releaseAll(rescued,o=>freePool[o.type].push(o.mesh));releaseAll(bullets,o=>bulletPool.push(o.mesh));fx.clear();game=new Game({map:mapIndex(),autoEquip,heroId:selectedHero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();syncHud();}
+function reset(){clearChoiceTimer();renderDirty=true;crowd.clear();weaponVisuals.clear();bossVisuals.clear();enemyVisuals.clear();allyVisuals.clear();shotVisuals.clear();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);releaseAll(enemies,o=>enemyPool[o.type].push(o.mesh));releaseAll(rescued,o=>freePool[o.type].push(o.mesh));releaseAll(bullets,o=>bulletPool.push(o.mesh));fx.clear();game=new Game({map:mapIndex(),autoEquip:prefs.autoEquip,heroId:prefs.hero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();syncHud();}
 function resetPresentation(){
  noticeTimer=noticePriority=hurtTimer=bumpTimer=0;hudText(hud.notice,'');hudProp(hud.notice,'className','');
  runTrack.bosses=0;runTrack.evolved.clear();runTrack.aliveBosses.clear();runTrack.nextAlive.clear();
@@ -122,8 +118,8 @@ function tickPresentation(dt){
  hurtTimer=Math.max(0,hurtTimer-dt);bumpTimer=Math.max(0,bumpTimer-dt);
  hudClass(hud.vignette,'hurt',hurtTimer>0);hudClass(hud.rescues,'bump',bumpTimer>0);
 }
-function resize(){let w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio,quality==='high'?2:quality==='balanced'?1.6:1));fitGameCamera(camera,w,h);}
-function setQuality(v){quality=v;renderer.shadowMap.enabled=v!=='low';renderer.shadowMap.needsUpdate=true;resize();}
+function resize(){let w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio,prefs.quality==='high'?2:prefs.quality==='balanced'?1.6:1));fitGameCamera(camera,w,h);}
+function setQuality(v){prefs.quality=v;renderer.shadowMap.enabled=v!=='low';renderer.shadowMap.needsUpdate=true;resize();}
 function updateStick(){const el=$('#stick');el.style.display=stick.id===null?'none':'block';el.style.left=stick.origin.x+'px';el.style.top=stick.origin.y+'px';$('#knob').style.transform=`translate(${stick.x*34}px,${stick.z*34}px)`;}
 // A gesture can start on any non-interactive part of the game, including HUD
 // readouts. Native buttons/inputs keep their own pointer and click behaviour.
@@ -180,7 +176,7 @@ function endStick(){const id=stick.id;stick.reset();if(id!==null&&canvas.hasPoin
 function clearInput(){touchFx.clear();clearHover();taps.clear();pendingTaps.length=0;endStick();keys.clear();}
 function pause(){game.pause();clearInput();syncOverlay();}
 window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('resize',()=>{clearInput();resize();});
-window.addEventListener('keydown',e=>{const action=routeKeyDown(e,game.status,keys);if(action==='pause')pause();else if(action==='resume'){game.resume();syncOverlay();}else if(action==='stats'){setStatsVisible(!showStats);}else if(action?.startsWith('upgrade:')){dialog.querySelectorAll('[data-upgrade]')[Number(action.slice(8))-1]?.onclick?.();}});
+window.addEventListener('keydown',e=>{const action=routeKeyDown(e,game.status,keys);if(action==='pause')pause();else if(action==='resume'){game.resume();syncOverlay();}else if(action==='stats'){setStatsVisible(!prefs.stats);}else if(action?.startsWith('upgrade:')){dialog.querySelectorAll('[data-upgrade]')[Number(action.slice(8))-1]?.onclick?.();}});
 window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 // Keep keyboard navigation inside the active menu without changing native
 // checkbox, slider, select, Space, or Escape behavior.
@@ -222,9 +218,9 @@ function hudStyle(el,key,value){hudWrite(el,'style:'+key,value,()=>{el.style.set
 function hudClass(el,key,value){value=Boolean(value);hudWrite(el,'class:'+key,value,()=>{el.classList.toggle(key,value);});}
 function syncStats(){
  // Enemy count includes bosses; ground bombs (mines) have their own count.
- hudText(hud.stats,`${fps} FPS · ${game.enemies.length} 敵 / ${game.rescued.length} 自由 / ${game.bullets.length} 光束 / ${game.bombs.length} 地雷 · ${renderer.info.render.calls} calls · ${quality}`);
+ hudText(hud.stats,`${fps} FPS · ${game.enemies.length} 敵 / ${game.rescued.length} 自由 / ${game.bullets.length} 光束 / ${game.bombs.length} 地雷 · ${renderer.info.render.calls} calls · ${prefs.quality}`);
 }
-function setStatsVisible(value,persist=true){showStats=Boolean(value);hud.stats.hidden=!showStats;if(showStats)syncStats();if(persist)saveSettings();}
+function setStatsVisible(value,persist=true){prefs.stats=Boolean(value);hud.stats.hidden=!prefs.stats;if(prefs.stats)syncStats();if(persist)settings.save();}
 function syncHud(){
  const p=game.player;
  hudAttr(hud.heroPortrait,'src','assets/'+game.heroId+'-portrait.png');hudAttr(hud.heroPortrait,'alt',heroNames[game.heroId]+'救援隊員');
@@ -286,7 +282,7 @@ function recordRun(){
  const merged=mergeRecords(readRecords(storage()),run);writeRecords(storage(),merged.records);
  recordedGame=game;recordResult=merged;return merged;
 }
-function choiceCountdownMarkup(){return autoChoose?'<div class="choice-countdown" id="choiceCountdown"><span id="choiceCountdownText" role="timer" aria-live="off"></span><span id="choiceCountdownAnnounce" class="visually-hidden" aria-live="polite"></span><span class="choice-countdown-track"><span id="choiceCountdownBar" class="choice-countdown-bar"></span></span></div>':'';}
+function choiceCountdownMarkup(){return prefs.autoChoose?'<div class="choice-countdown" id="choiceCountdown"><span id="choiceCountdownText" role="timer" aria-live="off"></span><span id="choiceCountdownAnnounce" class="visually-hidden" aria-live="polite"></span><span class="choice-countdown-track"><span id="choiceCountdownBar" class="choice-countdown-bar"></span></span></div>':'';}
 const QUALITY_CHOICES=[['low','省電'],['balanced','均衡'],['high','精緻']],HERO_CHOICES=[['pudding','布丁狗'],['polar','北極熊']];
 // Native radios keep arrow keys, Tab order and screen-reader state; CSS only draws them as one row.
 function segmented(name,label,choices,current){
@@ -306,22 +302,22 @@ function syncOverlay(){
  if(game.status==='paused'){
   dialog.innerHTML=`<div class="pause-head"><h2 id="dialogTitle">暫停中</h2><p class="run-line">${formatClock(game.time)} · 救回 ${game.saved} · Lv. ${game.level}</p></div>`
    +`<div class="settings-columns"><section class="settings-group" aria-label="畫面與聲音">`
-   +`<label class="setting">音效音量 <input id="volume" type="range" min="0" max="1" step=".05" value="${volume}"></label>`
-   +segmented('quality','畫面品質',QUALITY_CHOICES,quality)
-   +`<label class="setting">觸控特效<input id="touchFxOn" type="checkbox" ${touchFxOn?'checked':''}></label>`
-   +`<label class="setting" title="電腦也可以按 F3 切換">顯示效能數字<input id="showStats" type="checkbox" ${showStats?'checked':''}></label></section>`
+   +`<label class="setting">音效音量 <input id="volume" type="range" min="0" max="1" step=".05" value="${prefs.volume}"></label>`
+   +segmented('quality','畫面品質',QUALITY_CHOICES,prefs.quality)
+   +`<label class="setting">觸控特效<input id="touchFxOn" type="checkbox" ${prefs.touchFx?'checked':''}></label>`
+   +`<label class="setting" title="電腦也可以按 F3 切換">顯示效能數字<input id="showStats" type="checkbox" ${prefs.stats?'checked':''}></label></section>`
    +`<section class="settings-group" aria-label="遊戲">`
-   +`<label class="setting">撿到武器自動換上<input id="autoEquip" type="checkbox" ${autoEquip?'checked':''}></label>`
-   +`<label class="setting">10 秒自動選擇<input id="autoChoose" type="checkbox" ${autoChoose?'checked':''}></label>`
-   +segmented('nextHero','下一局隊員',HERO_CHOICES,selectedHero)+`</section></div>`
+   +`<label class="setting">撿到武器自動換上<input id="autoEquip" type="checkbox" ${prefs.autoEquip?'checked':''}></label>`
+   +`<label class="setting">10 秒自動選擇<input id="autoChoose" type="checkbox" ${prefs.autoChoose?'checked':''}></label>`
+   +segmented('nextHero','下一局隊員',HERO_CHOICES,prefs.hero)+`</section></div>`
    +`<div class="pause-actions"><button id="resume" class="primary">繼續救援 ${iconSvg('i-play')}</button><button id="restart" class="secondary">重新開始 · 隨機世界</button></div>`;
-  for(const [value] of HERO_CHOICES)$('#nextHero-'+value).onchange=e=>{selectedHero=e.target.value==='polar'?'polar':'pudding';saveSettings();};
-  for(const [value] of QUALITY_CHOICES)$('#quality-'+value).onchange=e=>{setQuality(e.target.value);saveSettings();};
-  $('#volume').oninput=e=>{volume=Number(e.target.value);unlockAudio();saveSettings();};
-  $('#volume').onchange=()=>saveSettings();
+  for(const [value] of HERO_CHOICES)$('#nextHero-'+value).onchange=e=>{prefs.hero=e.target.value==='polar'?'polar':'pudding';settings.save();};
+  for(const [value] of QUALITY_CHOICES)$('#quality-'+value).onchange=e=>{setQuality(e.target.value);settings.save();};
+  $('#volume').oninput=e=>{prefs.volume=Number(e.target.value);unlockAudio();settings.save();};
+  $('#volume').onchange=()=>settings.save();
   $('#autoEquip').onchange=e=>setAutoEquip(e.target.checked);
-  $('#autoChoose').onchange=e=>{autoChoose=Boolean(e.target.checked);saveSettings();};
-  $('#touchFxOn').onchange=e=>{touchFxOn=Boolean(e.target.checked);touchFx.setEnabled(touchFxOn);saveSettings();};
+  $('#autoChoose').onchange=e=>{prefs.autoChoose=Boolean(e.target.checked);settings.save();};
+  $('#touchFxOn').onchange=e=>{prefs.touchFx=Boolean(e.target.checked);touchFx.setEnabled(prefs.touchFx);settings.save();};
   $('#showStats').onchange=e=>{setStatsVisible(e.target.checked);};
   $('#resume').onclick=resume;$('#restart').onclick=restart;
  }else if(game.status==='pickup'){
@@ -354,7 +350,7 @@ function syncOverlay(){
   $('#again').onclick=restart;
  }
  startChoiceTimer(autoTarget,autoLabel,autoResolve);
- (autoChoose&&autoTarget?autoTarget:dialog.querySelector('#keepWeapon,#resume,.choice,#again,#start'))?.focus({preventScroll:true});
+ (prefs.autoChoose&&autoTarget?autoTarget:dialog.querySelector('#keepWeapon,#resume,.choice,#again,#start'))?.focus({preventScroll:true});
 }
 function syncCollection(entities,collection,kind){const ids=new Set(entities.map(e=>e.id));for(const[id,o]of collection){if(!ids.has(id)){scene.remove(o.mesh);if(kind==='bullet')bulletPool.push(o.mesh);else(kind==='enemy'?enemyPool:freePool)[o.type].push(o.mesh);collection.delete(id);}}for(const e of entities){let o=collection.get(e.id);if(!o){let mesh;if(kind==='bullet'){mesh=bulletPool.pop()||makeBullet();}else{mesh=(kind==='enemy'?enemyPool:freePool)[e.type].pop()||makePlush(THREE,{type:e.type,rescued:kind==='free'});if(kind==='free'){mesh.userData.setRescued?.();mesh.userData.startRescueAnimation?.();}}o={mesh,type:e.type};collection.set(e.id,o);if(kind==='bullet')scene.add(mesh);}if(kind==='bullet')weaponVisuals.styleBullet(o.mesh,e);o.mesh.position.set(e.x,kind==='bullet'?(e.y??game.muzzleOffset.y):0,e.z);o.mesh.rotation.y=kind==='bullet'?Math.atan2(e.vx,e.vz):e.angle;o.mesh.userData.animate?.(game.time+e.id,true);if(kind==='free')o.mesh.scale.setScalar((e.boss?bossVisualScale(e,o.mesh.userData.radius):1)*Math.min(1,e.life/.65));else if(kind!=='bullet')o.mesh.scale.setScalar(1);}}
 function updateCamera(){
@@ -446,20 +442,20 @@ function effects(dt){
   else if(event.kind==='hurt')hurtTimer=.5;
   else if(event.kind==='boss')showNotice(event.boss==='big'?'大首領「星冠守護者」來襲！':'小首領「補丁隊長」出現了！',event.boss==='big'?'big':'boss',2.8,3);
   else if(event.kind==='allyShot')allyVisuals.shot(event);
-  else if(event.kind==='hit')shotVisuals.hit(event,{reduceMotion:reduceMotion(),quality});
+  else if(event.kind==='hit')shotVisuals.hit(event,{reduceMotion:reduceMotion(),quality:prefs.quality});
   else if(event.kind==='allyLeave')fx.burst(event.x,event.z);
   else if(event.kind==='skill'){const u=UPGRADES.find(x=>x.id===event.upgradeId);if(u)showNotice('獲得技能 · '+u.name+'：'+u.description,'good',2.4,1);}
  }
  fx.update(dt,camera);weaponVisuals.update(dt,game.events,game,camera,innerHeight);allyVisuals.update(dt);shotVisuals.update(dt,camera);
 }
-setQuality(quality);reset();resize();renderBestLine();
+setQuality(prefs.quality);reset();resize();renderBestLine();
 // Visual hero cards drive the original #heroSelect value/change interface.
 const heroCards=[$('#heroCardPudding'),$('#heroCardPolar')].filter(Boolean);
-function syncHeroCards(){for(const card of heroCards)card.setAttribute('aria-pressed',String(card.dataset.hero===selectedHero));}
+function syncHeroCards(){for(const card of heroCards)card.setAttribute('aria-pressed',String(card.dataset.hero===prefs.hero));}
 // Restore the remembered hero and diagnostics switch without writing them back.
-$('#heroSelect').value=selectedHero;syncHeroCards();setStatsVisible(showStats,false);
-$('#heroSelect').onchange=e=>{selectedHero=e.target.value==='polar'?'polar':'pudding';$('#heroSelect').value=selectedHero;syncHeroCards();saveSettings();reset();};
-for(const card of heroCards)card.onclick=()=>{if(card.dataset.hero===selectedHero)return;const select=$('#heroSelect');select.value=card.dataset.hero;select.onchange({target:select});};$('#start').onclick=()=>{unlockAudio();game.start();syncOverlay();};let previous=performance.now();
+$('#heroSelect').value=prefs.hero;syncHeroCards();setStatsVisible(prefs.stats,false);
+$('#heroSelect').onchange=e=>{prefs.hero=e.target.value==='polar'?'polar':'pudding';$('#heroSelect').value=prefs.hero;syncHeroCards();settings.save();reset();};
+for(const card of heroCards)card.onclick=()=>{if(card.dataset.hero===prefs.hero)return;const select=$('#heroSelect');select.value=card.dataset.hero;select.onchange({target:select});};$('#start').onclick=()=>{unlockAudio();game.start();syncOverlay();};let previous=performance.now();
 function loop(now){
  requestAnimationFrame(loop);
  const realDt=(now-previous)/1000,dt=Math.min(.05,realDt);previous=now;
@@ -478,7 +474,7 @@ function loop(now){
  else crowd.sync(null,{dirty:false});
  syncOverlay();advanceChoiceTimer(realDt);renderer.render(scene,camera);
  frameTime+=realDt;frames++;
- if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(showStats)syncStats();}
+ if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(prefs.stats)syncStats();}
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v12.4.0-variety-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer&&{remaining:choiceTimer.remaining,target:choiceTimer.label,cancelled:choiceTimer.cancelled};},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v12.4.0-variety-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer&&{remaining:choiceTimer.remaining,target:choiceTimer.label,cancelled:choiceTimer.cancelled};},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};

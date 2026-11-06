@@ -106,13 +106,18 @@
     },
     {
       "path": "main.js",
-      "bytes": 47039,
-      "sha256": "b68c6a47f84028266c48aefd5f4db42107b98844235f3f2d471f647cd6a0ef0a"
+      "bytes": 46759,
+      "sha256": "d2084408960aa23ef64ba48432a6abf81fbfa4b36a1f310179edc980a392ad74"
     },
     {
       "path": "maps.js",
       "bytes": 45663,
       "sha256": "f582d0240116943835003799a867283a0792e37dbb10f737fc003fc72569b6d7"
+    },
+    {
+      "path": "settings-store.js",
+      "bytes": 1296,
+      "sha256": "5b5a81795221215fcf3a5575bb8df72628eafbb3cd6653beb84e76cb2051e1ca"
     },
     {
       "path": "shot-visuals.js",

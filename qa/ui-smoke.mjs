@@ -285,9 +285,9 @@ check('quality, volume, next hero and diagnostics are saved when changed in the 
  assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'high',volume:.6,hero:'polar',stats:true,autoChoose:false,touchFx:true});
 });
 check('only validated settings are ever written, even if internal state is odd',()=>{
- const t=setup();t.run("quality='ultra';volume=NaN;selectedHero='dragon';showStats='yes';saveSettings()");
+ const t=setup();{const store=t.qa.settingsStore;Object.assign(store.prefs,{quality:'ultra',volume:NaN,hero:'dragon',stats:'yes'});store.save();}
  assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
- t.run("quality='low';volume=7;selectedHero='polar';showStats=true;saveSettings()");
+ {const store=t.qa.settingsStore;Object.assign(store.prefs,{quality:'low',volume:7,hero:'polar',stats:true});store.save();}
  assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:1,hero:'polar',stats:true,autoChoose:false,touchFx:true});
 });
 check('the hero cards and F3 are remembered too',()=>{
@@ -297,7 +297,7 @@ check('the hero cards and F3 are remembered too',()=>{
 check('a new visit restores the saved settings without any user action',()=>{
  const seed={'plush-rescue:settings':JSON.stringify({quality:'low',volume:.4,hero:'polar',stats:true})};
  const t=setup(false,{seed});
- assert.equal(t.run('quality'),'low');assert.equal(t.run('volume'),.4);assert.equal(t.qa.game.heroId,'polar');
+ assert.equal(t.qa.settingsStore.prefs.quality,'low');assert.equal(t.qa.settingsStore.prefs.volume,.4);assert.equal(t.qa.game.heroId,'polar');
  assert.equal(t.el('heroSelect').value,'polar');assert.equal(t.el('heroCardPolar').attrs['aria-pressed'],'true');assert.equal(t.el('heroCardPudding').attrs['aria-pressed'],'false');
  assert.equal(t.el('stats').hidden,false);assert.equal(t.el('heroPortrait').attrs.src,'assets/polar-portrait.png');
  t.el('start').onclick();t.qa.pause();assert.equal(t.el('quality-low').checked,true);assert.equal(t.el('quality-balanced').checked,false);assert.equal(t.el('nextHero-polar').checked,true);
@@ -307,15 +307,15 @@ check('restoring settings does not overwrite them, and corrupt or invalid values
  assert.equal(t.store.get('plush-rescue:settings'),raw);
  for(const bad of ['{nope',JSON.stringify({quality:'ultra',volume:'loud',hero:'x',stats:1})]){
   const u=setup(false,{seed:{'plush-rescue:settings':bad}});
-  assert.equal(u.run('quality'),'balanced');assert.equal(u.run('volume'),.25);assert.equal(u.qa.game.heroId,'pudding');assert.equal(u.el('stats').hidden,true);
+  assert.equal(u.qa.settingsStore.prefs.quality,'balanced');assert.equal(u.qa.settingsStore.prefs.volume,.25);assert.equal(u.qa.game.heroId,'pudding');assert.equal(u.el('stats').hidden,true);
  }
 });
 check('blocked storage: settings and taps still work for the session',()=>{
- const t=setup(true,{realVisuals:true});assert.equal(t.run('quality'),'balanced');t.el('start').onclick();t.qa.pause();
- choose(t,'quality','high');assert.equal(t.run('quality'),'high');t.el('resume').onclick();
+ const t=setup(true,{realVisuals:true});assert.equal(t.qa.settingsStore.prefs.quality,'balanced');t.el('start').onclick();t.qa.pause();
+ choose(t,'quality','high');assert.equal(t.qa.settingsStore.prefs.quality,'high');t.el('resume').onclick();
  const g=t.qa.game;g.drops.length=0;g.enemies.length=0;g.spawn=1e9;g.dropTimer=1e9;g.invuln=999;
  const d=addNear(t),p=spot(t,d);down(t,3,p.x,p.y);t.clock.t=60;up(t,3,p.x,p.y);frame(t);assert.equal(g.status,'pickup');
- const again=setup(true);assert.equal(again.run('quality'),'balanced','nothing survives a reload when storage is blocked');assert.equal(again.qa.game.autoEquip,false);
+ const again=setup(true);assert.equal(again.qa.settingsStore.prefs.quality,'balanced','nothing survives a reload when storage is blocked');assert.equal(again.qa.game.autoEquip,false);
 });
 // ---- V12.1.1: on-screen hit area, HUD cover, slow mouse, settings rounds ---------------
 const G=DROP_GEOMETRY;
@@ -441,7 +441,7 @@ check('volume is saved while dragging; quality, volume, next hero, stats and aut
  t.el('autoEquip').checked=true;t.el('autoEquip').onchange({target:t.el('autoEquip')});
  t.el('autoChoose').checked=true;t.el('autoChoose').onchange({target:t.el('autoChoose')});
  const reload=setup(false,{seed:Object.fromEntries(t.store)});
- assert.equal(reload.run('quality'),'low');assert.equal(reload.run('volume'),.45);assert.equal(reload.qa.game.heroId,'polar');
+ assert.equal(reload.qa.settingsStore.prefs.quality,'low');assert.equal(reload.qa.settingsStore.prefs.volume,.45);assert.equal(reload.qa.game.heroId,'polar');
  assert.equal(reload.el('stats').hidden,false);assert.equal(reload.qa.game.autoEquip,true);
  assert.equal(reload.qa.settings.autoChoose,true,'auto-choice preference survives a reload');
  assert.equal(reload.qa.game.status,'ready','a reload starts from the title screen');assert.equal(reload.qa.game.time,0);assert.equal(reload.qa.game.saved,0);
