@@ -1,7 +1,7 @@
 {
-  "version": "12.3.5",
-  "revision": "v12.3.5-label-legibility-r1",
-  "source_commit": "14aee6a",
+  "version": "12.4.0",
+  "revision": "v12.4.0-variety-r1",
+  "source_commit": "4f4a3d2",
   "layout": "Static V12.3.5 export based on V12.3.4 (f3e171e); readable drop labels with a minimum on-screen size that slide off the hero, mine blast ring replaces countdown digits, start and resume stay visible in short dialogs, brand favicons and social preview, main-weapon bolt trails and hit feedback, 30-second boss helper allies, hover and tap pickup, mobile-first rescue UI.",
   "files": [
     {
@@ -56,8 +56,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 418,
-      "sha256": "da974b4dbe5944f5627c25fdf6d8b757b5ed02ea7897e3dd8790eed7054b3a9a"
+      "bytes": 443,
+      "sha256": "a94636b85ab06545bf9234857790cbdd53904ba56eea314106c053a8a5853e06"
     },
     {
       "path": "camera.js",
@@ -91,8 +91,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13814,
-      "sha256": "1f9dc1fee5b90d8b0c8591ae40d555a533137bd78be0d9ed006727f20c572346"
+      "bytes": 13805,
+      "sha256": "40c2f66461c69012afe7a32e13e2b5791092d4d4b8abaa2f18a9cae912d1f0b0"
     },
     {
       "path": "keyboard.js",
@@ -106,8 +106,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 46884,
-      "sha256": "91f60da2d81ec8c4e581ce1e23aae516aec4d0d56c0c3be8773561270668fa5e"
+      "bytes": 46875,
+      "sha256": "c7c520106b9921a038d2649ef83147832826ef9569eafc4138a4f04a127829c5"
     },
     {
       "path": "maps.js",

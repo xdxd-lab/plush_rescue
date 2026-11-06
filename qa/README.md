@@ -136,3 +136,10 @@ console errors and no Chrome process or temporary profile left behind.
   2026-10-25), plus one real abort: before the Enter fix a `--dialogs` run hit `CDP_TIMEOUT_MS`, reported the 22
   remaining checks as `not run`, exited 1 and cleaned up.
 - Not done: Safari/WebKit, Firefox, phones, real GPUs.
+
+V12.4.0 (more upgrades, telegraphed spitter and dasher enemies, touch feedback): Node 24.22.1 passed 180 tests and
+the DOM smoke passed 85 checks after the version update; `node qa/browser-chrome.mjs --dialogs` passed 68 of 68 with
+no console errors on the release files. Pickup regression at 1280x720, 390x844 and 360x640 passed 16/14/14 on
+3f72408. Enemy warnings were screenshotted on 4f4a3d2 with a separate script outside the repository (`game.step`
+driven); the dasher lane has low contrast in grayscale on the dark map. Not tested in Safari, Firefox, on a phone or
+a hardware GPU.
