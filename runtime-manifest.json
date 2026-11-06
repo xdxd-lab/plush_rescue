@@ -50,6 +50,11 @@
       "sha256": "7ee4a2b47c9c2a8483d34951554ec4d6b8a984e71ab65249277132a8f1458efd"
     },
     {
+      "path": "audio.js",
+      "bytes": 1375,
+      "sha256": "1a8e4c60dd965881ed4d4733e9f91caec9b40036129051a54c5dc9256ac5e985"
+    },
+    {
       "path": "boss-visuals.js",
       "bytes": 11568,
       "sha256": "aa250182f37c216eccbed85293f97c46afc7faa010cbd8267d0558dd3c6cad46"
@@ -111,8 +116,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 44059,
-      "sha256": "3f089e4fc35b529f05829d01dd6835293117011e5b28203a53f9acf2807b1222"
+      "bytes": 43625,
+      "sha256": "8c1bc446f04aa1062b0a2b7d648b4c8fe29d482a77cd4399bb990b404995b5ff"
     },
     {
       "path": "maps.js",

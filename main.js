@@ -16,6 +16,7 @@ import {createAllyVisuals,ALLY_VISUAL} from './ally-visuals.js';
 import {createShotVisuals} from './shot-visuals.js';
 import {createSettingsStore} from './settings-store.js';
 import {createChoiceTimer} from './choice-timer.js';
+import {createAudio} from './audio.js';
 import {createTapTracker,createHoverTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,recommendUpgrade,recommendPickup,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
 let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){dialog.innerHTML='<h2>需要 3D 圖形支援</h2><p>請使用支援 WebGL 的瀏覽器，並開啟硬體加速後再試。</p>';throw e;}
@@ -57,8 +58,8 @@ const bulletGeometry=new THREE.SphereGeometry(1,12,8),bulletMaterial=new THREE.M
 const fx=createEffects(THREE,scene,LIMITS),cameraDelta=cameraOffset(),cameraTarget=new THREE.Vector3();
 function makeBullet(){const group=new THREE.Group(),core=new THREE.Mesh(bulletGeometry,bulletMaterial),glow=new THREE.Mesh(bulletGeometry,bulletGlowMaterial);core.scale.set(.05,.05,.24);glow.scale.set(.12,.12,.35);group.add(glow,core);return group;}
 const names=['鈕扣街坊庭院','荒廢溫室花園','月光遊樂場'];const params=new URLSearchParams(location.search);let debugMap=params.get('map');const mapIndex=()=>{if(debugMap===null)return null;const n=Number(debugMap);if(Number.isInteger(n)&&n>=0&&n<=2)return n;const i=MAPS.findIndex(x=>x.id===debugMap);return i>=0?i:null;};
-let audio;function sound(kind){if(!audio||prefs.volume===0)return;try{const o=audio.createOscillator(),g=audio.createGain();o.type=kind==='hurt'?'triangle':'sine';o.frequency.setValueAtTime(kind==='rescue'?740:kind==='hurt'?120:420,audio.currentTime);o.frequency.exponentialRampToValueAtTime(kind==='rescue'?1100:kind==='hurt'?65:180,audio.currentTime+.08);g.gain.setValueAtTime(prefs.volume*(kind==='shot'?.025:.12),audio.currentTime);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.1);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+.11);}catch{}}
-function unlockAudio(){try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();}catch{}}
+// Sound effects (audio.js); unlocked from the first gesture that starts or resumes play.
+const sfx=createAudio({getContextClass:()=>window.AudioContext||window.webkitAudioContext,volume:()=>prefs.volume});
 function releaseAll(collection,pool){for(const obj of collection.values()){scene.remove(obj.mesh);pool(obj);}collection.clear();}
 function reset(){choiceTimer.clear();renderDirty=true;crowd.clear();weaponVisuals.clear();bossVisuals.clear();enemyVisuals.clear();allyVisuals.clear();shotVisuals.clear();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);releaseAll(enemies,o=>enemyPool[o.type].push(o.mesh));releaseAll(rescued,o=>freePool[o.type].push(o.mesh));releaseAll(bullets,o=>bulletPool.push(o.mesh));fx.clear();game=new Game({map:mapIndex(),autoEquip:prefs.autoEquip,heroId:prefs.hero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();syncHud();}
 function resetPresentation(){
@@ -230,7 +231,7 @@ function syncHud(){
  hudProp(hud.stowTwoHanded,'disabled',game.status!=='running');
 }
 function restart(){debugMap=null;reset();game.start();syncOverlay();}
-function resume(){clearInput();unlockAudio();game.resume();syncOverlay();}
+function resume(){clearInput();sfx.unlock();game.resume();syncOverlay();}
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function pickupCard(weapon,label,modifier=''){
  return `<article class="pickup-card ${modifier}" style="--weapon-color:${escapeHtml(weapon.color)}"><small>${label}</small><span class="pickup-icon" aria-hidden="true">${weaponIcon(weapon.id)}</span><h3>${escapeHtml(weapon.name)}${weapon.id!=='none'?' · Lv.'+game.weaponLevel(weapon.id):''}</h3><p>${escapeHtml(weapon.description)}</p></article>`;
@@ -278,7 +279,7 @@ function syncOverlay(){
    +`<div class="pause-actions"><button id="resume" class="primary">繼續救援 ${iconSvg('i-play')}</button><button id="restart" class="secondary">重新開始 · 隨機世界</button></div>`;
   for(const [value] of HERO_CHOICES)$('#nextHero-'+value).onchange=e=>{prefs.hero=e.target.value==='polar'?'polar':'pudding';settings.save();};
   for(const [value] of QUALITY_CHOICES)$('#quality-'+value).onchange=e=>{setQuality(e.target.value);settings.save();};
-  $('#volume').oninput=e=>{prefs.volume=Number(e.target.value);unlockAudio();settings.save();};
+  $('#volume').oninput=e=>{prefs.volume=Number(e.target.value);sfx.unlock();settings.save();};
   $('#volume').onchange=()=>settings.save();
   $('#autoEquip').onchange=e=>setAutoEquip(e.target.checked);
   $('#autoChoose').onchange=e=>{prefs.autoChoose=Boolean(e.target.checked);settings.save();};
@@ -402,7 +403,7 @@ function effects(dt){
   // A large area rescue can free dozens of friends in the same frame.
   // Keep every visual burst, but never create dozens of audio voices at once.
   // Ally beams and bolt hits are frequent and quiet: they get no voice of their own.
-  if(!event.kind.startsWith('ally')&&event.kind!=='hit'&&!heard.has(event.kind)&&heard.size<4){heard.add(event.kind);sound(event.kind);}
+  if(!event.kind.startsWith('ally')&&event.kind!=='hit'&&!heard.has(event.kind)&&heard.size<4){heard.add(event.kind);sfx.play(event.kind);}
   if(event.kind==='rescue'){fx.burst(event.x,event.z);bumpTimer=.32;}
   else if(event.kind==='hurt')hurtTimer=.5;
   else if(event.kind==='boss')showNotice(event.boss==='big'?'大首領「星冠守護者」來襲！':'小首領「補丁隊長」出現了！',event.boss==='big'?'big':'boss',2.8,3);
@@ -420,7 +421,7 @@ function syncHeroCards(){for(const card of heroCards)card.setAttribute('aria-pre
 // Restore the remembered hero and diagnostics switch without writing them back.
 $('#heroSelect').value=prefs.hero;syncHeroCards();setStatsVisible(prefs.stats,false);
 $('#heroSelect').onchange=e=>{prefs.hero=e.target.value==='polar'?'polar':'pudding';$('#heroSelect').value=prefs.hero;syncHeroCards();settings.save();reset();};
-for(const card of heroCards)card.onclick=()=>{if(card.dataset.hero===prefs.hero)return;const select=$('#heroSelect');select.value=card.dataset.hero;select.onchange({target:select});};$('#start').onclick=()=>{unlockAudio();game.start();syncOverlay();};let previous=performance.now();
+for(const card of heroCards)card.onclick=()=>{if(card.dataset.hero===prefs.hero)return;const select=$('#heroSelect');select.value=card.dataset.hero;select.onchange({target:select});};$('#start').onclick=()=>{sfx.unlock();game.start();syncOverlay();};let previous=performance.now();
 function loop(now){
  requestAnimationFrame(loop);
  const realDt=(now-previous)/1000,dt=Math.min(.05,realDt);previous=now;
@@ -442,4 +443,4 @@ function loop(now){
  if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(prefs.stats)syncStats();}
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v12.4.0-variety-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v12.4.0-variety-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get presentation(){return {notice:hud.notice.textContent,noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);syncHud();syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
