@@ -13,19 +13,14 @@ const root=new URL('../',import.meta.url);
 const read=(path,enc)=>fs.readFileSync(new URL(path,root),enc);
 const sha=path=>crypto.createHash('sha256').update(read(path)).digest('hex');
 
-// SHA-256 from the runtime-manifest as of v11.0.0 (cbfa10e). Any change here is a gameplay,
-// camera, model, crowd, lighting or effects change and is outside V12's scope.
-const V11_UNCHANGED={
- 'camera.js':'7d9e02a29448d1d863c319b0ca3193907fdb1028cd8db1b69c3df65be7cea24d',
- 'characters.js':'cd2aee11aeee42cd73734446ca8d768aeb4cb263be8016778958977dd6d50000',
- 'crowd.js':'616a6dbff523f30d4046ec7357960ec322d97f0ed71ddafef81d1f6faba69a5a',
- 'maps.js':'f582d0240116943835003799a867283a0792e37dbb10f737fc003fc72569b6d7',
- 'weapons.js':'c90d851a097646455317cb5df273914b0b2cde73b0a6c24687ef78b6df25dbef',
- 'lighting.js':'65e3a24751674769fa358a1971a912c5b6d81cdb390183e88a4ec76d4b116f5f',
- 'effects.js':'0fc31b61cb5a7594c25fc12ed11f17f4ca74cf7f0f7cc0ab3eba1af656d5b9a0',
-};
-test('camera, model, crowd, lighting, effects and weapon modules are unchanged from V11',()=>{
- for(const [file,hash] of Object.entries(V11_UNCHANGED))assert.equal(sha(file),hash,file);
+// Locked modules (V11 cbfa10e): camera, model, crowd, lighting, effects, map and weapon
+// data. Their SHA-256 lives in qa/locked-modules.json; changing one needs user approval
+// and a registered approved_changes entry (see qa/README.md, qa/approve-lock-change.py).
+const LOCKS=JSON.parse(read('qa/locked-modules.json','utf8')).locked;
+const lockMessage=file=>`${file} 此檔被鎖定；若要修改，需經使用者核准，並在 approved_changes 登記後更新 sha256（見 qa/locked-modules.json、qa/README.md）`;
+test('camera, model, crowd, lighting, effects, map and weapon modules are unchanged from V11',()=>{
+ assert.ok(LOCKS.length>0,'qa/locked-modules.json lists no locked modules');
+ for(const lock of LOCKS)assert.equal(sha(lock.path),lock.sha256,lockMessage(lock.path));
 });
 
 // V12.1.1 changed weapon-visuals.js on purpose: drop sizes moved into the shared

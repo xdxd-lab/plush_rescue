@@ -143,3 +143,23 @@ no console errors on the release files. Pickup regression at 1280x720, 390x844 a
 3f72408. Enemy warnings were screenshotted on 4f4a3d2 with a separate script outside the repository (`game.step`
 driven); the dasher lane has low contrast in grayscale on the dark map. Not tested in Safari, Firefox, on a phone or
 a hardware GPU.
+
+## Locked modules (lock manifest)
+
+`qa/locked-modules.json` lists the modules frozen since V11 (`cbfa10e`): `camera.js`, `characters.js`, `crowd.js`,
+`maps.js`, `weapons.js`, `lighting.js`, `effects.js`. Each entry records `path`, `sha256`, `locked_since`, `reason` and
+`approved_changes`. `qa/invariants.test.mjs` compares every locked file's SHA-256 with its entry, and
+`qa/locked-modules.test.mjs` checks the manifest itself (complete fields; each approval chains to the next and the last
+one matches the current `sha256`).
+
+A failing lock check means a locked file changed. To change one:
+
+1. Get the user's explicit approval for that change (the lock is a process guard, not a technical one).
+2. Make the change and, if it is a runtime file, regenerate the runtime manifest (`python3 qa/regenerate-manifest.py`).
+3. Register the approval: `python3 qa/approve-lock-change.py --path camera.js --reason "..." --approved-by "..."`.
+   It writes the file's current SHA-256 as the new lock and appends `{date, approved_by, reason, old_sha256,
+   new_sha256}` to `approved_changes`. It refuses unknown paths and files that still match their lock.
+4. Run `node --test qa/*.test.mjs` and `python3 verify-export.py`, then commit the manifest change with the file change.
+5. Note the unlock in CHANGELOG.md in the same release.
+
+The script only records what was approved; it does not check approval itself. Run it only after the user has approved.
