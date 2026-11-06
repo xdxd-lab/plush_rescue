@@ -50,6 +50,11 @@
       "sha256": "7ee4a2b47c9c2a8483d34951554ec4d6b8a984e71ab65249277132a8f1458efd"
     },
     {
+      "path": "audio.js",
+      "bytes": 1375,
+      "sha256": "1a8e4c60dd965881ed4d4733e9f91caec9b40036129051a54c5dc9256ac5e985"
+    },
+    {
       "path": "boss-visuals.js",
       "bytes": 11568,
       "sha256": "aa250182f37c216eccbed85293f97c46afc7faa010cbd8267d0558dd3c6cad46"
@@ -68,6 +73,11 @@
       "path": "characters.js",
       "bytes": 36635,
       "sha256": "cd2aee11aeee42cd73734446ca8d768aeb4cb263be8016778958977dd6d50000"
+    },
+    {
+      "path": "choice-timer.js",
+      "bytes": 3776,
+      "sha256": "a3dd3a09392fa792e0b523861cbd2ee9b98f1cda35cfe38e25c14212b29e2cb5"
     },
     {
       "path": "core.js",
@@ -90,6 +100,11 @@
       "sha256": "b2a7d439fed67e2e9d173bf8eb750d90a4691c34ede78cc1fd0d1bffa9b52229"
     },
     {
+      "path": "hud.js",
+      "bytes": 7769,
+      "sha256": "3053eae24cd14ed9c1c5cdb400ead3cbe552c00a0d9b5e4c614f28f102fafb61"
+    },
+    {
       "path": "index.html",
       "bytes": 13805,
       "sha256": "40c2f66461c69012afe7a32e13e2b5791092d4d4b8abaa2f18a9cae912d1f0b0"
@@ -106,13 +121,18 @@
     },
     {
       "path": "main.js",
-      "bytes": 46875,
-      "sha256": "c7c520106b9921a038d2649ef83147832826ef9569eafc4138a4f04a127829c5"
+      "bytes": 37570,
+      "sha256": "79fc268b568eff27454ccb5d1371f2a956a8f7e40a86dc8f32545532bb5cb681"
     },
     {
       "path": "maps.js",
       "bytes": 45663,
       "sha256": "f582d0240116943835003799a867283a0792e37dbb10f737fc003fc72569b6d7"
+    },
+    {
+      "path": "settings-store.js",
+      "bytes": 1296,
+      "sha256": "5b5a81795221215fcf3a5575bb8df72628eafbb3cd6653beb84e76cb2051e1ca"
     },
     {
       "path": "shot-visuals.js",

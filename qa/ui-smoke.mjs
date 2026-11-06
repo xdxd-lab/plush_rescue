@@ -10,16 +10,30 @@ import assert from 'node:assert/strict';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const actualTHREE=await import(root+'vendor/three.module.js');
 const core=await import(root+'core.js');
-const {createBossVisuals,bossVisualScale}=await import(root+'boss-visuals.js');
-const cameraModule=await import(root+'camera.js');
 const keyboard=await import(root+'keyboard.js');
 const ui=await import(root+'ui.js');
 const {WEAPONS}=await import(root+'weapons.js');
 const {createWeaponVisuals,dropLabelBox,DROP_GEOMETRY}=await import(root+'weapon-visuals.js');
-const {createAllyVisuals,ALLY_VISUAL}=await import(root+'ally-visuals.js');
-const {createEnemyVisuals}=await import(root+'enemy-visuals.js');
-const {createShotVisuals,SHOT_VISUAL}=await import(root+'shot-visuals.js');
-const {createTouchVisuals}=await import(root+'touch-visuals.js');
+const {ALLY_VISUAL}=await import(root+'ally-visuals.js');
+// main.js runs below as a classic script with its import lines removed. Its imports
+// are resolved here instead: every name main.js imports is bound in the context to
+// the real export, except the stubs listed in setup(). A new module needs no edit here.
+const mainSource=fs.readFileSync(root+'main.js','utf8');
+async function mainImports(){
+ const bound={},lines=mainSource.match(/^import .*;$/gm)||[];
+ for(const line of lines){
+  const m=line.match(/^import\s+(?:\*\s+as\s+([\w$]+)|\{([^}]*)\})\s+from\s+'(\.\/[^']+)';$/);
+  assert.ok(m,`ui-smoke cannot bind this main.js import form: ${line}`);
+  const module=await import(root+m[3].slice(2));
+  if(m[1]){bound[m[1]]=module;continue;}
+  for(const spec of m[2].split(',').map(x=>x.trim()).filter(Boolean)){
+   const [imported,local=imported]=spec.split(/\s+as\s+/);
+   assert.ok(imported in module,`${m[3]} has no export ${imported}`);bound[local]=module[imported];
+  }
+ }
+ return bound;
+}
+const MAIN_IMPORTS=await mainImports();
 class Element{
  constructor(tag,attrs={},doc){this.tagName=tag.toUpperCase();this.doc=doc;this.attrs=attrs;this.id=attrs.id;this.dataset={};for(const [k,v]of Object.entries(attrs))if(k.startsWith('data-'))this.dataset[k.slice(5).replace(/-([a-z])/g,(_,x)=>x.toUpperCase())]=v;this.value=attrs.value||'';this.checked='checked'in attrs;this.hidden='hidden'in attrs;this.disabled=false;this.textContent='';this.className=attrs.class||'';this.children=[];this.style={setProperty(k,v){this[k]=v}};this.events={};this.classes=new Set((attrs.class||'').split(' ').filter(Boolean));this.classList={toggle:(c,v)=>{if(v===undefined)v=!this.classes.has(c);if(v)this.classes.add(c);else this.classes.delete(c);},contains:c=>this.classes.has(c)};this.captured=new Set();}
  addEventListener(type,fn){(this.events[type]??=[]).push(fn)}
@@ -60,9 +74,12 @@ function setup(storageDenied=false,{seed={},realVisuals=false,width=390,height=8
  class Renderer{constructor(){this.shadowMap={};this.info={render:{calls:0}}}setSize(){}setPixelRatio(){}render(){}}
  const counters={clear:0,sync:0,update:[]};const visual={clear(){counters.clear++},sync(){counters.sync++},update(dt){counters.update.push(dt)},styleBullet(){}};
  const windowEvents={};
- const context=vm.createContext({console,THREE:{...actualTHREE,WebGLRenderer:Renderer},...core,...cameraModule,...keyboard,...ui,WEAPONS,document,localStorage,URLSearchParams,location:{search:''},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:realVisuals?createWeaponVisuals:()=>visual,createBossVisuals,bossVisualScale,createEnemyVisuals,createAllyVisuals,ALLY_VISUAL,createShotVisuals,SHOT_VISUAL,createTouchVisuals,applyMapLighting(){},positionCameraFill(){}});
+ // Stand-ins for imports that need WebGL, canvas text or real map/model geometry.
+ const stubs={THREE:{...actualTHREE,WebGLRenderer:Renderer},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:realVisuals?createWeaponVisuals:()=>visual,applyMapLighting(){},positionCameraFill(){}};
+ for(const name of Object.keys(stubs))assert.ok(name in MAIN_IMPORTS,`stub ${name} is not imported by main.js`);
+ const context=vm.createContext({...MAIN_IMPORTS,...stubs,console,document,localStorage,URLSearchParams,location:{search:''},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{}});
  context.window=context;context.addEventListener=(t,f)=>{(windowEvents[t]??=[]).push(f)};
- vm.runInContext(fs.readFileSync(root+'main.js','utf8').replace(/^import .*;\n/gm,''),context);
+ vm.runInContext(mainSource.replace(/^import .*;\n/gm,''),context);
  const qa=context.__PLUSH_QA__,el=id=>document.querySelector('#'+id),run=s=>vm.runInContext(s,context);
  const fire=(target,type,event)=>{for(const fn of target[type]??[])fn(event)};
  return {qa,el,run,document,store,counters,windowEvents,fire,clock};
@@ -81,7 +98,7 @@ el('start').onclick();qa.pause();
 check('pause dialog shows run summary and grouped settings',()=>{const html=el('dialog').innerHTML;for(const id of ['volume','quality-low','quality-balanced','quality-high','showStats','autoEquip','autoChoose','nextHero-pudding','nextHero-polar','resume','restart'])assert.ok(el(id),id);assert.match(html,/role="radiogroup" aria-labelledby="qualityLabel"/);assert.match(html,/role="radiogroup" aria-labelledby="nextHeroLabel"/);assert.equal(el('quality-balanced').checked,true);assert.equal(el('quality-high').attrs.type,'radio');assert.equal(el('autoChoose').checked,false);assert.match(html,/\d+:\d\d · 救回 \d+ · Lv\. \d+/);assert.doesNotMatch(html,/PAUSED|朋友們會等你回來/);assert.match(html,/aria-label="畫面與聲音"/);assert.match(html,/aria-label="遊戲"/);assert.doesNotMatch(html,/<h3>/);assert.match(html,/撿到武器自動換上/);assert.match(html,/10 秒自動選擇/);assert.doesNotMatch(html,/倒數 10 秒|預設關閉/);assert.match(html,/title="電腦也可以按 F3 切換"/);assert.doesNotMatch(html,/<small>電腦/)});
 check('settings toggle updates live game and local storage',()=>{const box=el('autoEquip');assert.equal(box.checked,false);box.checked=true;box.onchange({target:box});assert.equal(qa.game.autoEquip,true);assert.equal(h.store.get('plush-rescue:auto-equip'),'true')});
 check('auto-choice setting saves, reloads, and defaults off',()=>{const box=el('autoChoose');box.checked=true;box.onchange({target:box});assert.equal(JSON.parse(h.store.get('plush-rescue:settings')).autoChoose,true);assert.equal(qa.settings.autoChoose,true);box.checked=false;box.onchange({target:box});assert.equal(JSON.parse(h.store.get('plush-rescue:settings')).autoChoose,false)});
-check('restart clears modal and all movement input, preserving setting',()=>{run("keys.add('w');stick.begin(4,20,20);stick.move(4,40,90)");qa.game.pendingPickup={id:999,weaponId:'shotgun',slot:'main'};el('restart').onclick();assert.equal(qa.game.pendingPickup,null);assert.equal(qa.game.autoEquip,true);assert.equal(run('keys.size'),0);assert.equal(run('stick.id'),null);assert.equal(el('overlay').classList.contains('shown'),false)});
+check('restart clears modal and all movement input, preserving setting',()=>{run("keys.add('w');stick.begin(4,20,20);stick.move(4,40,90)");qa.game.pendingPickup={id:999,weaponId:'shotgun',slot:'main'};el('restart').onclick();assert.equal(qa.game.pendingPickup,null);assert.equal(qa.game.autoEquip,true);assert.equal(qa.input.keys,0);assert.equal(qa.input.stick.id,null);assert.equal(el('overlay').classList.contains('shown'),false)});
 qa.pause();el('autoEquip').checked=false;el('autoEquip').onchange({target:el('autoEquip')});el('resume').onclick();
 function pickup(id){qa.game.addDrop({kind:'weapon',weaponId:id,x:qa.game.player.x,z:qa.game.player.z});qa.game.collectDrops();qa.renderOnce()}
 check('keep retains weapon level; second pickup and replace uses improved weapon and icon',()=>{pickup('shotgun');assert.equal(qa.game.weaponLevels.shotgun,1);assert.match(el('dialog').innerHTML,/無論保留或換裝/);assert.equal(qa.game.status,'pickup');assert.match(el('dialog').innerHTML,/星光脈衝槍/);assert.match(el('dialog').innerHTML,/棉花散彈槍/);assert.match(el('dialog').innerHTML,/#i-shotgun/);el('keepWeapon').onclick();assert.equal(qa.game.loadout.main,'pulse');pickup('shotgun');el('replaceWeapon').onclick();assert.equal(qa.game.loadout.main,'shotgun');assert.equal(qa.game.weaponLevels.shotgun,2);assert.equal(qa.game.status,'running');assert.match(el('mainWeaponIcon').innerHTML,/#i-shotgun/)});
@@ -91,21 +108,21 @@ check('stale levelup callback cannot consume a later level',()=>{qa.game.exp=qa.
 check('number keys 1–4 choose a level-up card; other states ignore them',()=>{qa.game.exp=qa.game.nextExp;qa.game.levelUp();qa.renderOnce();const g=qa.game,stats=()=>JSON.stringify([g.power,g.fireInterval,g.player.speed,g.player.maxHp,g.player.hp,g.pickupRange,g.critChance,g.magicReach,g.invulnTime]),before=stats(),cards=el('dialog').querySelectorAll('[data-upgrade]'),choice=cards[1];assert.equal(cards.length,4,'still four cards');assert.deepEqual([...cards].map(c=>c.dataset.upgrade),g.upgradeChoices,'cards are the dealt choices in order');h.fire(h.windowEvents,'keydown',key('2',choice));assert.equal(qa.game.status,'running');assert.notEqual(stats(),before,`card 2 (${choice.dataset.upgrade}) was applied`);const level=qa.game.level;h.fire(h.windowEvents,'keydown',key('2',el('world')));assert.equal(qa.game.level,level);assert.equal(qa.game.status,'running')});
 check('cannon is retained and UI button toggles with magic state unchanged',()=>{pickup('cannon');el('replaceWeapon').onclick();qa.renderOnce();assert.equal(qa.game.twoHanded,'cannon');assert.equal(el('twoHandedBar').hidden,false);assert.equal(el('stowTwoHanded').textContent,'收起雙手砲');const magic=qa.game.magic;el('stowTwoHanded').onclick();qa.renderOnce();assert.equal(qa.game.twoHanded,null);assert.equal(qa.game.twoHandedWeapon,'cannon');assert.equal(el('twoHandedBar').hidden,false);assert.equal(el('stowTwoHanded').textContent,'使用雙手砲');assert.equal(qa.game.magic,magic);el('stowTwoHanded').onclick();assert.equal(qa.game.twoHanded,'cannon')});
 check('pickup restart resets retained cannon and rejects stale pickup callbacks',()=>{pickup('bomber');const stale=el('replaceWeapon').onclick;el('pickupRestart').onclick();stale();assert.equal(qa.game.status,'running');assert.equal(qa.game.pendingPickup,null);assert.equal(qa.game.loadout.main,'pulse');assert.equal(qa.game.twoHandedWeapon,null);assert.equal(el('twoHandedBar').hidden,true)});
-check('pause freezes weapon animation updates and input',()=>{qa.pause();run('loop(16)');assert.equal(h.counters.update.at(-1),0);assert.equal(run('keys.size'),0);qa.resume()});
-check('large rescue batches create at most four sound voices per frame',()=>{run("globalThis.soundCalls=0;sound=()=>globalThis.soundCalls++;game.events=Array.from({length:90},()=>({kind:'rescue',x:0,z:0}));game.events.push(...['shot','hurt','magic','explosion'].map(kind=>({kind})));effects(.016)");assert.equal(run('soundCalls'),4)});
-check('hurt event flashes the vignette, then clears; rescue bumps the counter',()=>{run("game.events=[{kind:'hurt'},{kind:'rescue',x:0,z:0}];effects(.016);tickPresentation(.016)");assert.ok(el('vignette').classes.has('hurt'));assert.ok(document_q('.rescues').classes.has('bump'));run('tickPresentation(1)');assert.ok(!el('vignette').classes.has('hurt'));assert.ok(!document_q('.rescues').classes.has('bump'))});
+check('pause freezes weapon animation updates and input',()=>{qa.pause();run('loop(16)');assert.equal(h.counters.update.at(-1),0);assert.equal(qa.input.keys,0);qa.resume()});
+check('large rescue batches create at most four sound voices per frame',()=>{let voices=0;qa.audio.play=()=>voices++;run("game.events=Array.from({length:90},()=>({kind:'rescue',x:0,z:0}));game.events.push(...['shot','hurt','magic','explosion'].map(kind=>({kind})));effects(.016)");assert.equal(voices,4)});
+check('hurt event flashes the vignette, then clears; rescue bumps the counter',()=>{run("game.events=[{kind:'hurt'},{kind:'rescue',x:0,z:0}];effects(.016)");qa.hud.tick(.016);assert.ok(el('vignette').classes.has('hurt'));assert.ok(document_q('.rescues').classes.has('bump'));qa.hud.tick(1);assert.ok(!el('vignette').classes.has('hurt'));assert.ok(!document_q('.rescues').classes.has('bump'))});
 function document_q(s){return h.document.querySelector(s)}
 check('critical health shows the warning vignette only while running',()=>{qa.game.player.hp=1;qa.renderOnce();assert.ok(el('vignette').classes.has('critical'));qa.game.player.hp=qa.game.player.maxHp;qa.renderOnce();assert.ok(!el('vignette').classes.has('critical'))});
-check('boss arrival shows a banner; boss HUD prioritizes big boss and hides on rescue',()=>{run('noticeTimer=0');qa.game.events.length=0;qa.game.spawnBoss('big',3);run('effects(.016);trackRun()');assert.match(qa.presentation.notice,/大首領/);assert.equal(el('notice').className,'show big');qa.renderOnce();assert.equal(el('bossPanel').hidden,false);assert.match(el('bossName').textContent,/大首領/);qa.game.rescueEnemy(qa.game.enemies.find(e=>e.boss));run('trackRun()');qa.renderOnce();assert.equal(el('bossPanel').hidden,true);assert.equal(qa.presentation.bossesRescued,1)});
-check('a lower-priority banner cannot replace a showing boss warning; it expires on time',()=>{assert.match(qa.presentation.notice,/大首領/,'boss warning still visible over the rescue message');run('tickPresentation(5)');assert.equal(el('notice').className,'');run("showNotice('x','good',1,1)");assert.equal(qa.presentation.notice,'x')});
-check('offhand evolution is announced once per offhand',()=>{run('noticeTimer=0');qa.game.magic.evolved=true;run('trackRun()');assert.match(qa.presentation.notice,/進化了/);run("noticeTimer=0;hudText(hud.notice,'');trackRun()");assert.equal(qa.presentation.notice,'')});
+check('boss arrival shows a banner; boss HUD prioritizes big boss and hides on rescue',()=>{qa.hud.expireNotice();qa.game.events.length=0;qa.game.spawnBoss('big',3);run('effects(.016);trackRun()');assert.match(qa.presentation.notice,/大首領/);assert.equal(el('notice').className,'show big');qa.renderOnce();assert.equal(el('bossPanel').hidden,false);assert.match(el('bossName').textContent,/大首領/);qa.game.rescueEnemy(qa.game.enemies.find(e=>e.boss));run('trackRun()');qa.renderOnce();assert.equal(el('bossPanel').hidden,true);assert.equal(qa.presentation.bossesRescued,1)});
+check('a lower-priority banner cannot replace a showing boss warning; it expires on time',()=>{assert.match(qa.presentation.notice,/大首領/,'boss warning still visible over the rescue message');qa.hud.tick(5);assert.equal(el('notice').className,'');qa.hud.showNotice('x','good',1,1);assert.equal(qa.presentation.notice,'x')});
+check('offhand evolution is announced once per offhand',()=>{qa.hud.expireNotice();qa.game.magic.evolved=true;run('trackRun()');assert.match(qa.presentation.notice,/進化了/);qa.hud.expireNotice();qa.hud.text(qa.hud.els.notice,'');run('trackRun()');assert.equal(qa.presentation.notice,'')});
 check('boss clock follows the schedule read-only',()=>{const g=qa.game,save={time:g.time,next:g.nextBossMinute,pending:g.pendingBoss};g.pendingBoss=null;g.time=170;g.nextBossMinute=3;qa.renderOnce();assert.equal(el('bossClockText').textContent,'大首領 0:10');assert.ok(el('bossClock').classes.has('imminent'));assert.ok(el('bossClock').classes.has('big'));g.pendingBoss={kind:'mini',minute:4};qa.renderOnce();assert.equal(el('bossClockText').textContent,'首領待命中');g.pendingBoss=null;g.time=1150;g.nextBossMinute=20;qa.renderOnce();assert.equal(el('bossClockText').textContent,'撐到天亮');assert.ok(el('bossClock').classes.has('calm'));Object.assign(g,{time:save.time,nextBossMinute:save.next,pendingBoss:save.pending});qa.renderOnce()});
 
 // V8 fullscreen drag: any non-interactive target inside #game, never buttons or modals.
-check('drag can start on a HUD readout and ends on pointerup',()=>{h.fire(h.document.events,'pointerdown',pointer(el('saved')));assert.equal(run('stick.id'),7);h.fire(h.document.events,'pointermove',pointer(el('world'),{clientX:180}));assert.ok(run('stick.x')>0);h.fire(h.document.events,'pointerup',pointer(el('world')));assert.equal(run('stick.id'),null)});
-check('drag never starts on buttons or while a dialog is shown',()=>{h.fire(h.document.events,'pointerdown',pointer(el('pause')));assert.equal(run('stick.id'),null);h.fire(h.document.events,'pointerdown',pointer(el('stowTwoHanded')));assert.equal(run('stick.id'),null);qa.pause();h.fire(h.document.events,'pointerdown',pointer(el('world')));assert.equal(run('stick.id'),null);qa.resume()});
-check('failed pointer capture never keeps movement ownership',()=>{el('world').denyCapture=true;h.fire(h.document.events,'pointerdown',pointer(el('world')));assert.equal(run('stick.id'),null);el('world').denyCapture=false});
-check('mouse drag ends when the button is released outside; foreign capture loss is ignored',()=>{h.fire(h.document.events,'pointerdown',pointer(el('world'),{pointerType:'mouse'}));h.fire(h.document.events,'lostpointercapture',pointer(el('saved'),{pointerType:'mouse'}));assert.equal(run('stick.id'),7);h.fire(h.document.events,'pointermove',pointer(el('world'),{pointerType:'mouse',buttons:0}));assert.equal(run('stick.id'),null)});
+check('drag can start on a HUD readout and ends on pointerup',()=>{h.fire(h.document.events,'pointerdown',pointer(el('saved')));assert.equal(qa.input.stick.id,7);h.fire(h.document.events,'pointermove',pointer(el('world'),{clientX:180}));assert.ok(qa.input.stick.x>0);h.fire(h.document.events,'pointerup',pointer(el('world')));assert.equal(qa.input.stick.id,null)});
+check('drag never starts on buttons or while a dialog is shown',()=>{h.fire(h.document.events,'pointerdown',pointer(el('pause')));assert.equal(qa.input.stick.id,null);h.fire(h.document.events,'pointerdown',pointer(el('stowTwoHanded')));assert.equal(qa.input.stick.id,null);qa.pause();h.fire(h.document.events,'pointerdown',pointer(el('world')));assert.equal(qa.input.stick.id,null);qa.resume()});
+check('failed pointer capture never keeps movement ownership',()=>{el('world').denyCapture=true;h.fire(h.document.events,'pointerdown',pointer(el('world')));assert.equal(qa.input.stick.id,null);el('world').denyCapture=false});
+check('mouse drag ends when the button is released outside; foreign capture loss is ignored',()=>{h.fire(h.document.events,'pointerdown',pointer(el('world'),{pointerType:'mouse'}));h.fire(h.document.events,'lostpointercapture',pointer(el('saved'),{pointerType:'mouse'}));assert.equal(qa.input.stick.id,7);h.fire(h.document.events,'pointermove',pointer(el('world'),{pointerType:'mouse',buttons:0}));assert.equal(qa.input.stick.id,null)});
 
 check('ending a run records local bests; a better run is marked as a new record',()=>{qa.game.saved=12;qa.game.time=90;qa.game.end('fallen');qa.renderOnce();let records=JSON.parse(h.store.get('plush-rescue:records'));assert.equal(records.runs,1);assert.equal(records.saved,12);assert.doesNotMatch(el('dialog').innerHTML,/新紀錄/,'first run sets a baseline');assert.match(el('dialog').innerHTML,/救回首領/);assert.ok(el('again'));el('again').onclick();qa.game.saved=30;qa.game.time=95;qa.game.end('fallen');qa.renderOnce();records=JSON.parse(h.store.get('plush-rescue:records'));assert.equal(records.runs,2);assert.equal(records.saved,30);assert.match(el('dialog').innerHTML,/新紀錄/);el('again').onclick()});
 check('blocked localStorage is safe for settings and records',()=>{const b=setup(true);b.el('start').onclick();b.qa.pause();b.el('autoEquip').checked=true;b.el('autoEquip').onchange({target:b.el('autoEquip')});b.el('restart').onclick();assert.equal(b.qa.game.autoEquip,true);b.qa.game.end('survived');b.qa.renderOnce();assert.match(b.el('dialog').innerHTML,/天亮了/);assert.equal(b.qa.records.runs,0)});
@@ -115,39 +132,39 @@ check('auto-choice countdown resolves an upgrade once, and cancellation/restart 
  const t=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});
  t.el('start').onclick();t.run("game.status='upgrade';game.level=2;syncOverlay()");
  assert.equal(t.qa.autoChoice.remaining,10);assert.match(t.el('choiceCountdownText').textContent,/10 秒後自動選擇/);
- t.run('cancelChoiceTimer()');for(let i=0;i<44;i++)t.run('advanceChoiceTimer(.25)');
+ t.qa.choiceTimer.cancel();for(let i=0;i<44;i++)t.qa.choiceTimer.advance(.25);
  assert.equal(t.qa.game.status,'upgrade','cancelled countdown does not resolve');assert.equal(t.qa.autoChoice.cancelled,true);
  t.run('syncOverlay()');assert.equal(t.qa.autoChoice.remaining,10,'new choice starts a fresh countdown');
  t.qa.restart();assert.equal(t.qa.autoChoice,null,'restart clears stale pending choice');const power=t.qa.game.power;
- for(let i=0;i<44;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.game.status,'running','stale callback cannot change the restarted run');assert.equal(t.qa.game.power,power);
- t.run("game.status='upgrade';game.level=3;syncOverlay()");for(let i=0;i<40;i++)t.run('advanceChoiceTimer(.25)');
+ for(let i=0;i<44;i++)t.qa.choiceTimer.advance(.25);assert.equal(t.qa.game.status,'running','stale callback cannot change the restarted run');assert.equal(t.qa.game.power,power);
+ t.run("game.status='upgrade';game.level=3;syncOverlay()");for(let i=0;i<40;i++)t.qa.choiceTimer.advance(.25);
  assert.equal(t.qa.game.status,'running','countdown resolves the selected upgrade');assert.ok(t.qa.game.power>power,'recommended power upgrade is applied exactly once');
 });
 check('low frame rate advances the countdown; a very long single frame cannot decide immediately',()=>{
  const t=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});
  t.el('start').onclick();t.run("game.status='upgrade';game.level=2;syncOverlay()");
- t.run('advanceChoiceTimer(30)');assert.equal(t.qa.autoChoice.remaining,8,'a 30-second stall counts at most two seconds');
+ t.qa.choiceTimer.advance(30);assert.equal(t.qa.autoChoice.remaining,8,'a 30-second stall counts at most two seconds');
  assert.equal(t.qa.game.status,'upgrade','one long frame cannot resolve the choice');
- for(let i=0;i<15;i++)t.run('advanceChoiceTimer(.5)');
+ for(let i=0;i<15;i++)t.qa.choiceTimer.advance(.5);
  assert.equal(t.qa.autoChoice.remaining,.5,'0.5-second visible frames continue to advance the timer');
- assert.equal(t.qa.game.status,'upgrade');t.run('advanceChoiceTimer(.5)');
+ assert.equal(t.qa.game.status,'upgrade');t.qa.choiceTimer.advance(.5);
  assert.equal(t.qa.game.status,'running','steady low-FPS frames eventually resolve the choice');
 });
 check('weapon comparison auto-resolves; background and blur freeze the countdown and resume with three seconds',()=>{
  const startPickup=t=>{t.el('start').onclick();t.qa.game.weaponLevels.shotgun=2;t.qa.game.addDrop({kind:'weapon',weaponId:'shotgun',x:t.qa.game.player.x,z:t.qa.game.player.z});t.qa.game.collectDrops();t.qa.renderOnce();assert.equal(t.qa.game.status,'pickup');assert.equal(t.qa.autoChoice.target,'換上新武器')};
  const t=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});startPickup(t);
- for(let i=0;i<36;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.autoChoice.remaining,1);
- t.document.hidden=true;t.fire(t.document.events,'visibilitychange',{});for(let i=0;i<12;i++)t.run('advanceChoiceTimer(.25)');
+ for(let i=0;i<36;i++)t.qa.choiceTimer.advance(.25);assert.equal(t.qa.autoChoice.remaining,1);
+ t.document.hidden=true;t.fire(t.document.events,'visibilitychange',{});for(let i=0;i<12;i++)t.qa.choiceTimer.advance(.25);
  assert.equal(t.qa.autoChoice.remaining,1,'hidden page freezes the countdown');
- t.document.hidden=false;t.fire(t.document.events,'visibilitychange',{});t.run('advanceChoiceTimer(.25)');
+ t.document.hidden=false;t.fire(t.document.events,'visibilitychange',{});t.qa.choiceTimer.advance(.25);
  assert.equal(t.qa.autoChoice.remaining,3,'return from background grants at least three seconds');
- for(let i=0;i<8;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.game.status,'pickup','choice remains available during the grace period');
- for(let i=0;i<4;i++)t.run('advanceChoiceTimer(.25)');assert.equal(t.qa.game.status,'running');assert.equal(t.qa.game.loadout.main,'shotgun','recommended replacement is applied once');
+ for(let i=0;i<8;i++)t.qa.choiceTimer.advance(.25);assert.equal(t.qa.game.status,'pickup','choice remains available during the grace period');
+ for(let i=0;i<4;i++)t.qa.choiceTimer.advance(.25);assert.equal(t.qa.game.status,'running');assert.equal(t.qa.game.loadout.main,'shotgun','recommended replacement is applied once');
 
- const b=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});startPickup(b);for(let i=0;i<36;i++)b.run('advanceChoiceTimer(.25)');
- b.document.focused=false;b.fire(b.windowEvents,'blur',{});for(let i=0;i<12;i++)b.run('advanceChoiceTimer(.25)');
+ const b=setup(false,{seed:{'plush-rescue:settings':JSON.stringify({autoChoose:true})}});startPickup(b);for(let i=0;i<36;i++)b.qa.choiceTimer.advance(.25);
+ b.document.focused=false;b.fire(b.windowEvents,'blur',{});for(let i=0;i<12;i++)b.qa.choiceTimer.advance(.25);
  assert.equal(b.qa.autoChoice.remaining,1,'unfocused window freezes the countdown');
- b.document.focused=true;b.fire(b.windowEvents,'focus',{});b.run('advanceChoiceTimer(.25)');assert.equal(b.qa.autoChoice.remaining,3,'regaining focus grants at least three seconds');
+ b.document.focused=true;b.fire(b.windowEvents,'focus',{});b.qa.choiceTimer.advance(.25);assert.equal(b.qa.autoChoice.remaining,3,'regaining focus grants at least three seconds');
 });
 
 
@@ -168,21 +185,21 @@ function addNear(t,id='shotgun',dx=3,dz=0){const g=t.qa.game;return g.addDrop({k
 
 check('second finger tap picks a drop on release, not on press; the first finger keeps the stick',()=>{
  const t=tapGame(),d=addNear(t),p=spot(t,d);
- down(t,1,60,500);move(t,1,100,540);const before={x:t.run('stick.x'),z:t.run('stick.z')};
+ down(t,1,60,500);move(t,1,100,540);const before={x:t.qa.input.stick.x,z:t.qa.input.stick.z};
  down(t,2,p.x,p.y);frame(t);
- assert.equal(t.qa.game.drops.length,1,'nothing is picked on pointerdown');assert.equal(t.run('stick.id'),1);
- assert.deepEqual({x:t.run('stick.x'),z:t.run('stick.z')},before);
+ assert.equal(t.qa.game.drops.length,1,'nothing is picked on pointerdown');assert.equal(t.qa.input.stick.id,1);
+ assert.deepEqual({x:t.qa.input.stick.x,z:t.qa.input.stick.z},before);
  t.clock.t=120;up(t,2,p.x+2,p.y+1);frame(t);
  assert.equal(t.qa.game.status,'pickup');assert.equal(t.qa.game.pendingPickup.weaponId,'shotgun');assert.equal(t.qa.game.drops.length,0);
 });
 check('with auto-equip the tap never interrupts the first finger: stick id and value survive',()=>{
  const t=tapGame({}),g=t.qa.game;g.autoEquip=true;const d=addNear(t,'ember',2,-1),p=spot(t,d);
- down(t,1,60,500);move(t,1,100,540);const before={x:t.run('stick.x'),z:t.run('stick.z')};
+ down(t,1,60,500);move(t,1,100,540);const before={x:t.qa.input.stick.x,z:t.qa.input.stick.z};
  down(t,2,p.x,p.y);t.clock.t=90;up(t,2,p.x,p.y);frame(t);
  assert.equal(g.status,'running');assert.equal(g.loadout.main,'ember');assert.equal(g.weaponLevels.ember,1);assert.equal(g.drops.length,0);
- assert.equal(t.run('stick.id'),1);assert.deepEqual({x:t.run('stick.x'),z:t.run('stick.z')},before);
- move(t,1,120,560);assert.ok(t.run('stick.x')>0,'first finger still steers');
- up(t,1,120,560);assert.equal(t.run('stick.id'),null);
+ assert.equal(t.qa.input.stick.id,1);assert.deepEqual({x:t.qa.input.stick.x,z:t.qa.input.stick.z},before);
+ move(t,1,120,560);assert.ok(t.qa.input.stick.x>0,'first finger still steers');
+ up(t,1,120,560);assert.equal(t.qa.input.stick.id,null);
 });
 check('skill drop tapped with the second finger applies once and announces itself',()=>{
  const t=tapGame(),g=t.qa.game,d=g.addDrop({kind:'upgrade',upgradeId:'power',x:g.player.x-2,z:g.player.z-2}),p=spot(t,d),power=g.power;
@@ -196,19 +213,19 @@ check('a held or dragged second finger never picks; neither does a cancelled one
   if(mode==='hold'){t.clock.t=600;up(t,2,p.x,p.y);}
   else if(mode==='drag'){move(t,2,p.x+40,p.y);up(t,2,p.x,p.y);}
   else t.fire(t.document.events,'pointercancel',pointer(t.el('world'),{pointerId:2,clientX:p.x,clientY:p.y}));
-  frame(t);assert.equal(t.qa.game.drops.length,1,mode);assert.equal(t.qa.game.status,'running',mode);assert.equal(t.run('stick.id'),1,mode);
+  frame(t);assert.equal(t.qa.game.drops.length,1,mode);assert.equal(t.qa.game.status,'running',mode);assert.equal(t.qa.input.stick.id,1,mode);
  }
 });
 check('losing canvas capture cancels the tap candidate, so a later pointerup cannot pick',()=>{
  const t=tapGame(),d=addNear(t),p=spot(t,d);
- down(t,3,p.x,p.y);assert.equal(t.run('taps.size'),1);
+ down(t,3,p.x,p.y);assert.equal(t.qa.input.taps,1);
  t.fire(t.document.events,'lostpointercapture',pointer(t.el('world'),{pointerId:3,clientX:p.x,clientY:p.y}));
- assert.equal(t.run('taps.size'),0,'candidate removed');
+ assert.equal(t.qa.input.taps,0,'candidate removed');
  up(t,3,p.x,p.y);frame(t);assert.equal(t.qa.game.drops.length,1);assert.equal(t.qa.game.status,'running');
  // A capture transfer that targets another element is ignored, like before.
  const u=tapGame(),e=addNear(u),q=spot(u,e);down(u,3,q.x,q.y);
  u.fire(u.document.events,'lostpointercapture',pointer(u.el('saved'),{pointerId:3,clientX:q.x,clientY:q.y}));
- assert.equal(u.run('taps.size'),1);u.clock.t=80;up(u,3,q.x,q.y);frame(u);assert.equal(u.qa.game.status,'pickup');
+ assert.equal(u.qa.input.taps,1);u.clock.t=80;up(u,3,q.x,q.y);frame(u);assert.equal(u.qa.game.status,'pickup');
 });
 check('second-finger presses are claimed from the browser, buttons and dialogs are not',()=>{
  const t=tapGame(),d=addNear(t),p=spot(t,d);
@@ -229,7 +246,7 @@ check('Safari pinch gestures are blocked only while the game runs',()=>{
 check('a single finger or the mouse can tap a drop; dragging from a drop does not pick it',()=>{
  for(const type of ['touch','mouse']){
   const t=tapGame(),d=addNear(t),p=spot(t,d);
-  down(t,3,p.x,p.y,{pointerType:type});assert.equal(t.run('stick.id'),3,'single press still starts the drag');t.clock.t=100;up(t,3,p.x,p.y,{pointerType:type});frame(t);
+  down(t,3,p.x,p.y,{pointerType:type});assert.equal(t.qa.input.stick.id,3,'single press still starts the drag');t.clock.t=100;up(t,3,p.x,p.y,{pointerType:type});frame(t);
   assert.equal(t.qa.game.status,'pickup',type);assert.equal(t.qa.game.pendingPickup.weaponId,'shotgun',type);
  }
  const t=tapGame(),d=addNear(t),p=spot(t,d);down(t,3,p.x,p.y);move(t,3,p.x+60,p.y+20);up(t,3,p.x+60,p.y+20);frame(t);
@@ -268,9 +285,9 @@ check('quality, volume, next hero and diagnostics are saved when changed in the 
  assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'high',volume:.6,hero:'polar',stats:true,autoChoose:false,touchFx:true});
 });
 check('only validated settings are ever written, even if internal state is odd',()=>{
- const t=setup();t.run("quality='ultra';volume=NaN;selectedHero='dragon';showStats='yes';saveSettings()");
+ const t=setup();{const store=t.qa.settingsStore;Object.assign(store.prefs,{quality:'ultra',volume:NaN,hero:'dragon',stats:'yes'});store.save();}
  assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
- t.run("quality='low';volume=7;selectedHero='polar';showStats=true;saveSettings()");
+ {const store=t.qa.settingsStore;Object.assign(store.prefs,{quality:'low',volume:7,hero:'polar',stats:true});store.save();}
  assert.deepEqual(JSON.parse(t.store.get('plush-rescue:settings')),{quality:'low',volume:1,hero:'polar',stats:true,autoChoose:false,touchFx:true});
 });
 check('the hero cards and F3 are remembered too',()=>{
@@ -280,7 +297,7 @@ check('the hero cards and F3 are remembered too',()=>{
 check('a new visit restores the saved settings without any user action',()=>{
  const seed={'plush-rescue:settings':JSON.stringify({quality:'low',volume:.4,hero:'polar',stats:true})};
  const t=setup(false,{seed});
- assert.equal(t.run('quality'),'low');assert.equal(t.run('volume'),.4);assert.equal(t.qa.game.heroId,'polar');
+ assert.equal(t.qa.settingsStore.prefs.quality,'low');assert.equal(t.qa.settingsStore.prefs.volume,.4);assert.equal(t.qa.game.heroId,'polar');
  assert.equal(t.el('heroSelect').value,'polar');assert.equal(t.el('heroCardPolar').attrs['aria-pressed'],'true');assert.equal(t.el('heroCardPudding').attrs['aria-pressed'],'false');
  assert.equal(t.el('stats').hidden,false);assert.equal(t.el('heroPortrait').attrs.src,'assets/polar-portrait.png');
  t.el('start').onclick();t.qa.pause();assert.equal(t.el('quality-low').checked,true);assert.equal(t.el('quality-balanced').checked,false);assert.equal(t.el('nextHero-polar').checked,true);
@@ -290,15 +307,15 @@ check('restoring settings does not overwrite them, and corrupt or invalid values
  assert.equal(t.store.get('plush-rescue:settings'),raw);
  for(const bad of ['{nope',JSON.stringify({quality:'ultra',volume:'loud',hero:'x',stats:1})]){
   const u=setup(false,{seed:{'plush-rescue:settings':bad}});
-  assert.equal(u.run('quality'),'balanced');assert.equal(u.run('volume'),.25);assert.equal(u.qa.game.heroId,'pudding');assert.equal(u.el('stats').hidden,true);
+  assert.equal(u.qa.settingsStore.prefs.quality,'balanced');assert.equal(u.qa.settingsStore.prefs.volume,.25);assert.equal(u.qa.game.heroId,'pudding');assert.equal(u.el('stats').hidden,true);
  }
 });
 check('blocked storage: settings and taps still work for the session',()=>{
- const t=setup(true,{realVisuals:true});assert.equal(t.run('quality'),'balanced');t.el('start').onclick();t.qa.pause();
- choose(t,'quality','high');assert.equal(t.run('quality'),'high');t.el('resume').onclick();
+ const t=setup(true,{realVisuals:true});assert.equal(t.qa.settingsStore.prefs.quality,'balanced');t.el('start').onclick();t.qa.pause();
+ choose(t,'quality','high');assert.equal(t.qa.settingsStore.prefs.quality,'high');t.el('resume').onclick();
  const g=t.qa.game;g.drops.length=0;g.enemies.length=0;g.spawn=1e9;g.dropTimer=1e9;g.invuln=999;
  const d=addNear(t),p=spot(t,d);down(t,3,p.x,p.y);t.clock.t=60;up(t,3,p.x,p.y);frame(t);assert.equal(g.status,'pickup');
- const again=setup(true);assert.equal(again.run('quality'),'balanced','nothing survives a reload when storage is blocked');assert.equal(again.qa.game.autoEquip,false);
+ const again=setup(true);assert.equal(again.qa.settingsStore.prefs.quality,'balanced','nothing survives a reload when storage is blocked');assert.equal(again.qa.game.autoEquip,false);
 });
 // ---- V12.1.1: on-screen hit area, HUD cover, slow mouse, settings rounds ---------------
 const G=DROP_GEOMETRY;
@@ -337,7 +354,7 @@ check('a mouse drag never picks, and a mouse released outside ends only its own 
  const u=tapGame(),e=addNear(u),q=spot(u,e);
  down(u,1,40,600,{pointerType:'mouse'});move(u,1,60,620,{pointerType:'mouse'});
  down(u,5,q.x,q.y);u.clock.t=60;up(u,5,q.x,q.y);
- move(u,1,70,630,{pointerType:'mouse',buttons:0});assert.equal(u.run('stick.id'),null,'mouse drag ended');
+ move(u,1,70,630,{pointerType:'mouse',buttons:0});assert.equal(u.qa.input.stick.id,null,'mouse drag ended');
  frame(u);assert.equal(u.qa.game.status,'pickup','the queued finger tap is kept');
 });
 check('opaque HUD panels block taps on drops drawn underneath; uncovered spots still work',()=>{
@@ -424,7 +441,7 @@ check('volume is saved while dragging; quality, volume, next hero, stats and aut
  t.el('autoEquip').checked=true;t.el('autoEquip').onchange({target:t.el('autoEquip')});
  t.el('autoChoose').checked=true;t.el('autoChoose').onchange({target:t.el('autoChoose')});
  const reload=setup(false,{seed:Object.fromEntries(t.store)});
- assert.equal(reload.run('quality'),'low');assert.equal(reload.run('volume'),.45);assert.equal(reload.qa.game.heroId,'polar');
+ assert.equal(reload.qa.settingsStore.prefs.quality,'low');assert.equal(reload.qa.settingsStore.prefs.volume,.45);assert.equal(reload.qa.game.heroId,'polar');
  assert.equal(reload.el('stats').hidden,false);assert.equal(reload.qa.game.autoEquip,true);
  assert.equal(reload.qa.settings.autoChoose,true,'auto-choice preference survives a reload');
  assert.equal(reload.qa.game.status,'ready','a reload starts from the title screen');assert.equal(reload.qa.game.time,0);assert.equal(reload.qa.game.saved,0);
@@ -454,7 +471,7 @@ check('a label that slid off the hero is tappable where it is drawn, not where i
 });
 check('a hover on an enlarged label is held through a dark beat, at the size it was drawn',()=>{
  const t=hoverGame({width:844,height:390}),d=addNear(t,'shotgun',4,-3),p=labelSpot(t,d,.9,.8);hoverMove(t,p);hframe(t,16);
- assert.equal(t.run('hover.id'),d.id);assert.ok(t.run('hoverLabel').labelScale>2,'the drawn size is remembered');
+ assert.equal(t.qa.input.hover.id,d.id);assert.ok(t.qa.input.hover.label.labelScale>2,'the drawn size is remembered');
  d.life=1.5;for(let i=0;i<200&&t.qa.weaponVisuals.drawnDrops().has(d.id);i++){t.qa.weaponVisuals.update(.01);t.qa.renderOnce();}
  assert.equal(t.qa.weaponVisuals.drawnDrops().has(d.id),false,'dark beat');
  const held=label=>t.run(`(()=>{const {hidden}=dropShapes(${d.id},${label});return Boolean(hidden&&pickDropAt({x:${p.x},y:${p.y}},[hidden],{margin:0}));})()`);
@@ -465,7 +482,7 @@ check('a mouse resting on a drop takes it after 0.5 s through the normal pickup 
  const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);
  for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running','about 0.4 s');assert.equal(t.el('hoverRing').hidden,false,'progress ring is shown');
  for(let i=0;i<3;i++)hframe(t,100);assert.equal(t.qa.game.status,'pickup');assert.equal(t.qa.game.pendingPickup.weaponId,'shotgun');assert.equal(t.qa.game.weaponLevels.shotgun,1);
- assert.equal(t.el('hoverRing').hidden,true);assert.equal(t.run('hoverPoint'),null,'the mouse has to move again');
+ assert.equal(t.el('hoverRing').hidden,true);assert.equal(t.qa.input.hover.point,null,'the mouse has to move again');
 });
 check('the progress ring shows on the very first frame after the move, even with slow (200 ms) frames; a drop under a resting cursor shows none',()=>{
  const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,200);
@@ -509,7 +526,7 @@ check('pointerdown, leaving the window, pause, blur, hidden and resize restart t
   const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);
   act(t);if(t.qa.game.status==='paused')t.qa.resume();
   for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running',name+': 0.4 s before + 0.4 s after must not add up');
-  assert.equal(t.run('hoverPoint'),null,name);
+  assert.equal(t.qa.input.hover.point,null,name);
  }
  const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);
  t.document.hidden=true;t.fire(t.document.events,'visibilitychange',{});t.document.hidden=false;t.qa.resume();
@@ -530,7 +547,7 @@ check('slow frames (267, 400 ms) count in full; a stall of 1000 ms resets the ho
  const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);
  hframe(t,999);assert.equal(t.qa.game.status,'pickup','999 ms is a slow frame, not a stall');
  const w=hoverGame(),f=addNear(w),r=spot(w,f);hoverMove(w,r);hframe(w,16);for(let i=0;i<4;i++)hframe(w,100);
- hframe(w,1000);assert.equal(w.run('hover.id'),null,'a 1000 ms stall resets');for(let i=0;i<12;i++)hframe(w,100);assert.equal(w.qa.game.status,'running','no move since the stall: not restarted');
+ hframe(w,1000);assert.equal(w.qa.input.hover.id,null,'a 1000 ms stall resets');for(let i=0;i<12;i++)hframe(w,100);assert.equal(w.qa.game.status,'running','no move since the stall: not restarted');
  hoverMove(w,{x:r.x+1,y:r.y});hframe(w,16);for(let i=0;i<4;i++)hframe(w,100);assert.equal(w.qa.game.status,'running','0.4 s');for(let i=0;i<3;i++)hframe(w,100);assert.equal(w.qa.game.status,'pickup');
  const u=hoverGame(),e=addNear(u),q=spot(u,e);hoverMove(u,q);hframe(u,16);u.qa.pause();for(let i=0;i<12;i++)hframe(u,100);assert.equal(u.qa.game.status,'paused');assert.equal(u.qa.game.drops.length,1);
 });
@@ -539,20 +556,20 @@ check('an idle cursor with nothing tracked costs no hit tests; a move or a track
  const t=hoverGame(),probe=addNear(t),p=spot(t,probe);t.qa.game.drops.length=0;const calls=countShapes(t);
  hoverMove(t,p);hframe(t,16);assert.equal(calls(),1,'the move frame is tested once');
  for(let i=0;i<30;i++)hframe(t,16);assert.equal(calls(),1,'30 idle frames: no projection at all');
- const d=addNear(t);for(let i=0;i<10;i++)hframe(t,16);assert.equal(calls(),1,'a drop sliding under the idle cursor is not even tested');assert.equal(t.run('hover.id'),null);
- hoverMove(t,{x:p.x+1,y:p.y});hframe(t,16);assert.equal(calls(),2,'a new move is tested');assert.equal(t.run('hover.id'),d.id);
+ const d=addNear(t);for(let i=0;i<10;i++)hframe(t,16);assert.equal(calls(),1,'a drop sliding under the idle cursor is not even tested');assert.equal(t.qa.input.hover.id,null);
+ hoverMove(t,{x:p.x+1,y:p.y});hframe(t,16);assert.equal(calls(),2,'a new move is tested');assert.equal(t.qa.input.hover.id,d.id);
  const before=calls();for(let i=0;i<3;i++)hframe(t,100);assert.equal(calls(),before+3,'once tracked, every frame is tested without further moves');
  for(let i=0;i<3;i++)hframe(t,100);assert.equal(t.qa.game.status,'pickup','and the hover still completes');
  const u=hoverGame(),e=addNear(u),q=spot(u,e);e.life=1.9;hoverMove(u,q);hframe(u,16);hframe(u,100);const ucalls=countShapes(u);
  const group=()=>{let found=null;u.qa.scene.traverse(o=>{if(o.isGroup&&/pickup$/.test(o.name)&&o.parent)found=o;});return found;};
  for(let i=0;i<30&&group().visible;i++)hframe(u,10);assert.equal(group().visible,false);
- const start=ucalls();for(let i=0;i<3;i++)hframe(u,10);assert.equal(ucalls(),start+3,'a tracked drop in its dark beat is still tested every frame');assert.equal(u.run('hover.id'),e.id);
+ const start=ucalls();for(let i=0;i<3;i++)hframe(u,10);assert.equal(ucalls(),start+3,'a tracked drop in its dark beat is still tested every frame');assert.equal(u.qa.input.hover.id,e.id);
 });
 check('a HUD panel that goes away does not let an old mouse move start a hover',()=>{
  const t=hoverGame(),d=addNear(t),p=spot(t,d),card=t.document.all.find(x=>x.classes.has('weapon-card'));
  card.rect={left:p.x-30,top:p.y-20,right:p.x+30,bottom:p.y+20,width:60,height:40};
- hoverMove(t,p);hframe(t,16);assert.equal(t.run('hoverMoved'),false,'the covered frame consumed the move');
- card.rect=null;for(let i=0;i<12;i++)hframe(t,100);assert.equal(t.qa.game.status,'running','no new mouse move: no hover');assert.equal(t.run('hover.id'),null);
+ hoverMove(t,p);hframe(t,16);assert.equal(t.qa.input.hover.moved,false,'the covered frame consumed the move');
+ card.rect=null;for(let i=0;i<12;i++)hframe(t,100);assert.equal(t.qa.game.status,'running','no new mouse move: no hover');assert.equal(t.qa.input.hover.id,null);
  hoverMove(t,{x:p.x+1,y:p.y});hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running');for(let i=0;i<3;i++)hframe(t,100);assert.equal(t.qa.game.status,'pickup','a real move starts it');
  const u=hoverGame(),e=addNear(u),q=spot(u,e);u.qa.pause();hoverMove(u,q);hframe(u,16);u.qa.resume();for(let i=0;i<12;i++)hframe(u,100);assert.equal(u.qa.game.status,'running','a move made while paused does not carry over');
 });
@@ -565,7 +582,7 @@ check('499 ms on a drop, slide off for one frame and back: a full 0.5 s is neede
 });
 check('sliding off the drop restarts the hover, even for one frame; sliding back needs a new move and a full 0.5 s',()=>{
  const t=hoverGame(),d=addNear(t),p=spot(t,d);hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);
- hoverMove(t,{x:p.x+150,y:p.y});hframe(t,16);assert.equal(t.run('hover.id'),null,'reset on the very next frame');assert.equal(t.el('hoverRing').hidden,true);
+ hoverMove(t,{x:p.x+150,y:p.y});hframe(t,16);assert.equal(t.qa.input.hover.id,null,'reset on the very next frame');assert.equal(t.el('hoverRing').hidden,true);
  hoverMove(t,p);hframe(t,16);for(let i=0;i<4;i++)hframe(t,100);assert.equal(t.qa.game.status,'running','0.4 s before + 0.4 s after do not add up');
  for(let i=0;i<3;i++)hframe(t,100);assert.equal(t.qa.game.status,'pickup');
 });
@@ -573,19 +590,19 @@ check('in the dark beat of an expiry blink the tracked drop is held (progress ke
  const t=hoverGame(),d=addNear(t),p=spot(t,d);d.life=1.9;hoverMove(t,p);hframe(t,16);hframe(t,100);
  const group=()=>{let found=null;t.qa.scene.traverse(o=>{if(o.isGroup&&/pickup$/.test(o.name)&&o.parent)found=o;});return found;};
  for(let i=0;i<30&&group().visible;i++)hframe(t,10);assert.equal(group().visible,false,'reached a dark beat');
- assert.equal(t.run('hover.id'),d.id,'held through the dark beat');assert.equal(t.qa.game.status,'running');
- hoverMove(t,{x:p.x+150,y:p.y});hframe(t,10);assert.equal(t.run('hover.id'),null,'cursor really left while dark: reset');
+ assert.equal(t.qa.input.hover.id,d.id,'held through the dark beat');assert.equal(t.qa.game.status,'running');
+ hoverMove(t,{x:p.x+150,y:p.y});hframe(t,10);assert.equal(t.qa.input.hover.id,null,'cursor really left while dark: reset');
 });
 check('a hover on the label end of an expiring drop is held through its dark beats, as on the body',()=>{
  const t=hoverGame(),d=addNear(t),p=labelSpot(t,d,.9);d.life=1.9;
  const body=t.run(`dropHitShape(game.drops[0],(x,y,z)=>projectToScreen(x,y,z),tapAxes,viewRect(),{labelVisible:false})`);
  assert.equal(ui.pickDropAt(p,[body],{margin:0}),null,'the spot is on the label only, outside the body shape');
- hoverMove(t,p);hframe(t,16);hframe(t,100);assert.equal(t.run('hover.id'),d.id);
+ hoverMove(t,p);hframe(t,16);hframe(t,100);assert.equal(t.qa.input.hover.id,d.id);
  const group=()=>{let found=null;t.qa.scene.traverse(o=>{if(o.isGroup&&/pickup$/.test(o.name)&&o.parent)found=o;});return found;};
  for(let i=0;i<30&&group().visible;i++)hframe(t,10);assert.equal(group().visible,false,'reached a dark beat');
  // The hover reads the drops drawn at the previous sync: one more frame resolves it against the dark beat.
  hframe(t,10);assert.equal(group().visible,false,'still dark');
- assert.equal(t.run('hover.id'),d.id,'held through the dark beat on the label');assert.equal(t.qa.game.status,'running');
+ assert.equal(t.qa.input.hover.id,d.id,'held through the dark beat on the label');assert.equal(t.qa.game.status,'running');
  const u=hoverGame(),e=addNear(u),q=labelSpot(u,e,.9);e.life=1.9;hoverMove(u,q);hframe(u,16);
  for(let i=0;i<36&&u.qa.game.status==='running';i++)hframe(u,50);assert.equal(u.qa.game.status,'pickup','picked from the label despite dark beats');assert.ok(e.life>0);
 });
