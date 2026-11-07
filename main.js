@@ -268,7 +268,7 @@ function updateCamera(){
 // first boss, ally, telegraph, mine or effect does not stall a frame. It runs at a
 // reset whose game is still waiting to start, once per shadow setting (quality
 // low turns shadows off, which needs other programs). Nothing is rendered.
-const shaderWarmup={runs:0,shadows:null,programsBefore:0,programsAfter:0,ready:false,error:null,coverage:null};
+const shaderWarmup={runs:0,shadows:null,programsBefore:0,programsAfter:0,ready:false,error:null,coverage:null,stageMs:0,readyMs:0};
 function stageEffects(events){
  for(const event of events){
   if(event.kind==='rescue')fx.burst(event.x,event.z);
@@ -279,7 +279,7 @@ function stageEffects(events){
 }
 function warmShaders(){
  if(typeof renderer.compile!=='function')return;
- const real=game,warmup=shaderWarmup;
+ const real=game,warmup=shaderWarmup,t0=performance.now();
  warmup.runs++;warmup.shadows=renderer.shadowMap.enabled;warmup.ready=false;warmup.error=null;warmup.programsBefore=renderer.info.programs?.length??0;
  try{
   game=createWarmupGame({map:real.map,heroId:real.heroId,muzzleOffset:real.muzzleOffset});
@@ -287,8 +287,13 @@ function warmShaders(){
   syncModels();stageEffects(game.events);
   // compileAsync collects the materials now and only waits for the driver afterwards.
   const done=typeof renderer.compileAsync==='function'?renderer.compileAsync(scene,camera):renderer.compile(scene,camera);
-  warmup.programsAfter=renderer.info.programs?.length??0;
-  Promise.resolve(done).then(()=>{if(warmup.shadows===renderer.shadowMap.enabled)warmup.ready=true;},error=>{warmup.error=String(error?.message||error);});
+  warmup.programsAfter=renderer.info.programs?.length??0;warmup.stageMs=performance.now()-t0;
+  Promise.resolve(done).then(()=>{
+   // three.js also reads each program's uniforms and attributes on its first draw, a
+   // synchronous query that waits for the driver; do it here, on the start screen.
+   for(const program of renderer.info.programs??[])program.getUniforms?.();
+   if(warmup.shadows===renderer.shadowMap.enabled){warmup.ready=true;warmup.readyMs=performance.now()-t0;}
+  },error=>{warmup.error=String(error?.message||error);});
  }catch(error){warmup.error=String(error?.message||error);}
  finally{game=real;clearWorld();syncModels();renderDirty=true;}
 }
