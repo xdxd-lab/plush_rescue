@@ -65,19 +65,20 @@ class Document{
  createElement(tag){return new Element(tag,{},this)}
 }
 // realVisuals: use the real weapon-visuals.js so taps see what is actually drawn.
-function setup(storageDenied=false,{seed={},realVisuals=false,width=390,height=844}={}){
+function setup(storageDenied=false,{seed={},realVisuals=false,width=390,height=844,search=''}={}){
  const document=new Document(),html=fs.readFileSync(root+'index.html','utf8');document.parse(html);
  const dialog=document.querySelector('#dialog');dialog.children=document.all.slice(document.all.indexOf(dialog)+1).filter(e=>e.tagName!=='SCRIPT');
  // #game contains every parsed node; the stub has no real tree.
  document.querySelector('#game').contains=el=>document.all.includes(el);
  const store=new Map(Object.entries(seed)),clock={t:0},localStorage={getItem(k){if(storageDenied)throw new Error('denied');return store.get(k)||null},setItem(k,v){if(storageDenied)throw new Error('denied');store.set(k,v)}};
- class Renderer{constructor(){this.shadowMap={};this.info={render:{calls:0}}}setSize(){}setPixelRatio(){}render(){}}
+ // compile() only records the call; the warm-up's scene staging and restore are real.
+ class Renderer{constructor(){this.shadowMap={};this.debug={checkShaderErrors:true};this.info={render:{calls:0},programs:[]};this.compiles=[]}compile(scene){const meshes=[];scene.traverse(o=>{if(o.isMesh||o.isSprite)meshes.push(o.name)});this.compiles.push(meshes);return new Set()}setSize(){}setPixelRatio(){}render(){}}
  const counters={clear:0,sync:0,update:[]};const visual={clear(){counters.clear++},sync(){counters.sync++},update(dt){counters.update.push(dt)},styleBullet(){}};
  const windowEvents={};
  // Stand-ins for imports that need WebGL, canvas text or real map/model geometry.
  const stubs={THREE:{...actualTHREE,WebGLRenderer:Renderer},MAPS:[{id:'courtyard'},{id:'greenhouse'},{id:'park'}],buildMap:()=>({dispose(){},obstacles:[],bounds:18,spawn:{x:0,z:4},lighting:{}}),makePlush(){const g=new actualTHREE.Group();g.userData={radius:.5,getMuzzleOffset(target){return Object.assign(target||{},{x:.3,y:.6,z:.8})},animate(){}};return g},createCrowd:()=>({clear(){},sync(){},stats:{}}),createEffects:()=>({clear(){},burst(){},update(){},shadows(){}}),createWeaponVisuals:realVisuals?createWeaponVisuals:()=>visual,applyMapLighting(){},positionCameraFill(){}};
  for(const name of Object.keys(stubs))assert.ok(name in MAIN_IMPORTS,`stub ${name} is not imported by main.js`);
- const context=vm.createContext({...MAIN_IMPORTS,...stubs,console,document,localStorage,URLSearchParams,location:{search:''},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{}});
+ const context=vm.createContext({...MAIN_IMPORTS,...stubs,console,document,localStorage,URLSearchParams,location:{search},innerWidth:width,innerHeight:height,devicePixelRatio:1,performance:{now:()=>clock.t},requestAnimationFrame:()=>{}});
  context.window=context;context.addEventListener=(t,f)=>{(windowEvents[t]??=[]).push(f)};
  vm.runInContext(mainSource.replace(/^import .*;\n/gm,''),context);
  const qa=context.__PLUSH_QA__,el=id=>document.querySelector('#'+id),run=s=>vm.runInContext(s,context);
@@ -90,6 +91,31 @@ const checks=[];function check(name,fn){fn();checks.push(name)}
 const h=setup();const {qa,el,run}=h;
 
 check('revision and build label match build-info.json',()=>{const {revision}=JSON.parse(fs.readFileSync(root+'build-info.json','utf8'));assert.equal(qa.revision,revision);assert.equal(el('game').attrs['data-build'],revision)});
+check('shader warm-up: production skips the synchronous shader log; ?debug=1 keeps it',()=>{
+ assert.equal(qa.renderer.debug.checkShaderErrors,false);
+ assert.equal(setup(false,{search:'?debug=1'}).qa.renderer.debug.checkShaderErrors,true);
+});
+check('shader warm-up: one compile at boot with one of everything staged, then the real game is back untouched',()=>{
+ const t=setup(false,{realVisuals:true}),w=t.qa.shaderWarmup,g=t.qa.game;
+ assert.equal(w.runs,1);assert.equal(t.qa.renderer.compiles.length,1);assert.equal(w.error,null);
+ assert.deepEqual(w.coverage.events,['magic','explosion','hit','rescue','allyShot']);
+ assert.deepEqual(w.coverage.bosses,['big','mini']);assert.deepEqual(w.coverage.rescuedTypes,[0,1,2,3]);assert.deepEqual(w.coverage.roles,['dasher','spitter']);
+ // Parts that are only in the scene while something uses them were in it for the compile.
+ const staged=t.qa.renderer.compiles[0];
+ for(const name of ['Expanding windup fill','Exact attack-radius boundary','Spit warning fill','Dash lane corridor','Dasher foot arrows','Spitter foot rings','Fan-shaped magic sweep','Persistent warm flame status'])
+  assert.ok(staged.includes(name),name);
+ for(const name of ['Expanding windup fill','Spit warning fill','Fan-shaped magic sweep','Persistent warm flame status'])assert.equal(t.qa.scene.getObjectByName(name)?.parent?.parent??null,null,`${name} left the scene`);
+ // The real game is the one waiting to start: nothing staged is left in it or on screen.
+ assert.equal(g.status,'ready');assert.equal(g.enemies.length,0);assert.equal(g.drops.length,0);assert.equal(g.allies.length,0);assert.equal(g.hazards.length,0);
+ assert.equal(t.qa.bossVisuals.stats.bosses,0);assert.equal(t.qa.bossVisuals.stats.hazards,0);assert.deepEqual(t.qa.enemyVisuals,{marks:0,spits:0,lanes:0,aiming:0});
+ assert.deepEqual(t.qa.shotVisuals.stats,{trails:0,flashes:0,puffs:0});assert.equal(t.qa.allyVisuals.models,0);
+ assert.equal(t.qa.weaponVisuals.drawnDrops().size,0);assert.equal(t.qa.presentation.notice,'');
+});
+check('shader warm-up: a restart reuses the compiled programs; turning shadows off warms the other set once',()=>{
+ const t=setup();t.el('start').onclick();t.qa.restart();assert.equal(t.qa.shaderWarmup.runs,1);
+ t.qa.quality('low');t.qa.restart();assert.equal(t.qa.shaderWarmup.runs,2);assert.equal(t.qa.shaderWarmup.shadows,false);
+ t.qa.restart();assert.equal(t.qa.shaderWarmup.runs,2);assert.equal(t.qa.game.status,'running');
+});
 check('legacy #heroSelect value/change still switches hero, portrait and card state',()=>{el('heroSelect').value='polar';el('heroSelect').onchange({target:el('heroSelect')});assert.equal(qa.game.heroId,'polar');assert.equal(el('heroPortrait').attrs.src,'assets/polar-portrait.png');assert.equal(el('heroCardPolar').attrs['aria-pressed'],'true');assert.equal(el('heroCardPudding').attrs['aria-pressed'],'false');assert.equal(qa.game.weaponLevels.pulse,1)});
 check('hero cards drive the same select interface',()=>{el('heroCardPudding').onclick();assert.equal(qa.game.heroId,'pudding');assert.equal(el('heroSelect').value,'pudding');assert.equal(el('heroCardPudding').attrs['aria-pressed'],'true');const game=qa.game;el('heroCardPudding').onclick();assert.equal(qa.game,game,'re-selecting the same hero does not reset')});
 check('first run defaults to confirmation and renders both equipped names and icons',()=>{assert.equal(qa.game.autoEquip,false);assert.equal(el('mainWeaponName').textContent,WEAPONS.pulse.name+' Lv.1');assert.equal(el('offhandWeaponName').textContent,WEAPONS.moonfan.name+' Lv.1');assert.equal(el('magicLabel').textContent,'魔力 0 / 12');assert.match(el('mainWeaponIcon').innerHTML,/#i-pulse/);assert.match(el('offhandWeaponIcon').innerHTML,/#i-moonfan/)});
@@ -622,6 +648,8 @@ function allyGame(){
 }
 check('a rescued boss shrinks into a crowned helper, says so, and leaves after its full time',()=>{
  const t=allyGame(),g=t.qa.game;t.rescueBoss('big');t.advance(50);
+ // The shader warm-up may already have pooled a helper of another species.
+ const pooledWhileHelping=t.qa.allyVisuals.pooled;
  assert.equal(t.qa.allyVisuals.models,1);assert.equal(t.qa.allyVisuals.rings,1);
  assert.match(t.qa.presentation.notice,/^大首領變成小夥伴，陪你戰鬥 30 秒！$/);assert.equal(core.ALLY.duration,30);
  const mesh=t.allyMesh();assert.ok(mesh.scale.x>ALLY_VISUAL.scale.big,'starts near boss size');
@@ -634,7 +662,7 @@ check('a rescued boss shrinks into a crowned helper, says so, and leaves after i
  t.advance(13800);const left=g.allies[0].life/core.ALLY.duration;assert.ok(left>.45&&left<.55,'about half way');
  assert.ok(Math.abs(ringScale()-(.55+.45*left))<1e-6,'ring scale follows the time left');
  t.advance(13600);assert.equal(t.qa.allyVisuals.models,1,'still helping before 30 s');
- t.advance(1600);assert.equal(g.allies.length,0);assert.equal(t.qa.allyVisuals.models,0);assert.equal(t.qa.allyVisuals.pooled,1,'model returned to its pool');
+ t.advance(1600);assert.equal(g.allies.length,0);assert.equal(t.qa.allyVisuals.models,0);assert.equal(t.qa.allyVisuals.pooled,pooledWhileHelping+1,'model returned to its pool');
  assert.equal(t.qa.allyVisuals.rings,0);
 });
 check('ally time and visuals freeze while paused or choosing',()=>{

@@ -18,9 +18,13 @@ import {createSettingsStore} from './settings-store.js';
 import {createChoiceTimer} from './choice-timer.js';
 import {createAudio} from './audio.js';
 import {createHud} from './hud.js';
+import {createWarmupGame,warmupCoverage} from './shader-warmup.js';
 import {createTapTracker,createHoverTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,recommendUpgrade,recommendPickup,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
 let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){dialog.innerHTML='<h2>需要 3D 圖形支援</h2><p>請使用支援 WebGL 的瀏覽器，並開啟硬體加速後再試。</p>';throw e;}
+// three.js reads every shader's compile log synchronously while this is on, which stalls
+// the first frame of each new material; production skips it, ?debug=1 keeps it.
+renderer.debug.checkShaderErrors=new URLSearchParams(location.search).get('debug')==='1';
 renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
 const scene=new THREE.Scene();scene.background=new THREE.Color('#bdc2b1');scene.fog=new THREE.Fog('#bdc2b1',46,88);
 const camera=createGameCamera(innerWidth,innerHeight,{orthographic:new URLSearchParams(location.search).get('camera')==='ortho'});const hemi=new THREE.HemisphereLight('#fff0d9','#637579',1.65);scene.add(hemi);
@@ -62,7 +66,9 @@ const names=['鈕扣街坊庭院','荒廢溫室花園','月光遊樂場'];const 
 // Sound effects (audio.js); unlocked from the first gesture that starts or resumes play.
 const sfx=createAudio({getContextClass:()=>window.AudioContext||window.webkitAudioContext,volume:()=>prefs.volume});
 function releaseAll(collection,pool){for(const obj of collection.values()){scene.remove(obj.mesh);pool(obj);}collection.clear();}
-function reset(){choiceTimer.clear();renderDirty=true;crowd.clear();weaponVisuals.clear();bossVisuals.clear();enemyVisuals.clear();allyVisuals.clear();shotVisuals.clear();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);releaseAll(enemies,o=>enemyPool[o.type].push(o.mesh));releaseAll(rescued,o=>freePool[o.type].push(o.mesh));releaseAll(bullets,o=>bulletPool.push(o.mesh));fx.clear();game=new Game({map:mapIndex(),autoEquip:prefs.autoEquip,heroId:prefs.hero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();hudView.sync(game);}
+// Every world visual of the current game goes back to its pool (reset and shader warm-up).
+function clearWorld(){crowd.clear();weaponVisuals.clear();bossVisuals.clear();enemyVisuals.clear();allyVisuals.clear();shotVisuals.clear();releaseAll(enemies,o=>enemyPool[o.type].push(o.mesh));releaseAll(rescued,o=>freePool[o.type].push(o.mesh));releaseAll(bullets,o=>bulletPool.push(o.mesh));fx.clear();}
+function reset(){choiceTimer.clear();renderDirty=true;clearWorld();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);game=new Game({map:mapIndex(),autoEquip:prefs.autoEquip,heroId:prefs.hero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();hudView.sync(game);if(shaderWarmup.shadows!==renderer.shadowMap.enabled)warmShaders();}
 function resetPresentation(){
  hudView.resetFeedback();
  runTrack.bosses=0;runTrack.evolved.clear();runTrack.aliveBosses.clear();runTrack.nextAlive.clear();
@@ -257,6 +263,35 @@ function updateCamera(){
  camera.position.set(cameraTarget.x+cameraDelta.x,cameraTarget.y+cameraDelta.y,cameraTarget.z+cameraDelta.z);
  camera.lookAt(cameraTarget);positionCameraFill(fill,cameraTarget,camera);sun.target.position.copy(cameraTarget);sun.position.set(cameraTarget.x-14,26,cameraTarget.z+8);
 }
+// Shader warm-up (shader-warmup.js). A staged game with one of everything is put
+// in the scene for a single compile call, then the real game is restored, so the
+// first boss, ally, telegraph, mine or effect does not stall a frame. It runs at a
+// reset whose game is still waiting to start, once per shadow setting (quality
+// low turns shadows off, which needs other programs). Nothing is rendered.
+const shaderWarmup={runs:0,shadows:null,programsBefore:0,programsAfter:0,ready:false,error:null,coverage:null};
+function stageEffects(events){
+ for(const event of events){
+  if(event.kind==='rescue')fx.burst(event.x,event.z);
+  else if(event.kind==='allyShot')allyVisuals.shot(event);
+  else if(event.kind==='hit')shotVisuals.hit(event,{reduceMotion:false,quality:'balanced'});
+ }
+ fx.update(0,camera);weaponVisuals.update(0,events,game,camera,innerHeight);allyVisuals.update(0);shotVisuals.update(0,camera);
+}
+function warmShaders(){
+ if(typeof renderer.compile!=='function')return;
+ const real=game,warmup=shaderWarmup;
+ warmup.runs++;warmup.shadows=renderer.shadowMap.enabled;warmup.ready=false;warmup.error=null;warmup.programsBefore=renderer.info.programs?.length??0;
+ try{
+  game=createWarmupGame({map:real.map,heroId:real.heroId,muzzleOffset:real.muzzleOffset});
+  warmup.coverage=warmupCoverage(game);
+  syncModels();stageEffects(game.events);
+  // compileAsync collects the materials now and only waits for the driver afterwards.
+  const done=typeof renderer.compileAsync==='function'?renderer.compileAsync(scene,camera):renderer.compile(scene,camera);
+  warmup.programsAfter=renderer.info.programs?.length??0;
+  Promise.resolve(done).then(()=>{if(warmup.shadows===renderer.shadowMap.enabled)warmup.ready=true;},error=>{warmup.error=String(error?.message||error);});
+ }catch(error){warmup.error=String(error?.message||error);}
+ finally{game=real;clearWorld();syncModels();renderDirty=true;}
+}
 function syncModels(){
  ordinaryEnemies.length=0;for(const e of game.enemies)if(!e.boss)ordinaryEnemies.push(e);
  syncCollection(ordinaryEnemies,enemies,'enemy');bossVisuals.sync(game);enemyVisuals.sync(game,{reduceMotion:reduceMotion()});syncCollection(game.rescued,rescued,'free');syncCollection(game.bullets,bullets,'bullet');
@@ -376,4 +411,4 @@ function loop(now){
  if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(prefs.stats)syncStats();}
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v12.4.0-variety-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get hud(){return hudView;},get presentation(){return {notice:hud.notice.textContent,noticeTimer:hudView.noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);hudView.sync(game);syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v12.4.0-variety-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get hud(){return hudView;},get shaderWarmup(){return {...shaderWarmup,programs:renderer.info.programs?.length??0};},get presentation(){return {notice:hud.notice.textContent,noticeTimer:hudView.noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);hudView.sync(game);syncOverlay();renderDirty=false;renderer.render(scene,camera);}};

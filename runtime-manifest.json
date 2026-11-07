@@ -121,8 +121,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 37570,
-      "sha256": "79fc268b568eff27454ccb5d1371f2a956a8f7e40a86dc8f32545532bb5cb681"
+      "bytes": 40090,
+      "sha256": "dd37ea847b59d31d4eb482bf79d607be7e3238e92974b29c6b691eacd0fbe185"
     },
     {
       "path": "maps.js",
@@ -133,6 +133,11 @@
       "path": "settings-store.js",
       "bytes": 1296,
       "sha256": "5b5a81795221215fcf3a5575bb8df72628eafbb3cd6653beb84e76cb2051e1ca"
+    },
+    {
+      "path": "shader-warmup.js",
+      "bytes": 4248,
+      "sha256": "9adf5f38a869cff9264b3e093384014ba6924b1559c181e41dc1e30ffb0180c8"
     },
     {
       "path": "shot-visuals.js",
