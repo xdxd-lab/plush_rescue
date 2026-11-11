@@ -237,3 +237,28 @@ for later profiling include `steerEnemy` map/filter/sort chains, enemy array
 copies in `step`, and projectile/area-hit handling. Preserve RNG and numeric
 evaluation order if revisiting them; formatting and the new suite do not
 by themselves demonstrate a speed or memory improvement.
+
+## E4 controller boundaries
+
+`main.js` composes four controllers. It remains the single RAF, reset and
+shader-warmup owner; there is no reverse import from a controller to main.
+
+| Module | Responsibility |
+| --- | --- |
+| `dialogs.js` | Start/pause/settings/choice/result markup and actions, stale callback guards |
+| `pickup.js` | Last-render projection, drop hit shapes, queued taps and mouse hover |
+| `input-controller.js` | One-time pointer/keyboard/gesture/focus listeners, input clearing and movement |
+| `render-sync.js` | World pools, model synchronization and camera update |
+
+Mutable game/hero state is obtained through live getters. A reset does not
+create another input controller or register listeners again. During warmup,
+main temporarily swaps the game inside its existing try/finally; render-sync
+therefore observes the staged game and then the restored live game. Preserve
+that lifetime, event order, pickup identity checks and last-render hit testing
+when editing these modules. Existing QA keys remain compatible.
+
+At extraction commit `47b5995`, independent checks passed: Node 224, DOM 88,
+export 40 hashes / 82 references / 28 modules, no module import cycle, and
+unchanged core/seven locked modules/pre-existing goldens/version identity.
+DOM stubs do not establish trusted browser event dispatch or listener counts;
+final real-browser interaction checks remain necessary for release.

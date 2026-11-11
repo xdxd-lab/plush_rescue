@@ -2,7 +2,7 @@
 
 更新快照：2026-11-12，v12.5.0 發布後。此索引使用固定代號；最新討論與狀態以各 GitHub Issue 為準。
 
-建立 Issue 是保留需求與決策紀錄，**不代表所有提案都已批准實作**。本輪已授權 D1、D2、R1、R2，以及後續追加的 E5、Q5、Q3；其他工作另行安排。P1 為優先，括號標記適用時機；P2 為後續改善，P3 為探索。
+建立 Issue 是保留需求與決策紀錄，**不代表所有提案都已批准實作**。本輪已授權 D1、D2、R1、R2，以及後續追加的 E5、Q5、Q3、E4；其他工作另行安排。P1 為優先，括號標記適用時機；P2 為後續改善，P3 為探索。
 
 ## 已轉為議題的項目
 
@@ -10,7 +10,7 @@
 
 | 代號 | 重要程度 | 事項 | 狀態快照 | 議題 |
 |---|---|---|---|---|
-| E4 | P2 | 繼續拆分 main.js | 提案 | [#1](https://github.com/xdxd-lab/plush_rescue/issues/1) |
+| E4 | P2 | 繼續拆分 main.js | 四塊拆分與獨立 CPU 驗證完成，待最終瀏覽器回歸及發布 | [#1](https://github.com/xdxd-lab/plush_rescue/issues/1) |
 | E5 | P2 | Core 整理與決定性測試 | 整理與獨立驗證完成，待本批整合發布 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
 | E6 | P2 | 建立渲染效能預算 | 待量測 | [#3](https://github.com/xdxd-lab/plush_rescue/issues/3) |
 | E7 | P2 | 暫停時的繪製與耗電 | 待量測／提案 | [#4](https://github.com/xdxd-lab/plush_rescue/issues/4) |
