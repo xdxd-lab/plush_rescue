@@ -37,9 +37,17 @@ export function createEnemyVisuals(THREE,scene){
   const spitFill=batch('Spit warning fill',flat(new THREE.CircleGeometry(1,40)),basic('#ffffff',.32),L.spits,13);
   const spitEdge=batch('Spit exact hit edge',flat(new THREE.RingGeometry(.9,1,48)),basic('#ffffff',.95),L.spits,14);
   const laneGeometry=new THREE.PlaneGeometry(1,1);laneGeometry.rotateX(-Math.PI/2);laneGeometry.translate(0,0,.5);
-  const laneBacking=batch('Dash lane corridor',laneGeometry,basic(COLORS.dasher,.2),L.lanes,12);
-  const laneFill=batch('Dash lane fill',laneGeometry.clone(),basic(COLORS.dasher,.5),L.lanes,13);
-  geometries.push(laneFill.geometry);
+  // The frame is inset: its outer edge shares the corridor's exact footprint.
+  // A dark, steady backing keeps the orange progress legible on light and dark floors.
+  const laneBacking=batch('Dash lane corridor',laneGeometry,basic('#211a30',.88),L.lanes,12);
+  const laneFill=batch('Dash lane fill',laneGeometry.clone(),basic(COLORS.dasher,.72),L.lanes,13);
+  const frameGeometry=new THREE.BufferGeometry();
+  const vertices=[];
+  function frameRect(x0,z0,x1,z1){vertices.push(x0,0,z0,x1,0,z0,x1,0,z1,x0,0,z0,x1,0,z1,x0,0,z1);}
+  frameRect(-.5,0,-.43,1);frameRect(.43,0,.5,1);
+  frameRect(-.43,0,.43,.025);frameRect(-.43,.975,.43,1);
+  frameGeometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+  const laneEdge=batch('Dash lane inset edge',frameGeometry,basic('#fff0bc',1),L.lanes,14);
   const tint={spitter:new THREE.Color(COLORS.spitter),imminent:new THREE.Color(COLORS.imminent),dasher:new THREE.Color(COLORS.dasher)};
   const dummy=new THREE.Object3D();
   let stats={marks:0,spits:0,lanes:0,aiming:0},disposed=false;
@@ -62,7 +70,8 @@ export function createEnemyVisuals(THREE,scene){
         if(s?.phase==='windup'&&lanes<L.lanes){
           const progress=clamp(1-s.t/ENEMY_ROLES.dasher.windup,0,1),length=dashLength()+.42;
           place(laneBacking,lanes,s.x??e.x,.04,s.z??e.z,angle,LANE_WIDTH,length);
-          place(laneFill,lanes,s.x??e.x,.045,s.z??e.z,angle,LANE_WIDTH,Math.max(.02,length*progress));lanes++;
+          place(laneFill,lanes,s.x??e.x,.045,s.z??e.z,angle,LANE_WIDTH,Math.max(.02,length*progress));
+          place(laneEdge,lanes,s.x??e.x,.05,s.z??e.z,angle,LANE_WIDTH,length);lanes++;
         }
       }
     }
@@ -75,7 +84,7 @@ export function createEnemyVisuals(THREE,scene){
       place(spitEdge,spits,h.x,.049,h.z,0,h.radius,h.radius);
       spitFill.setColorAt(spits,color);spitEdge.setColorAt(spits,color);spits++;
     }
-    ringMarks.count=rings;arrowMarks.count=arrows;laneBacking.count=laneFill.count=lanes;spitBacking.count=spitFill.count=spitEdge.count=spits;
+    ringMarks.count=rings;arrowMarks.count=arrows;laneBacking.count=laneFill.count=laneEdge.count=lanes;spitBacking.count=spitFill.count=spitEdge.count=spits;
     for(const mesh of batches){mesh.visible=mesh.count>0;mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;}
     stats={marks:rings+arrows,spits,lanes,aiming};
     if(rings||arrows||spits||lanes){if(root.parent!==scene)scene.add(root);}else if(root.parent)root.removeFromParent();

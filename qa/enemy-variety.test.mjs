@@ -112,3 +112,29 @@ test('boss visuals leave role warnings to enemy visuals',async()=>{
  const {createBossVisuals}=await import('../boss-visuals.js');const b=createBossVisuals(THREE,new THREE.Scene()),g=quiet(),e=role(g,'spitter',9,0);
  g.addSpit(e);b.sync(g);assert.equal(b.stats.hazards,0);
 });
+
+test('dash lane has a bounded, high-contrast frame and steady progress with pooled cleanup',()=>{
+ const scene=new THREE.Scene(),v=createEnemyVisuals(THREE,scene),g=quiet();
+ const e=role(g,'dasher',3,-2);e.dash={phase:'windup',t:ENEMY_ROLES.dasher.windup/2,dx:1,dz:0,x:3,z:-2};
+ v.sync(g,{reduceMotion:true});
+ const backing=v.root.getObjectByName('Dash lane corridor'),fill=v.root.getObjectByName('Dash lane fill'),edge=v.root.getObjectByName('Dash lane inset edge');
+ const luminance=c=>.2126*c.r+.7152*c.g+.0722*c.b;
+ assert.ok((luminance(edge.material.color)+.05)/(luminance(backing.material.color)+.05)>=10,'light frame contrasts with dark backing');
+ assert.equal(edge.material.opacity,1);assert.ok(backing.material.opacity>=.85);assert.ok(fill.material.opacity>0);
+ assert.equal(edge.material.depthWrite,false);assert.equal(edge.material.fog,false);assert.equal(edge.material.toneMapped,false);
+ edge.geometry.computeBoundingBox();const box=edge.geometry.boundingBox;
+ assert.ok(Math.abs(box.min.x+.5)<1e-6&&Math.abs(box.max.x-.5)<1e-6);
+ assert.ok(Math.abs(box.min.z)<1e-6&&Math.abs(box.max.z-1)<1e-6,'frame stays inside corridor');
+ const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),rotation=new THREE.Quaternion(),scale=new THREE.Vector3();
+ edge.getMatrixAt(0,matrix);matrix.decompose(position,rotation,scale);
+ assert.ok(Math.abs(scale.x-LANE_WIDTH)<1e-6&&Math.abs(scale.z-(dashLength()+.42))<1e-6);
+ assert.ok(Math.abs(position.x-3)<1e-6&&Math.abs(position.z+2)<1e-6);
+ const direction=new THREE.Vector3(0,0,1).applyQuaternion(rotation);assert.ok(direction.x>.999&&Math.abs(direction.z)<1e-6);
+ fill.getMatrixAt(0,matrix);matrix.decompose(position,rotation,scale);assert.ok(Math.abs(scale.z-(dashLength()+.42)/2)<1e-6);
+ const before=edge.instanceMatrix.array.slice();g.time=100;v.sync(g,{reduceMotion:true});assert.deepEqual(edge.instanceMatrix.array,before,'no time-driven flashing or movement');
+ const many=quiet();for(let i=0;i<ENEMY_VISUAL_LIMITS.lanes+4;i++){const d=role(many,'dasher',0,-2);d.dash={phase:'windup',t:.5,dx:0,dz:1,x:0,z:-2};}
+ v.sync(many);assert.equal(edge.count,ENEMY_VISUAL_LIMITS.lanes);assert.equal(fill.count,edge.count);assert.equal(backing.count,edge.count);
+ let geometryDisposed=0,materialDisposed=0;edge.geometry.addEventListener('dispose',()=>geometryDisposed++);edge.material.addEventListener('dispose',()=>materialDisposed++);
+ v.clear();assert.equal(edge.count,0);assert.equal(edge.visible,false);assert.equal(v.root.parent,null);
+ v.dispose();v.dispose();assert.equal(geometryDisposed,1);assert.equal(materialDisposed,1);
+});
