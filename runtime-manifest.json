@@ -90,6 +90,11 @@
       "sha256": "616a6dbff523f30d4046ec7357960ec322d97f0ed71ddafef81d1f6faba69a5a"
     },
     {
+      "path": "dialogs.js",
+      "bytes": 10974,
+      "sha256": "8191db803875846d3555f4ff5a4bee445a4600438f1403e3f277579ce92d74ea"
+    },
+    {
       "path": "effects.js",
       "bytes": 5327,
       "sha256": "0fc31b61cb5a7594c25fc12ed11f17f4ca74cf7f0f7cc0ab3eba1af656d5b9a0"
@@ -121,8 +126,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 40316,
-      "sha256": "270452de6a7f9ff6964d11c7291212c7e4e27795298d3ceb4573240648b4ee2c"
+      "bytes": 30500,
+      "sha256": "02b969f47bd5619e2ae89a486e8bc575f39d51ace0f149559ce506e522f6062d"
     },
     {
       "path": "maps.js",

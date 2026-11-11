@@ -201,11 +201,12 @@ test('dialogs stay reachable when taller than the window: scroll container, no i
  }
  // V12.3.4: start and resume stick to the dialog's visible bottom (see the sticky test below).
  const main=fs.readFileSync(new URL('../main.js',import.meta.url),'utf8');
+ const dialogs=fs.readFileSync(new URL('../dialogs.js',import.meta.url),'utf8');
  // Touches on a shown dialog are never claimed by the game, so the browser can scroll it.
  assert.ok(main.includes("if(game.status!=='running'||overlay.classList.contains('shown')||e.defaultPrevented"),'pointerdown ignores dialogs');
  assert.ok(main.includes("document.addEventListener('gesturestart',e=>{if(game.status==='running'&&!overlay.classList.contains('shown')"),'pinch is only blocked during play');
  // Keyboard: the primary action is focused on open and Tab stays inside the dialog
  // (a browser scrolls a tabbed-to control into view).
- assert.ok(main.includes("(prefs.autoChoose&&autoTarget?autoTarget:dialog.querySelector('#keepWeapon,#resume,.choice,#again,#start'))?.focus("),'recommended target focused only when auto-choice is enabled');
+ assert.ok(dialogs.includes("(prefs.autoChoose&&autoTarget?autoTarget:dialog.querySelector('#keepWeapon,#resume,.choice,#again,#start'))?.focus("),'recommended target focused only when auto-choice is enabled');
  assert.ok(main.includes("if(e.key!=='Tab'||game.status==='running')return;"),'focus trap for Tab');
 });

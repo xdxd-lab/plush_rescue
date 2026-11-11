@@ -19,7 +19,7 @@ RUNTIME = [
     'assets/brand/apple-touch-icon.png', 'assets/brand/brand-mark.png', 'assets/brand/icon-16.png',
     'assets/brand/icon-192.png', 'assets/brand/icon-32.png', 'assets/brand/og-image.jpg',
     'ally-visuals.js', 'audio.js', 'boss-visuals.js', 'build-info.json', 'camera.js', 'characters.js', 'choice-timer.js', 'core.js',
-    'crowd.js', 'effects.js', 'enemy-visuals.js', 'hud.js', 'index.html', 'keyboard.js', 'lighting.js', 'main.js',
+    'crowd.js', 'dialogs.js', 'effects.js', 'enemy-visuals.js', 'hud.js', 'index.html', 'keyboard.js', 'lighting.js', 'main.js',
     'maps.js', 'settings-store.js', 'shader-warmup.js', 'shot-visuals.js', 'style.css', 'touch-visuals.js', 'ui.js',
     'vendor/THREE-LICENSE.txt', 'vendor/three.core.js', 'vendor/three.module.js',
     'weapon-visuals.js', 'weapons.js',
