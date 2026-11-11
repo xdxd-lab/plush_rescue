@@ -8,6 +8,7 @@
 
 | 版本 | `revision` | 發布提交 | `source_commit`（基礎） | 建議 tag |
 |---|---|---|---|---|
+| 12.4.1 | `v12.4.1-modular-locks-r1` | `ca2a645` | `4adb4e5` | `v12.4.1` |
 | 12.4.0 | `v12.4.0-variety-r1` | `f097782` | `4f4a3d2` | `v12.4.0` |
 | 12.3.5 | `v12.3.5-label-legibility-r1` | `41e4e7a` | `14aee6a` | `v12.3.5` |
 | 12.3.4 | `v12.3.4-dialog-actions-r1` | `f3e171e` | `da86f2f` | `v12.3.4` |
@@ -23,6 +24,16 @@
 | 11.0.0 | `v11-boss-rescue-r1` | `cbfa10e` | `8a2c6ac`（上游） | `v11.0.0` |
 
 發布提交之後只改文件或 `qa/`、沒有改執行檔的提交（例如 `4d097de`、`84363c8`、`ef9d208`）不另立版本。
+
+## V12.4.1：模組拆分與驗證規則補強
+
+基礎提交 `4adb4e5`，整合 E1、E2 與 Q1；本次沒有納入著色器預熱分支。
+
+- **E1：**將設定保存、十秒自動選擇倒數、合成音效及 HUD 拆成 `settings-store.js`、`choice-timer.js`、`audio.js`、`hud.js`，保留既有玩法及設定鍵值。DOM smoke 透過實際匯入與唯讀 QA 介面取得狀態，減少對 `main.js` 私有變數的依賴。
+- **E2：**以 `qa/locked-modules.json` 記錄七個 V11 鎖定模組與核准變更；審核時補強必要路徑完整性與獨立 V11 雜湊起點，避免刪除清單項目或直接改雜湊繞過檢查。核准鏈必須從 V11 基準一路連至目前雜湊。這是流程與一致性檢查，仍需要使用者實際核准，不能代替授權。
+- **Q1：**Chrome 檢查的 `--views` 現在也約束固定開始／繼續按鈕測項；略過尺寸會明確列在 stderr，未提供此旗標時維持完整七尺寸。
+- **驗證（2026-11-11）：**Node 199/199、DOM smoke 85 項、匯出驗證 35 hashes／65 references／23 JS modules、`git diff --check` 全部通過。完整 `node qa/browser-chrome.mjs --dialogs`：68 passed、0 failed、0 notRun、無 console 錯誤；`--no-pickup --views=360x640,123x456` 實際執行 1 項 360×640 sticky 檢查，未知尺寸與其他未選尺寸均明確略過。鎖規則在 scratch 複本驗證刪項、無核准改 hash、錯誤鏈起點均被拒絕；合法核准工具流程成功且鎖測試 5/5。Chrome 沙盒啟動原先未開 DevTools、未執行測項，改以允許的提升權限執行後完成；此結果屬 headless Chrome／SwiftShader，不是硬體 GPU 或手機驗證。
+- **限制：**尚未補做 Safari、Firefox、實體手機與硬體 GPU；v12.4.0 的深色地圖預警對比問題仍待另案處理。
 
 ## V12.4.0：更多升級、新敵人與觸控特效
 

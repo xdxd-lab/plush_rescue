@@ -405,7 +405,16 @@ const STICKY_PROBE=(primary,last)=>`(async()=>{const d=document.querySelector('#
  // With nothing to scroll, no setting may sit under the sticky button or its 9px ring.
  const barTop=b.getBoundingClientRect().top-9,underBar=d.scrollHeight>d.clientHeight?[]:[...d.querySelectorAll('.setting')].filter(e=>e.getBoundingClientRect().bottom>barTop).map(e=>e.textContent.trim());
  return {open,hidden,underBar,endOnTop:onTop(end),scrollHeight:d.scrollHeight,clientHeight:d.clientHeight};})()`;
-for(const view of STICKY_VIEWS){
+// --views limits this part too: only the named sizes run, and a named size that is not one of
+// the STICKY_VIEWS says so on stderr instead of being skipped silently. Without --views every
+// size runs, as before.
+if(onlyViews){
+ const known=STICKY_VIEWS.map(v=>`${v.width}x${v.height}`);
+ for(const w of onlyViews)if(!known.includes(w))console.error(`SKIP sticky dialog check for ${w}: not one of its sizes (${known.join(', ')})`);
+ const unused=STICKY_VIEWS.filter(v=>!onlyViews.includes(`${v.width}x${v.height}`)).map(v=>v.name);
+ if(unused.length)console.error(`SKIP sticky dialog check for ${unused.join(', ')}: not in --views=${onlyViews.join(',')}`);
+}
+for(const view of STICKY_VIEWS.filter(v=>!onlyViews||onlyViews.includes(`${v.width}x${v.height}`))){
  await check(`${view.name}: start and resume are fully visible on open; every other control stays reachable`,async()=>{
   const page=await openPage({...view,logInputs:true});
   try{

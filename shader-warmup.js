@@ -67,3 +67,14 @@ export function warmupCoverage(g){
   bombs:g.bombs.length,burning:g.enemies.some(e=>e.burn>0),allyDuration:ALLY.duration,
  };
 }
+
+// Ignore completions from an older compile or a different shadow configuration.
+// Catch errors from both the compile promise and first-use uniform queries.
+export function finishWarmup(done,{warmup,renderer,run,shadows,t0}){
+ const current=()=>run===warmup.runs&&shadows===renderer.shadowMap.enabled;
+ return Promise.resolve(done).then(()=>{
+  if(!current())return;
+  for(const program of renderer.info.programs??[])program.getUniforms?.();
+  if(current()){warmup.ready=true;warmup.readyMs=performance.now()-t0;}
+ }).catch(error=>{if(current())warmup.error=String(error?.message||error);});
+}

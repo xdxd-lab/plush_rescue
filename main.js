@@ -18,7 +18,7 @@ import {createSettingsStore} from './settings-store.js';
 import {createChoiceTimer} from './choice-timer.js';
 import {createAudio} from './audio.js';
 import {createHud} from './hud.js';
-import {createWarmupGame,warmupCoverage} from './shader-warmup.js';
+import {createWarmupGame,warmupCoverage,finishWarmup} from './shader-warmup.js';
 import {createTapTracker,createHoverTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,recommendUpgrade,recommendPickup,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
 let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){dialog.innerHTML='<h2>需要 3D 圖形支援</h2><p>請使用支援 WebGL 的瀏覽器，並開啟硬體加速後再試。</p>';throw e;}
@@ -169,7 +169,8 @@ const hudView=createHud({doc:document,heroNames}),hud=hudView.els,hudOccluders=h
 const showNotice=hudView.showNotice;
 function syncStats(){hudView.syncStats({fps,game,calls:renderer.info.render.calls,quality:prefs.quality});}
 function setStatsVisible(value,persist=true){prefs.stats=Boolean(value);hud.stats.hidden=!prefs.stats;if(prefs.stats)syncStats();if(persist)settings.save();}
-function restart(){debugMap=null;reset();game.start();syncOverlay();}
+function startGame(){shaderWarmup.startedBeforeReady=!shaderWarmup.ready;game.start();}
+function restart(){debugMap=null;reset();startGame();syncOverlay();}
 function resume(){clearInput();sfx.unlock();game.resume();syncOverlay();}
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function pickupCard(weapon,label,modifier=''){
@@ -268,7 +269,7 @@ function updateCamera(){
 // first boss, ally, telegraph, mine or effect does not stall a frame. It runs at a
 // reset whose game is still waiting to start, once per shadow setting (quality
 // low turns shadows off, which needs other programs). Nothing is rendered.
-const shaderWarmup={runs:0,shadows:null,programsBefore:0,programsAfter:0,ready:false,error:null,coverage:null,stageMs:0,readyMs:0};
+const shaderWarmup={runs:0,shadows:null,programsBefore:0,programsAfter:0,ready:false,error:null,coverage:null,stageMs:0,readyMs:0,startedBeforeReady:false};
 function stageEffects(events){
  for(const event of events){
   if(event.kind==='rescue')fx.burst(event.x,event.z);
@@ -280,7 +281,7 @@ function stageEffects(events){
 function warmShaders(){
  if(typeof renderer.compile!=='function')return;
  const real=game,warmup=shaderWarmup,t0=performance.now();
- warmup.runs++;warmup.shadows=renderer.shadowMap.enabled;warmup.ready=false;warmup.error=null;warmup.programsBefore=renderer.info.programs?.length??0;
+ warmup.runs++;warmup.shadows=renderer.shadowMap.enabled;warmup.ready=false;warmup.error=null;warmup.startedBeforeReady=false;warmup.programsBefore=renderer.info.programs?.length??0;
  try{
   game=createWarmupGame({map:real.map,heroId:real.heroId,muzzleOffset:real.muzzleOffset});
   warmup.coverage=warmupCoverage(game);
@@ -288,12 +289,7 @@ function warmShaders(){
   // compileAsync collects the materials now and only waits for the driver afterwards.
   const done=typeof renderer.compileAsync==='function'?renderer.compileAsync(scene,camera):renderer.compile(scene,camera);
   warmup.programsAfter=renderer.info.programs?.length??0;warmup.stageMs=performance.now()-t0;
-  Promise.resolve(done).then(()=>{
-   // three.js also reads each program's uniforms and attributes on its first draw, a
-   // synchronous query that waits for the driver; do it here, on the start screen.
-   for(const program of renderer.info.programs??[])program.getUniforms?.();
-   if(warmup.shadows===renderer.shadowMap.enabled){warmup.ready=true;warmup.readyMs=performance.now()-t0;}
-  },error=>{warmup.error=String(error?.message||error);});
+  finishWarmup(done,{warmup,renderer,run:warmup.runs,shadows:warmup.shadows,t0});
  }catch(error){warmup.error=String(error?.message||error);}
  finally{game=real;clearWorld();syncModels();renderDirty=true;}
 }
@@ -394,7 +390,7 @@ function syncHeroCards(){for(const card of heroCards)card.setAttribute('aria-pre
 // Restore the remembered hero and diagnostics switch without writing them back.
 $('#heroSelect').value=prefs.hero;syncHeroCards();setStatsVisible(prefs.stats,false);
 $('#heroSelect').onchange=e=>{prefs.hero=e.target.value==='polar'?'polar':'pudding';$('#heroSelect').value=prefs.hero;syncHeroCards();settings.save();reset();};
-for(const card of heroCards)card.onclick=()=>{if(card.dataset.hero===prefs.hero)return;const select=$('#heroSelect');select.value=card.dataset.hero;select.onchange({target:select});};$('#start').onclick=()=>{sfx.unlock();game.start();syncOverlay();};let previous=performance.now();
+for(const card of heroCards)card.onclick=()=>{if(card.dataset.hero===prefs.hero)return;const select=$('#heroSelect');select.value=card.dataset.hero;select.onchange({target:select});};$('#start').onclick=()=>{sfx.unlock();startGame();syncOverlay();};let previous=performance.now();
 function loop(now){
  requestAnimationFrame(loop);
  const realDt=(now-previous)/1000,dt=Math.min(.05,realDt);previous=now;
@@ -416,4 +412,4 @@ function loop(now){
  if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(prefs.stats)syncStats();}
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v12.4.0-variety-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get hud(){return hudView;},get shaderWarmup(){return {...shaderWarmup,programs:renderer.info.programs?.length??0};},get presentation(){return {notice:hud.notice.textContent,noticeTimer:hudView.noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();game.start();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);hudView.sync(game);syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v12.4.1-modular-locks-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get hud(){return hudView;},get shaderWarmup(){return {...shaderWarmup,programs:renderer.info.programs?.length??0};},get presentation(){return {notice:hud.notice.textContent,noticeTimer:hudView.noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();startGame();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);hudView.sync(game);syncOverlay();renderDirty=false;renderer.render(scene,camera);}};

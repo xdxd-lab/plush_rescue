@@ -1,8 +1,8 @@
 {
-  "version": "12.4.0",
-  "revision": "v12.4.0-variety-r1",
-  "source_commit": "4f4a3d2",
-  "layout": "Static V12.3.5 export based on V12.3.4 (f3e171e); readable drop labels with a minimum on-screen size that slide off the hero, mine blast ring replaces countdown digits, start and resume stay visible in short dialogs, brand favicons and social preview, main-weapon bolt trails and hit feedback, 30-second boss helper allies, hover and tap pickup, mobile-first rescue UI.",
+  "version": "12.4.1",
+  "revision": "v12.4.1-modular-locks-r1",
+  "source_commit": "4adb4e5",
+  "layout": "Static V12.4.1: settings, choice timer, audio and HUD module split; independent V11 lock baseline and approval-chain checks; scoped sticky dialog viewport tests. Gameplay remains V12.4.0.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -61,8 +61,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 443,
-      "sha256": "a94636b85ab06545bf9234857790cbdd53904ba56eea314106c053a8a5853e06"
+      "bytes": 421,
+      "sha256": "721c01eb9bd1ea1c2a4f701a2aad61d8e500b923e3ca6c955ab9ece8f353a637"
     },
     {
       "path": "camera.js",
@@ -106,8 +106,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13805,
-      "sha256": "40c2f66461c69012afe7a32e13e2b5791092d4d4b8abaa2f18a9cae912d1f0b0"
+      "bytes": 13811,
+      "sha256": "7c9c866d118d69537c363875af76e9d31c4d75043653669915049477cc508102"
     },
     {
       "path": "keyboard.js",
@@ -121,8 +121,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 40458,
-      "sha256": "2d38d006aaef47bb81471ff11e7b130637aa14d191c3460bb5c741538711bc01"
+      "bytes": 40254,
+      "sha256": "918e350f860e1d21a1c3102a21dd78244eefe3fd1059b1c804d348e3694590a7"
     },
     {
       "path": "maps.js",
@@ -136,8 +136,8 @@
     },
     {
       "path": "shader-warmup.js",
-      "bytes": 4248,
-      "sha256": "9adf5f38a869cff9264b3e093384014ba6924b1559c181e41dc1e30ffb0180c8"
+      "bytes": 4844,
+      "sha256": "3f493c7a55a26ab4cb41d0159f9a779924e04f91e1c6de421c2748d10f38b323"
     },
     {
       "path": "shot-visuals.js",
