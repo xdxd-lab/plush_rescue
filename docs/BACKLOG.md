@@ -6,7 +6,7 @@
 
 ## 已轉為議題的項目
 
-初次移轉21項；D1、D2、E4、E5、桌面範圍 Q5、R4 與 V2 首階段完成後保留議題作紀錄，不改動固定代號。R1／R2的私密備份位置、會話識別與密碼等只留在安全本機，不貼到公開議題。
+初次移轉21項；D1、D2、E4、E5、桌面範圍 Q5、R4、V2 首階段與 S3 同機保全完成後保留議題作紀錄，不改動固定代號。R1／R2的私密備份位置、會話識別與密碼等只留在安全本機，不貼到公開議題。
 
 | 代號 | 重要程度 | 事項 | 狀態快照 | 議題 |
 |---|---|---|---|---|
@@ -14,7 +14,7 @@
 | E5 | P2 | Core 整理與決定性測試 | 已完成／v12.5.1 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
 | E6 | P2 | 建立渲染效能預算 | 待量測 | [#3](https://github.com/xdxd-lab/plush_rescue/issues/3) |
 | E7 | P2 | 暫停時的繪製與耗電 | 待量測／提案 | [#4](https://github.com/xdxd-lab/plush_rescue/issues/4) |
-| Q2 | P2 | 瀏覽器測試納入 CI | 提案 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
+| Q2 | P2 | 瀏覽器測試納入 CI | Linux 首輪矩陣 17 項通過，驗證器／負測有問題；暫停待決定，未接部署關卡 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
 | Q3 | P1 | 補齊 Safari 與窄視窗跨瀏覽器回歸 | v12.6.0 Firefox 三尺寸完整矩陣通過；Safari 等開啟遠端自動化後驗證 | [#6](https://github.com/xdxd-lab/plush_rescue/issues/6) |
 | Q4 | P1 | 手機實機與長時間效能驗證 | 等設備 | [#7](https://github.com/xdxd-lab/plush_rescue/issues/7) |
 | Q5 | P2 | 可讀性、遮擋與減少動態效果 | 桌面限定驗證完成／v12.5.1，遮擋與真機限制見 QA 紀錄 | [#8](https://github.com/xdxd-lab/plush_rescue/issues/8) |
@@ -57,3 +57,5 @@
 - 關閉議題需有可核對的成果與限制；同機演練不能當作離機或另一設備成功。
 - 不公開私人備份、會話、登入憑證或實際加密密碼；公開議題僅記錄可公開的範圍與結果。
 - D4依使用者要求保持未完成，本輪做過一次不代表永久完成。
+
+本批 Q2／Q6／D4／S3 的結果與限制見[後續驗證紀錄](quality-audit-2026-11-12.md)。Q2 的失敗診斷留在獨立分支；不以本批文件提交宣稱已接入 Chrome 部署關卡。
