@@ -35,6 +35,7 @@ import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
+import {createChromeTelemetry} from './chrome-q2-telemetry.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const CHROME=process.env.CHROME||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -56,6 +57,9 @@ if(!fs.existsSync(CHROME)){console.error('Google Chrome not found; set CHROME=/p
 // ---- lifecycle: one abort switch, one idempotent cleanup -----------------------------------
 let server=null,chrome=null,profile=null,ws=null,origin=null,seq=0,blackhole=null;
 const pending=new Map(),listeners=new Set(),run={aborted:null,cdpAfterAbort:0};
+const telemetry=createChromeTelemetry({emit:line=>console.error(line)});
+let abortTelemetry=null,fatalTelemetry=null;
+function emitTelemetry(label){const snapshot=telemetry.snapshot();console.error(`QA_TELEMETRY ${label} ${JSON.stringify(snapshot)}`);return snapshot;}
 function rejectPending(reason){for(const p of pending.values())p.reject(new Error(reason));pending.clear();}
 const exited=(child,ms)=>new Promise(r=>{if(child.exitCode!==null||child.signalCode!==null)return r(true);const t=setTimeout(()=>r(false),ms);child.once('exit',()=>{clearTimeout(t);r(true);});});
 async function stopBrowser(){
@@ -71,7 +75,8 @@ async function stopBrowser(){
  if(chrome){try{process.kill(-chrome.pid,'SIGKILL');}catch{}for(let i=0;i<30;i++){try{process.kill(-chrome.pid,0);}catch{break;}await sleep(100);}}
 }
 // Stop everything the run started; later CDP calls from a still-running check are refused.
-async function abortRun(reason){if(run.aborted)return;run.aborted=reason;console.error(`ABORT ${reason}`);await stopBrowser();}
+async function abortRun(reason){if(run.aborted)return;run.aborted=reason;console.error(`ABORT ${reason}`);
+ abortTelemetry=emitTelemetry('abort');await stopBrowser();}
 let cleaning=null;
 function cleanup(){
  return cleaning??=(async()=>{
@@ -84,8 +89,8 @@ function cleanup(){
   if(profile&&fs.existsSync(profile))console.error('could not remove '+profile);
  })();
 }
-for(const sig of ['SIGINT','SIGTERM','SIGHUP'])process.on(sig,()=>{console.error(`signal ${sig}: cleaning up`);run.aborted??=`signal ${sig}`;cleanup().finally(()=>process.exit(130));});
-for(const ev of ['uncaughtException','unhandledRejection'])process.on(ev,e=>{console.error(`${ev}: ${e?.stack||e}`);run.aborted??=ev;cleanup().finally(()=>process.exit(1));});
+for(const sig of ['SIGINT','SIGTERM','SIGHUP'])process.on(sig,()=>{console.error(`signal ${sig}: cleaning up`);run.aborted??=`signal ${sig}`;abortTelemetry??=emitTelemetry('signal');cleanup().finally(()=>process.exit(130));});
+for(const ev of ['uncaughtException','unhandledRejection'])process.on(ev,e=>{console.error(`${ev}: ${e?.stack||e}`);run.aborted??=ev;fatalTelemetry=emitTelemetry(ev);cleanup().finally(()=>process.exit(1));});
 
 // ---- static server for the repository root -------------------------------------------
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.png':'image/png','.txt':'text/plain; charset=utf-8'};
@@ -123,8 +128,9 @@ if(selfTest==='setup'){selfTestReport.phaseReached='devtools-ready';throw new Er
 function send(method,params={},sessionId,timeoutMs=CDP_TIMEOUT_MS){
  if(run.aborted){run.cdpAfterAbort++;return Promise.reject(new Error(`${method} refused: run aborted (${run.aborted})`));}
  return new Promise((resolve,reject)=>{const id=++seq;
-  const timer=setTimeout(()=>{if(!pending.has(id))return;pending.delete(id);reject(new Error(`${method} timed out after ${timeoutMs} ms`));abortRun(`CDP ${method} timed out after ${timeoutMs} ms`);},timeoutMs);
-  pending.set(id,{method,resolve:v=>{clearTimeout(timer);resolve(v);},reject:e=>{clearTimeout(timer);reject(e);}});
+  const finishTrace=telemetry.cdpStart(id,method);
+  const timer=setTimeout(()=>{if(!pending.has(id))return;pending.delete(id);finishTrace('timeout');reject(new Error(`${method} timed out after ${timeoutMs} ms`));abortRun(`CDP ${method} timed out after ${timeoutMs} ms`);},timeoutMs);
+  pending.set(id,{method,resolve:v=>{clearTimeout(timer);finishTrace('completed');resolve(v);},reject:e=>{clearTimeout(timer);finishTrace(run.aborted?'aborted':'error');reject(e);}});
   try{ws.send(JSON.stringify({id,method,params,sessionId}));}catch(e){pending.get(id)?.reject(e);pending.delete(id);}
  });
 }
@@ -298,10 +304,17 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
  await check(`${view.name}: five rounds of pause, settings and resume through the real menu`,async()=>{
   const qualities=['high','low','balanced','high','low'];
   for(let round=0;round<5;round++){
+   const roundNumber=round+1;
+   telemetry.phase(roundNumber,'round','begin');
+   telemetry.phase(roundNumber,'pause','begin');
    if(round%2)await page.eval("window.dispatchEvent(new Event('blur'))");else await page.click('#pause');
    assert.equal(await page.eval('__T.qa.game.status'),'paused',`round ${round} paused`);
+   telemetry.phase(roundNumber,'pause','done');
+   telemetry.phase(roundNumber,'choices','begin');
    await page.eval(`(()=>{document.querySelector('#quality-${qualities[round]}').click();document.querySelector('#nextHero-${round%2?'pudding':'polar'}').click();})()`);
+   telemetry.phase(roundNumber,'choices','done');
    // Each tap on the checkbox must toggle it once and store the new value right away.
+   telemetry.phase(roundNumber,'stats','begin');
    const before=await page.eval("document.querySelector('#showStats').checked");
    await page.eval("(()=>{window.__w=[];if(Storage.prototype.__wrapped)return;const set=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){(window.__w||[]).push([k,v,Math.round(performance.now())]);return set.call(this,k,v)};Storage.prototype.__wrapped=1;})()");
    await page.click('#showStats');
@@ -309,9 +322,15 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
    if(after.checked===before||after.stored!==after.checked)lastDiag={round,before,...after};
    assert.equal(after.checked,!before,`round ${round}: the tap toggled the checkbox once`);
    assert.equal(after.stored,after.checked,`round ${round}: stored stats matches the checkbox`);
+   telemetry.phase(roundNumber,'stats','done');
+   telemetry.phase(roundNumber,'resume','begin');
    await page.click('#resume');assert.equal(await page.eval('__T.qa.game.status'),'running',`round ${round} resumed`);
+   telemetry.phase(roundNumber,'resume','done');
    const [dx,dz]=[[-2,-1.5],[-2.5,1],[1.8,-1.8],[-1.6,2],[2.4,-1.2]][round];
+   telemetry.phase(roundNumber,'pickup','begin');
    assert.ok(await tapDrop(page,{mobile,where:round%2?'labelLeft':'labelRight',dx,dz}),`round ${round} tap`);
+   telemetry.phase(roundNumber,'pickup','done');
+   telemetry.phase(roundNumber,'round','done');
   }
   const saved=await page.eval('__T.qa.settings');assert.deepEqual({q:saved.quality,h:saved.hero},{q:'low',h:'polar'});
  });
@@ -571,8 +590,8 @@ async function runSelfTest(){
 
 let fatal=null;
 try{await setup();if(selfTest)await runSelfTest();else await runAll();}
-catch(e){fatal=e;console.error(`fatal: ${e?.stack||e}`);}
+catch(e){fatal=e;console.error(`fatal: ${e?.stack||e}`);fatalTelemetry=emitTelemetry('fatal');}
 finally{await cleanup();}
 const failed=results.filter(r=>!r.ok);
-console.log(JSON.stringify({method:'headless Google Chrome, SwiftShader-requested WebGL, DevTools-protocol input',chrome:CHROME,webglDiagnostics,aborted:run.aborted,fatal:fatal?String(fatal.message||fatal):null,cdpRefusedAfterAbort:run.cdpAfterAbort,selfTest:selfTest?{mode:selfTest,...selfTestReport}:undefined,passed:results.filter(r=>r.ok&&!r.note).length,failed:failed.length,notRun:results.filter(r=>r.notRun).length,consoleErrors:errors,dialogButtonsNeedingScroll:[...scrolled],dialogs,results},null,1));
+console.log(JSON.stringify({method:'headless Google Chrome, SwiftShader-requested WebGL, DevTools-protocol input',chrome:CHROME,webglDiagnostics,aborted:run.aborted,fatal:fatal?String(fatal.message||fatal):null,cdpRefusedAfterAbort:run.cdpAfterAbort,selfTest:selfTest?{mode:selfTest,...selfTestReport}:undefined,passed:results.filter(r=>r.ok&&!r.note).length,failed:failed.length,notRun:results.filter(r=>r.notRun).length,consoleErrors:errors,dialogButtonsNeedingScroll:[...scrolled],dialogs,results,telemetry:telemetry.snapshot(),abortTelemetry,fatalTelemetry},null,1));
 process.exit(fatal||run.aborted||failed.length||errors.length?1:0);

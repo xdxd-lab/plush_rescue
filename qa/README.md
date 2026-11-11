@@ -48,7 +48,8 @@ rejects other values. Each run uses `--views=1280x720 --dialogs
 checks when `--views` limits the main matrix; with one selected view, those
 contexts use the same dimensions. Without this new flag, the
 existing `--views` behavior is unchanged. Each full run has a 12-minute outer
-limit; the two-run job has 40 minutes and the one-run job has 25 minutes.
+limit, with normal check/CDP limits of 240/60 seconds; the two-run job has
+40 minutes and the one-run job has 25 minutes.
 Timeout never counts as a pass or triggers a retry. Four self-tests exercise check timeout, CDP timeout, failed
 assertion and setup cleanup. The always-uploaded artifact contains per-run
 JSON, stderr, screenshots, runner/Chrome/Node versions, WebGL renderer details,
@@ -69,6 +70,9 @@ The four lifecycle probes retain normal bounded setup/CDP limits and inject a
 short timeout only in the intended check or request. Each has a 120-second
 outer limit; `qa/chrome-q2-validation.test.mjs` covers rejected false positives,
 missing or reordered matrix cases, and outer timeouts.
+The five-round settings check records bounded round/subphase begin/done times
+and current pending phase; the report and abort/fatal stderr include the last
+20 CDP methods with elapsed/completed state and a separate active snapshot.
 `--require-swiftshader` is an optional strict diagnostic; the first Linux run
 records the renderer without assuming its exact string. This workflow is not
 a required CI gate until the Linux evidence is reviewed.

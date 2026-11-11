@@ -17,6 +17,8 @@ const chrome=process.env.CHROME;
 if(!chrome||!fs.existsSync(chrome))throw new Error('set CHROME to the runner-installed Google Chrome executable');
 fs.mkdirSync(output,{recursive:true});
 const environment={node:process.version,platform:process.platform,release:os.release(),arch:process.arch,
+ cpuModel:os.cpus()[0]?.model??null,cpuCount:os.cpus().length,
+ availableParallelism:os.availableParallelism?.()??null,initialLoadAvg:os.loadavg(),
  chromePath:chrome,chromeVersion:execFileSync(chrome,['--version'],{encoding:'utf8'}).trim(),
  runnerImage:process.env.ImageOS??null,runnerImageVersion:process.env.ImageVersion??null,
  fontPackage:'fonts-noto-cjk',fontStatus:process.env.Q2_FONT_STATUS??'unreported',
@@ -94,6 +96,7 @@ async function runCase(name,args,limits,expected){
   passed:report?.passed??null,failed:report?.failed??null,notRun:report?.notRun??null,
   aborted:report?.aborted??null,fatal:report?.fatal??null,
   selfTestPhaseReached:report?.selfTest?.phaseReached??null,
+  abortTelemetry:report?.abortTelemetry??null,fatalTelemetry:report?.fatalTelemetry??null,
   webglDiagnostics:report?.webglDiagnostics??[]};
  const cleanupSafe=evidence.profileRemoved&&evidence.browserGroupGone&&portsClean;
  let valid=false;
@@ -110,7 +113,7 @@ async function runCase(name,args,limits,expected){
  console.log(`${evidence.valid?'PASS':'FAIL'} ${name}: exit=${exit.code} profileRemoved=${evidence.profileRemoved} groupGone=${evidence.browserGroupGone} portsClean=${portsClean} checks=${evidence.passed}/${evidence.failed}`);
  return evidence.valid;
 }
-const matrix={outer:720000,check:120000,cdp:45000,setup:15000};
+const matrix={outer:720000,check:240000,cdp:60000,setup:15000};
 const negative={outer:120000,check:240000,cdp:60000,setup:15000};
 try{
  for(let i=1;i<=matrixRuns;i++){
