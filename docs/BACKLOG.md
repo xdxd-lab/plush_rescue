@@ -1,8 +1,8 @@
 # 待辦與議題索引
 
-更新快照：2026-11-11，v12.5.0 發布後。此索引使用固定代號；最新討論與狀態以各 GitHub Issue 為準。
+更新快照：2026-11-12，v12.5.0 發布後。此索引使用固定代號；最新討論與狀態以各 GitHub Issue 為準。
 
-建立 Issue 是保留需求與決策紀錄，**不代表所有提案都已批准實作**。本輪只授權 D1、D2、R1、R2；其他工作另行安排。P1 為優先，括號標記適用時機；P2 為後續改善，P3 為探索。
+建立 Issue 是保留需求與決策紀錄，**不代表所有提案都已批准實作**。本輪已授權 D1、D2、R1、R2，以及後續追加的 E5、Q5、Q3；其他工作另行安排。P1 為優先，括號標記適用時機；P2 為後續改善，P3 為探索。
 
 ## 已轉為議題的項目
 
@@ -11,13 +11,13 @@
 | 代號 | 重要程度 | 事項 | 狀態快照 | 議題 |
 |---|---|---|---|---|
 | E4 | P2 | 繼續拆分 main.js | 提案 | [#1](https://github.com/xdxd-lab/plush_rescue/issues/1) |
-| E5 | P2 | Core 整理與決定性測試 | 提案 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
+| E5 | P2 | Core 整理與決定性測試 | 已授權，依相依性與驗證條件安排 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
 | E6 | P2 | 建立渲染效能預算 | 待量測 | [#3](https://github.com/xdxd-lab/plush_rescue/issues/3) |
 | E7 | P2 | 暫停時的繪製與耗電 | 待量測／提案 | [#4](https://github.com/xdxd-lab/plush_rescue/issues/4) |
 | Q2 | P2 | 瀏覽器測試納入 CI | 提案 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
-| Q3 | P1 | 補齊 Safari 與窄視窗跨瀏覽器回歸 | 部分完成 | [#6](https://github.com/xdxd-lab/plush_rescue/issues/6) |
+| Q3 | P1 | 補齊 Safari 與窄視窗跨瀏覽器回歸 | 已授權，依相依性與驗證條件安排 | [#6](https://github.com/xdxd-lab/plush_rescue/issues/6) |
 | Q4 | P1 | 手機實機與長時間效能驗證 | 等設備 | [#7](https://github.com/xdxd-lab/plush_rescue/issues/7) |
-| Q5 | P2 | 可讀性、遮擋與減少動態效果 | 待辦 | [#8](https://github.com/xdxd-lab/plush_rescue/issues/8) |
+| Q5 | P2 | 可讀性、遮擋與減少動態效果 | 已授權，依相依性與驗證條件安排 | [#8](https://github.com/xdxd-lab/plush_rescue/issues/8) |
 | Q6 | P2 | 真人平衡與長局測試 | 待辦 | [#9](https://github.com/xdxd-lab/plush_rescue/issues/9) |
 | V2 | P2 | 粒子與特效素材整合 | 已有設計／待選方案 | [#10](https://github.com/xdxd-lab/plush_rescue/issues/10) |
 | V3 | P3 | 背景音樂與音效 | 候選待決定 | [#11](https://github.com/xdxd-lab/plush_rescue/issues/11) |

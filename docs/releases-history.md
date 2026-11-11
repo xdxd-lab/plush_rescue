@@ -2,7 +2,7 @@
 
 本頁於2026-11-11核對並補建歷史紀錄；對照基準是 v12.5.0 發布後的 CHANGELOG。這次沒有重新製作、重新測試、回填原發布日期或再次部署舊版；補建時的最新版維持 v12.5.0。
 
-本倉庫可驗證的版本自 V11 起共15版。本輪補5個附註tag及13份GitHub Release；已存在tag／Release不改寫。舊tag的原始日期與本次補建日期分開判讀。V6～V10只有匯入前的文字紀錄，缺少本倉庫發布提交證據，不補造tag或Release。
+本輪版本對照表列出自 V11 起的15個發布版本。本輪補5個附註tag及13份GitHub Release；已存在tag／Release不改寫。舊tag的原始日期與本次補建日期分開判讀。本輪未逐一建立 V11 以前的發布版本與提交對照，因此不補造那些tag或Release。不能從本機淺層副本缺少物件，推論遠端沒有更早歷史。
 
 | 版本 | 發布提交 | Tag | Release | 本輪動作 |
 |---|---|---|---|---|
@@ -24,10 +24,16 @@
 
 ## 核對方法與後續規則
 
-- 逐版比對發布提交的build-info版本／revision／source_commit及CHANGELOG表；除V11外，source_commit均與發布提交父提交吻合。V11是本倉庫首次匯入，上游基礎提交不在本倉庫，本輪沒有額外驗證上游歷史。
+- 逐版比對發布提交的build-info版本／revision／source_commit及CHANGELOG表。本輪完整遠端核對後，V11父提交8a2c6ac亦在同一遠端可讀；本機先前shallow clone截在cbfa10e，不能當成遠端根。這15版的基礎提交與發布提交父提交均吻合。
 - 歷史Release明確標示補建，原始commit日期只引用Git metadata；舊測試以當時文件與後續補測標註為準，不當作本次重測。
 - 本輪新增的歷史tag保留補建說明與確切commit；revision列於對應Release與CHANGELOG。已發布tag不為了調整說明而改寫。今後新版本tag訊息應包含revision。
 - 建立Release前先驗證遠端tag及其peeled commit。歷史補建使用`--verify-tag --latest=false`，避免從main誤建tag或變更最新版。
 - 只改文件／QA的提交不新增遊戲版本。版本識別與建置快照語意見[README](../README.md)。
 
 這是D1的完成紀錄；後續版本仍依既有發布流程新增。詳細功能與測試範圍見[CHANGELOG](../CHANGELOG.md)。
+
+## 本輪 shallow 判讀更正（2026-11-12）
+
+初次補建說明把本機未取得的V11祖先誤寫為不在遠端，本節更正該推論。針對`48e9e0d`取得的隔離完整鏡像，其main歷史有88個提交，根為`e472e22c89da445cd96056bdf35e93985360bac2`；`cbfa10e`父提交為`8a2c6ac5751e9c4b72d2bb0d02c2611caeb59f54`。這些是本輪該時點的證據，不代表已逐版確認所有早期版本的發布身分或測試完整性。
+
+補正不移動既有tag、不重建發布提交；歷史Release說明同步修正。備份不能只看到bundle verify成功就當可還原，還必須從空倉庫實際驗證歷史物件是否自足。
