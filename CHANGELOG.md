@@ -8,7 +8,7 @@
 
 | 版本 | `revision` | 發布提交 | `source_commit`（基礎） | 建議 tag |
 |---|---|---|---|---|
-| 12.4.1 | `v12.4.1-modular-locks-r1` | （驗證後補記） | `4adb4e5` | `v12.4.1` |
+| 12.4.1 | `v12.4.1-modular-locks-r1` | `ca2a645` | `4adb4e5` | `v12.4.1` |
 | 12.4.0 | `v12.4.0-variety-r1` | `f097782` | `4f4a3d2` | `v12.4.0` |
 | 12.3.5 | `v12.3.5-label-legibility-r1` | `41e4e7a` | `14aee6a` | `v12.3.5` |
 | 12.3.4 | `v12.3.4-dialog-actions-r1` | `f3e171e` | `da86f2f` | `v12.3.4` |
