@@ -1,41 +1,21 @@
-# Kenney atlas source and rebuild
+# Kenney 圖集來源與可攜重建
 
-The 18 versioned PNGs in `sources/` are audited 256×256 RGBA inputs for
-`reference/particles.png`. They are selected, resized candidate images from
-locally preserved Kenney packages, **not the upstream original-resolution files**.
-`reference/particles.json` records the reproducible output, ordered cells,
-SHA and generation version. Each input name, byte count, SHA-256 and dimension
-matches [materials-selection.json](../../docs/materials-selection.json).
-The three package `License.txt` files also match the recorded SHA-256 and the
-public copies in `docs/licenses/`. A separate safety copy was verified outside
-the worktree; the versioned copies here make recovery portable.
+本文件及後續修訂請使用正體中文與臺灣常用語氣；指令、路徑與技術名稱保留原文。
 
-Run with Pillow installed:
+`sources/` 保存 18 張經核對的 256×256 RGBA 圖片，作為 `reference/particles.png` 的輸入。這些是從本機保留的 Kenney 素材包選出、縮製的候選圖，**不是上游原始解析度的檔案**。`reference/particles.json` 記錄輸出、格子順序、SHA 與生成版本。每張輸入的名稱、bytes、SHA-256 與尺寸都符合 [materials-selection.json](../../docs/materials-selection.json)；三份 `License.txt` 也與記錄及 `docs/licenses/` 的公開副本相符。獨立安全副本另行保存，本目錄的版本化來源可供搬移復原。
+
+安裝 Pillow 後，在儲存庫根目錄執行：
 
 ```sh
 python3 tools/atlas/rebuild.py --output-dir /tmp/plush-atlas-rebuilt
 ```
 
-`--source-root` can point to another copy with the same three pack directories.
-The tool rejects existing output files and refuses to write inside the source
-or reference directory. It checks each source SHA, license SHA, item order,
-cell coordinates and six-decimal image-space UV against the public selection.
-It compares every RGBA byte of the **whole** 2048×1024 atlas against the
-reference, including transparent RGB and padding. Pillow 13.0.0 produced the
-same PNG bytes and SHA-256 `ca39797b59dd36bb3f7fac4a49d44ce119849ed129f9bb8a3734c034e9addf07`.
-Other Pillow encoders may produce different PNG bytes with identical pixels.
+實測工具為 Python 3.12.14／Pillow 13.0.0。`--source-root` 可指向另一份具有相同三個素材包目錄的副本。工具拒絕覆寫既有輸出，也拒絕寫入來源或參考目錄；它會核對來源與授權 SHA、順序、格子座標及六位小數的圖片空間 UV。必要校驗使用明確錯誤判斷，一般模式與 `python -O` 均會執行。
 
-Atlas layout: 256px cells, 2px inset, 260px pitch, eight columns, 18 items in
-the order of the selection file. UV metadata uses image-space origin at top
-left; with Three.js `flipY=true`, use `v_gl=1-v`. `shape_a` is a solid light
-shape; it is not a soft `circle_05` glow. No atlas cells are treated as original
-source images.
+重建會對**整張** 2048×1024 圖集逐一比較 RGBA bytes，包含透明像素的 RGB 與 padding。Pillow 13.0.0 的輸出 PNG bytes 也相同，SHA-256 為 `ca39797b59dd36bb3f7fac4a49d44ce119849ed129f9bb8a3734c034e9addf07`。其他編碼器可能在像素相同時產生不同 PNG bytes，兩者應分開記錄。
 
-The sources are Kenney Particle Pack, Light Masks and Smoke Particles under the
-package CC0 notices preserved here. Particle Pack is labelled 1.1 in the
-package while the website update label was recorded as 1.0. The official
-asset pages could not be reopened during this audit; these credits rely on the
-previous S1 record and the matching package notices. Project or character
-commercial rights are separate from these asset notices.
+圖集使用 256px 內容格、2px inset、260px pitch、8 欄，18 格依選材清單排序。UV 以圖片左上角為原點；Three.js 使用 `flipY=true` 時換算為 `v_gl=1-v`。`shape_a` 是實心光斑，不能當成 `circle_05` 的柔暈；也不能將圖集裁格冒充原始輸入來源。
 
-Generated metadata records `source_selection_sha256` for the selection JSON read by that particular build. Later audit-document edits can change that input-file hash without changing the selected pixels or UVs; preserve the generated metadata as a dated snapshot rather than updating its hash in place.
+來源為 Kenney Particle Pack、Light Masks 與 Smoke Particles，依本目錄保存的包內 CC0 授權文字記錄。Particle Pack 包內標示 1.1，先前官網更新標籤記錄為 1.0；此次無法重新開啟官方素材頁，不宣稱已重新線上核實，來源依既有 S1 與相符的包內授權交叉核對。專案與角色的商用權利另由 S2 處理。
+
+生成 metadata 的 `source_selection_sha256` 記錄該次實際讀取的選材 JSON。後續稽核文字更新可能改變此檔案的 SHA，而不改變圖片或 UV；應保留 metadata 的生成快照，不回填改寫舊 SHA。
