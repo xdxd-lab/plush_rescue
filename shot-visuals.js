@@ -30,7 +30,9 @@ export const SHOT_VISUAL=Object.freeze({
 });
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 
-export function createShotVisuals(THREE,scene){
+export const FLASH_ATLAS=Object.freeze({url:'assets/particles.png',item:'star_09',width:2048,height:1024,x:1042,y:262,size:256});
+
+export function createShotVisuals(THREE,scene,{onAtlasReady=()=>{},loadAtlas}={}){
   const root=new THREE.Group();root.name='Main weapon trails and hits';scene.add(root);
   // A cone along -Z: full width at the bolt (z=0), a point at the tail (z=-1),
   // bright at the bolt and black (invisible when added) at the tail.
@@ -48,7 +50,21 @@ export function createShotVisuals(THREE,scene){
     flashCanvas.width=flashCanvas.height=64;const c=flashCanvas.getContext('2d');
     if(c?.createRadialGradient){const g=c.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.35,'rgba(255,255,255,.55)');g.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=g;c.fillRect(0,0,64,64);flashTexture=new THREE.CanvasTexture(flashCanvas);}
   }
-  const flashes=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:flashTexture,...additive}),SHOT_VISUAL.flashes);
+  // star_09 is an audited hit core. Its image-space cell uses top-left origin;
+  // Three.js flipY=true expects bottom-left V. The 2px transparent gutters
+  // and disabled mipmaps keep sampling inside this one cell.
+  const flashGeometry=new THREE.PlaneGeometry(1,1),uv=flashGeometry.attributes.uv;
+  const u0=FLASH_ATLAS.x/FLASH_ATLAS.width,u1=(FLASH_ATLAS.x+FLASH_ATLAS.size)/FLASH_ATLAS.width;
+  const v0=1-(FLASH_ATLAS.y+FLASH_ATLAS.size)/FLASH_ATLAS.height,v1=1-FLASH_ATLAS.y/FLASH_ATLAS.height;
+  const baseUv=[];for(let i=0;i<uv.count;i++)baseUv.push([uv.getX(i),uv.getY(i)]);
+  const setFlashUvs=atlas=>{
+    for(let i=0;i<uv.count;i++){
+      const [u,v]=baseUv[i];uv.setXY(i,atlas?u0+u*(u1-u0):u,atlas?v0+v*(v1-v0):v);
+    }
+    uv.needsUpdate=true;
+  };
+  const flashMaterial=new THREE.MeshBasicMaterial({map:flashTexture,...additive});
+  const flashes=new THREE.InstancedMesh(flashGeometry,flashMaterial,SHOT_VISUAL.flashes);
   flashes.name='Main weapon hit flashes';
   const puffMesh=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,0),new THREE.MeshBasicMaterial({color:'#fff6ea',transparent:true,opacity:.9,depthWrite:false}),SHOT_VISUAL.puffs);
   puffMesh.name='Main weapon hit cotton puffs';
@@ -113,10 +129,37 @@ export function createShotVisuals(THREE,scene){
     }
     puffMesh.count=count;puffMesh.visible=count>0;if(count)puffMesh.instanceMatrix.needsUpdate=true;
   }
+  let atlasTexture=null,atlasGeneration=0,atlasState='fallback',disposed=false;
+  function reloadAtlas(){
+    if(disposed)return;
+    const generation=++atlasGeneration;
+    atlasState='pending';setFlashUvs(false);flashMaterial.map=flashTexture;flashMaterial.needsUpdate=true;
+    if(atlasTexture){atlasTexture.dispose();atlasTexture=null;}
+    const success=texture=>{
+      if(disposed||generation!==atlasGeneration){texture?.dispose?.();return;}
+      if(!texture?.image||texture.image.width!==FLASH_ATLAS.width||texture.image.height!==FLASH_ATLAS.height){
+        texture?.dispose?.();atlasState='fallback';return;
+      }
+      texture.flipY=true;texture.colorSpace=THREE.SRGBColorSpace;
+      texture.generateMipmaps=false;texture.minFilter=THREE.LinearFilter;texture.magFilter=THREE.LinearFilter;
+      texture.wrapS=THREE.ClampToEdgeWrapping;texture.wrapT=THREE.ClampToEdgeWrapping;
+      texture.needsUpdate=true;atlasTexture=texture;setFlashUvs(true);flashMaterial.map=texture;flashMaterial.needsUpdate=true;
+      atlasState='ready';onAtlasReady();
+    };
+    const failure=()=>{if(!disposed&&generation===atlasGeneration)atlasState='fallback';};
+    try{
+      if(loadAtlas)loadAtlas(FLASH_ATLAS.url,success,failure);
+      else if(typeof Image!=='undefined'&&THREE.TextureLoader)new THREE.TextureLoader().load(FLASH_ATLAS.url,success,undefined,failure);
+      else failure();
+    }catch{failure();}
+  }
+  function dispose(){disposed=true;atlasGeneration++;atlasTexture?.dispose();flashTexture?.dispose();}
+  reloadAtlas();
   function clear(){
     starts.clear();for(const f of flashPool)f.life=0;for(const p of puffPool)p.life=0;
     for(const batch of [trails,flashes,puffMesh]){batch.count=0;batch.visible=false;}
   }
-  return {sync,hit,update,clear,
+  return {sync,hit,update,clear,reloadAtlas,dispose,
+    get atlasState(){return atlasState;},get flashMaterial(){return flashMaterial;},get flashGeometry(){return flashGeometry;},
     get stats(){return {trails:trails.count,flashes:flashes.count,puffs:puffMesh.count};}};
 }

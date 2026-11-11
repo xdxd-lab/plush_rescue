@@ -43,8 +43,13 @@ for filename in sorted(paths):
         # Captures static imports/exports, side-effect imports and literal dynamic imports.
         pattern = r'''(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s*)['"]([^'"\n]+)['"]'''
         references.extend((filename, url) for url in re.findall(pattern, code))
-        # Application code has one dynamic resource expression: hero portrait selection.
+        # Application code has two reviewed dynamic resources: hero portrait and atlas.
         # Vendored Three.js includes generic loaders, unused by this game's local geometry.
+        if filename == 'shot-visuals.js':
+            assert "url:'assets/particles.png'" in code
+            assert 'new THREE.TextureLoader().load(FLASH_ATLAS.url' in code
+            references.append((filename, 'assets/particles.png'))
+            code = code.replace('new THREE.TextureLoader().load(FLASH_ATLAS.url', '')
         if not filename.startswith('vendor/'):
             assert not re.search(r'\bfetch\s*\(|\.load\s*\(|\bnew\s+URL\s*\(', code), \
                 f'Review additional dynamic resource loader in {filename}'

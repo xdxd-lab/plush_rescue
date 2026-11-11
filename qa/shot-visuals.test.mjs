@@ -69,3 +69,63 @@ test('the core reports each bolt hit with its weapon, on the enemy surface facin
  assert.equal(hits.length,1);const h=hits[0];assert.equal(h.weaponId,'pulse');
  assert.ok(Math.abs(Math.hypot(h.x-e.x,h.z-e.z)-.38)<1e-6,'on the surface');assert.ok(h.z<e.z,'on the side the bolt came from');
 });
+
+// The atlas pilot changes only the flash material. A deferred loader lets this
+// suite exercise pending, failure, reset, stale callback and successful upload.
+test('star_09 atlas UV switches only after successful load, retaining full fallback UV',()=>{
+ const callbacks=[];
+ const scene=new THREE.Scene(),v=createShotVisuals(THREE,scene,{loadAtlas:(url,ok)=>callbacks.push(ok)}),uv=v.flashGeometry.attributes.uv;
+ const extents=()=>{const us=[],vs=[];for(let i=0;i<uv.count;i++){us.push(uv.getX(i));vs.push(uv.getY(i));}return [Math.min(...us),Math.max(...us),Math.min(...vs),Math.max(...vs)];};
+ assert.deepEqual(extents(),[0,1,0,1],'pending canvas fallback samples the full texture');
+ const atlas=new THREE.Texture();atlas.image={width:2048,height:1024};callbacks[0](atlas);
+ const [a,b,c,d]=extents();assert.ok(Math.abs(a-1042/2048)<1e-6);assert.ok(Math.abs(b-1298/2048)<1e-6);
+ assert.ok(Math.abs(c-(1-518/1024))<1e-6);assert.ok(Math.abs(d-(1-262/1024))<1e-6);
+ v.reloadAtlas();assert.deepEqual(extents(),[0,1,0,1],'reload restores full fallback UV');
+});
+
+test('pending, failed and invalid atlas loads retain the original flash fallback',()=>{
+ const callbacks=[];let ready=0;
+ const scene=new THREE.Scene(),v=createShotVisuals(THREE,scene,{onAtlasReady:()=>ready++,loadAtlas:(url,ok,fail)=>{assert.equal(url,'assets/particles.png');callbacks.push({ok,fail});}});
+ const fallback=v.flashMaterial.map;
+ assert.equal(v.atlasState,'pending');assert.equal(v.flashMaterial.map,fallback);
+ v.hit({weaponId:'pulse',x:0,z:0},{quality:'low',reduceMotion:true});v.update(0);
+ assert.deepEqual(v.stats,{trails:0,flashes:1,puffs:0});
+ callbacks[0].fail();assert.equal(v.atlasState,'fallback');assert.equal(v.flashMaterial.map,fallback);
+ v.reloadAtlas();const invalid=new THREE.Texture();invalid.image={width:512,height:512};callbacks[1].ok(invalid);
+ assert.equal(v.atlasState,'fallback');assert.equal(v.flashMaterial.map,fallback);assert.equal(ready,0);
+});
+
+test('valid atlas load changes only flash map; stale and disposed callbacks are ignored',()=>{
+ const callbacks=[];let ready=0;
+ const scene=new THREE.Scene(),v=createShotVisuals(THREE,scene,{onAtlasReady:()=>ready++,loadAtlas:(url,ok,fail)=>callbacks.push({ok,fail})});
+ const fallback=v.flashMaterial.map;
+ v.clear();v.reloadAtlas();
+ const stale=new THREE.Texture();stale.image={width:2048,height:1024};callbacks[0].ok(stale);
+ assert.equal(v.flashMaterial.map,fallback);assert.equal(v.atlasState,'pending');
+ const atlas=new THREE.Texture();atlas.image={width:2048,height:1024};callbacks[1].ok(atlas);
+ assert.equal(v.atlasState,'ready');assert.equal(ready,1);assert.equal(v.flashMaterial.map,atlas);
+ assert.equal(atlas.flipY,true);assert.equal(atlas.colorSpace,THREE.SRGBColorSpace);
+ assert.equal(atlas.generateMipmaps,false);assert.equal(atlas.minFilter,THREE.LinearFilter);
+ assert.equal(v.flashMaterial.blending,THREE.AdditiveBlending);assert.equal(v.flashMaterial.depthWrite,false);
+ v.hit({weaponId:'pulse',x:0,z:0});v.update(0);assert.equal(v.stats.flashes,1);assert.equal(v.stats.puffs,S.puffsPerHit);
+ v.reloadAtlas();assert.equal(v.flashMaterial.map,fallback);
+ v.dispose();const after=new THREE.Texture();after.image={width:2048,height:1024};callbacks[2].ok(after);
+ assert.equal(ready,1);assert.equal(v.flashMaterial.map,fallback);
+});
+
+test('CanvasTexture fallback keeps its full original image while atlas is pending or fails',()=>{
+ const previous=globalThis.document;
+ globalThis.document={createElement:()=>({getContext:()=>({createRadialGradient:()=>({addColorStop(){}}),fillRect(){}})})};
+ try{
+  let fail;
+  const scene=new THREE.Scene(),v=createShotVisuals(THREE,scene,{loadAtlas:(url,ok,onError)=>{fail=onError;}});
+  const fallback=v.flashMaterial.map;
+  assert.ok(fallback?.isCanvasTexture);
+  assert.equal(v.atlasState,'pending');
+  const uv=v.flashGeometry.attributes.uv;
+  const us=[],vs=[];for(let i=0;i<uv.count;i++){us.push(uv.getX(i));vs.push(uv.getY(i));}
+  assert.deepEqual([Math.min(...us),Math.max(...us),Math.min(...vs),Math.max(...vs)],[0,1,0,1]);
+  fail();assert.equal(v.flashMaterial.map,fallback);assert.equal(v.atlasState,'fallback');
+  v.dispose();
+ }finally{globalThis.document=previous;}
+});

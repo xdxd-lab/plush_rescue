@@ -1,6 +1,6 @@
 {
   "audited_on": "2026-11-11",
-  "status": "selected-for-future-V2-integration;not-in-runtime",
+  "status": "R4-sources-and-full-pixel-rebuild-verified;V2-star_09-hit-flash-pilot",
   "sources": [
     {
       "id": "particle-pack",
@@ -39,7 +39,8 @@
     "bytes": 506138,
     "sha256": "ca39797b59dd36bb3f7fac4a49d44ce119849ed129f9bb8a3734c034e9addf07",
     "count": 18,
-    "pixel_rebuild_verified_this_audit": false
+    "pixel_rebuild_verified_this_audit": true,
+    "runtime_pilot": "star_09 hit flash only; trails and puffs unchanged"
   },
   "items": [
     {

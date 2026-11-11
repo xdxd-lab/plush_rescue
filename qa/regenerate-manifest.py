@@ -15,7 +15,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 RUNTIME = [
-    'assets/polar-portrait.png', 'assets/pudding-portrait.png',
+    'assets/polar-portrait.png', 'assets/pudding-portrait.png', 'assets/particles.png',
     'assets/brand/apple-touch-icon.png', 'assets/brand/brand-mark.png', 'assets/brand/icon-16.png',
     'assets/brand/icon-192.png', 'assets/brand/icon-32.png', 'assets/brand/og-image.jpg',
     'ally-visuals.js', 'audio.js', 'boss-visuals.js', 'build-info.json', 'camera.js', 'characters.js', 'choice-timer.js', 'core.js',

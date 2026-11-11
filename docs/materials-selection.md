@@ -51,3 +51,15 @@ PNG 的尺寸、bytes／SHA-256、來源包、atlas 位置與 UV、授權檔雜�
 ## V2 接入驗收邊界
 
 接入時才加入 runtime manifest，檢查透明邊緣、UV 翻轉／滲色、明暗地圖、低畫質、減少動態、fallback、遮擋與渲染成本。選材、授權保存或圖集存在，都不等於特效已發布。
+
+## 2026-11-12 R4／V2 有界更新
+
+已將 18 張原始選用 PNG、三份包內授權及參考 atlas 保存在
+[`tools/atlas/`](../tools/atlas/README.md)，並以可攜腳本從來源重建。
+來源 SHA、完整 2048×1024 RGBA（含透明 padding）與既有圖逐一相同；
+Pillow 13.0.0 的 PNG 位元組也相同。另有不依賴舊 `/private/tmp` 的安全副本。
+
+V2 目前只將 `star_09` 用於主武器命中 flash 的 atlas 試點。
+等待、載入失敗及尺寸無效時保留原 CanvasTexture 效果；trail、puff、
+核心玩法和 RNG 均未調整。其餘 17 格仍是已保存候選，未接入視覺。
+實景明暗、遮擋、窄視窗與效能證據仍待獨立瀏覽器驗證。

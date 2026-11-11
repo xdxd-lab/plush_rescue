@@ -54,8 +54,9 @@ const choiceTimer=createChoiceTimer({doc:document,win:window,dialog,enabled:()=>
 const runTrack={bosses:0,evolved:new Set(),aliveBosses:new Map(),nextAlive:new Map()};
 // Boss allies share the crowd's plush batches; reserve room for them.
 const crowd=createCrowd(THREE,scene,{...LIMITS,rescued:LIMITS.rescued+ALLY_VISUAL.reserve});
-const allyVisuals=createAllyVisuals(THREE,scene),shotVisuals=createShotVisuals(THREE,scene);
+const allyVisuals=createAllyVisuals(THREE,scene),shotVisuals=createShotVisuals(THREE,scene,{onAtlasReady:()=>{renderDirty=true;}});
 const weaponVisuals=createWeaponVisuals(THREE,scene);
+canvas.addEventListener('webglcontextrestored',()=>{shotVisuals.reloadAtlas();renderDirty=true;});
 const bossVisuals=createBossVisuals(THREE,scene),enemyVisuals=createEnemyVisuals(THREE,scene);
 const ordinaryEnemies=[];
 const stick=new Stick(),keys=new Set(),enemies=new Map(),rescued=new Map(),bullets=new Map(),enemyPool=[[],[],[],[]],freePool=[[],[],[],[]],bulletPool=[];
