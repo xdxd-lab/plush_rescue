@@ -131,8 +131,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 21039,
-      "sha256": "9de75ddbafca97370ad9d9074ae0802a05317d7aa28a6a22ad195d253bca9df8"
+      "bytes": 18220,
+      "sha256": "3ff4a4b65efd8231c8eb0fa7625f5d281c72529bb6214624d1b9d5a14f80f1a1"
     },
     {
       "path": "maps.js",
@@ -143,6 +143,11 @@
       "path": "pickup.js",
       "bytes": 4984,
       "sha256": "e2a0fca20e4832fefebfc483639ad6f89f0b1d6058cedf2dc7312df2a4291a73"
+    },
+    {
+      "path": "render-sync.js",
+      "bytes": 3744,
+      "sha256": "acd16e1e1a002dbfb2cfec6dba0277aa5c087138c3913732e54f85f9cc39589b"
     },
     {
       "path": "settings-store.js",

@@ -1,15 +1,14 @@
 import * as THREE from './vendor/three.module.js';
-import {Game,Stick,UPGRADES,LIMITS,ALLY,healthLabel,bossKind} from './core.js';
+import {Game,Stick,UPGRADES,LIMITS,ALLY} from './core.js';
 import {MAPS,buildMap} from './maps.js';
 import {makePlush} from './characters.js';
-import {CAMERA,cameraOffset,cameraFocus,createGameCamera,fitGameCamera,screenToWorldInput,screenToWorldAt} from './camera.js';
+import {CAMERA,cameraOffset,createGameCamera,fitGameCamera,screenToWorldInput,screenToWorldAt} from './camera.js';
 import {createEffects} from './effects.js';
-import {isInteractiveTarget,routeKeyDown} from './keyboard.js';
 import {createCrowd} from './crowd.js';
 import {createTouchVisuals} from './touch-visuals.js';
 import {applyMapLighting,positionCameraFill} from './lighting.js';
 import {WEAPONS} from './weapons.js';
-import {createBossVisuals,bossVisualScale} from './boss-visuals.js';
+import {createBossVisuals} from './boss-visuals.js';
 import {createEnemyVisuals} from './enemy-visuals.js';
 import {createWeaponVisuals} from './weapon-visuals.js';
 import {createAllyVisuals,ALLY_VISUAL} from './ally-visuals.js';
@@ -21,8 +20,9 @@ import {createHud} from './hud.js';
 import {createDialogs} from './dialogs.js';
 import {createPickup} from './pickup.js';
 import {createInput} from './input-controller.js';
+import {createRenderSync} from './render-sync.js';
 import {createWarmupGame,warmupCoverage,finishWarmup,shouldWarmup} from './shader-warmup.js';
-import {createTapTracker,createHoverTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,recommendUpgrade,recommendPickup,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
+import {createTapTracker,createHoverTracker,dropHitShape,pickDropAt,readSettings,readRecords} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
 let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){dialog.innerHTML='<h2>需要 3D 圖形支援</h2><p>請使用支援 WebGL 的瀏覽器，並開啟硬體加速後再試。</p>';throw e;}
 // three.js reads every shader's compile log synchronously while this is on, which stalls
@@ -63,13 +63,10 @@ const stick=new Stick(),keys=new Set(),enemies=new Map(),rescued=new Map(),bulle
 const touchFx=createTouchVisuals($('#touchFx'),{doc:document});touchFx.setEnabled(prefs.touchFx);
 const bulletGeometry=new THREE.SphereGeometry(1,12,8),bulletMaterial=new THREE.MeshBasicMaterial({color:'#d8fcff'}),bulletGlowMaterial=new THREE.MeshBasicMaterial({color:'#63e3ff',transparent:true,opacity:.28,depthWrite:false,blending:THREE.AdditiveBlending});
 const fx=createEffects(THREE,scene,LIMITS),cameraDelta=cameraOffset(),cameraTarget=new THREE.Vector3();
-function makeBullet(){const group=new THREE.Group(),core=new THREE.Mesh(bulletGeometry,bulletMaterial),glow=new THREE.Mesh(bulletGeometry,bulletGlowMaterial);core.scale.set(.05,.05,.24);glow.scale.set(.12,.12,.35);group.add(glow,core);return group;}
 const names=['鈕扣街坊庭院','荒廢溫室花園','月光遊樂場'];const params=new URLSearchParams(location.search);let debugMap=params.get('map');const mapIndex=()=>{if(debugMap===null)return null;const n=Number(debugMap);if(Number.isInteger(n)&&n>=0&&n<=2)return n;const i=MAPS.findIndex(x=>x.id===debugMap);return i>=0?i:null;};
 // Sound effects (audio.js); unlocked from the first gesture that starts or resumes play.
 const sfx=createAudio({getContextClass:()=>window.AudioContext||window.webkitAudioContext,volume:()=>prefs.volume});
-function releaseAll(collection,pool){for(const obj of collection.values()){scene.remove(obj.mesh);pool(obj);}collection.clear();}
-// Every world visual of the current game goes back to its pool (reset and shader warm-up).
-function clearWorld(){crowd.clear();weaponVisuals.clear();bossVisuals.clear();enemyVisuals.clear();allyVisuals.clear();shotVisuals.clear();releaseAll(enemies,o=>enemyPool[o.type].push(o.mesh));releaseAll(rescued,o=>freePool[o.type].push(o.mesh));releaseAll(bullets,o=>bulletPool.push(o.mesh));fx.clear();}
+function clearWorld(){renderSync.clearWorld();}
 function reset(){choiceTimer.clear();renderDirty=true;clearWorld();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);game=new Game({map:mapIndex(),autoEquip:prefs.autoEquip,heroId:prefs.hero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();hudView.sync(game);if(shouldWarmup(shaderWarmup,renderer.shadowMap.enabled))warmShaders();}
 function resetPresentation(){
  hudView.resetFeedback();
@@ -101,12 +98,7 @@ function resume(){clearInput();sfx.unlock();game.resume();syncOverlay();}
 const dialogs=createDialogs({document,overlay,dialog,canvas,getGame:()=>game,getLastStatus:()=>lastStatus,setLastStatus:value=>{lastStatus=value;},setRenderDirty:()=>{renderDirty=true;},prefs,settings,choiceTimer,clearInput,hudView,runTrack,storage,heroNames,names,setQuality,sfx,setAutoEquip,touchFx,setStatsVisible,restart,resume});
 function syncOverlay(){dialogs.syncOverlay();}
 function renderBestLine(){dialogs.renderBestLine();}
-function syncCollection(entities,collection,kind){const ids=new Set(entities.map(e=>e.id));for(const[id,o]of collection){if(!ids.has(id)){scene.remove(o.mesh);if(kind==='bullet')bulletPool.push(o.mesh);else(kind==='enemy'?enemyPool:freePool)[o.type].push(o.mesh);collection.delete(id);}}for(const e of entities){let o=collection.get(e.id);if(!o){let mesh;if(kind==='bullet'){mesh=bulletPool.pop()||makeBullet();}else{mesh=(kind==='enemy'?enemyPool:freePool)[e.type].pop()||makePlush(THREE,{type:e.type,rescued:kind==='free'});if(kind==='free'){mesh.userData.setRescued?.();mesh.userData.startRescueAnimation?.();}}o={mesh,type:e.type};collection.set(e.id,o);if(kind==='bullet')scene.add(mesh);}if(kind==='bullet')weaponVisuals.styleBullet(o.mesh,e);o.mesh.position.set(e.x,kind==='bullet'?(e.y??game.muzzleOffset.y):0,e.z);o.mesh.rotation.y=kind==='bullet'?Math.atan2(e.vx,e.vz):e.angle;o.mesh.userData.animate?.(game.time+e.id,true);if(kind==='free')o.mesh.scale.setScalar((e.boss?bossVisualScale(e,o.mesh.userData.radius):1)*Math.min(1,e.life/.65));else if(kind!=='bullet')o.mesh.scale.setScalar(1);}}
-function updateCamera(){
- const focus=cameraFocus(game.player,innerWidth,innerHeight);cameraTarget.set(focus.x,focus.y,focus.z);
- camera.position.set(cameraTarget.x+cameraDelta.x,cameraTarget.y+cameraDelta.y,cameraTarget.z+cameraDelta.z);
- camera.lookAt(cameraTarget);positionCameraFill(fill,cameraTarget,camera);sun.target.position.copy(cameraTarget);sun.position.set(cameraTarget.x-14,26,cameraTarget.z+8);
-}
+function updateCamera(){renderSync.updateCamera();}
 // Shader warm-up (shader-warmup.js). A staged game with one of everything is put
 // in the scene for a single compile call, then the real game is restored, so the
 // first boss, ally, telegraph, mine or effect does not stall a frame. It runs at a
@@ -137,17 +129,7 @@ function warmShaders(){
  }catch(error){warmup.error=String(error?.message||error);}
  finally{game=real;clearWorld();syncModels();renderDirty=true;}
 }
-function syncModels(){
- ordinaryEnemies.length=0;for(const e of game.enemies)if(!e.boss)ordinaryEnemies.push(e);
- syncCollection(ordinaryEnemies,enemies,'enemy');bossVisuals.sync(game);enemyVisuals.sync(game,{reduceMotion:reduceMotion()});syncCollection(game.rescued,rescued,'free');syncCollection(game.bullets,bullets,'bullet');
- allyVisuals.sync(game,{reduceMotion:reduceMotion()});shotVisuals.sync(game.bullets,game.muzzleOffset.y);
- crowd.sync([enemies,rescued,allyVisuals.models],{dirty:true});
- hero.position.set(game.player.x,0,game.player.z);hero.rotation.y=game.player.angle;
- // Reduced motion replaces the 12 Hz hurt blink with the steady vignette flash.
- hero.visible=game.invuln===0||reduceMotion()||Math.floor(game.time*12)%2===0;
- weaponVisuals.sync(game,hero);
- fx.shadows(game.player,game.enemies,game.rescued);
-}
+function syncModels(){renderSync.syncModels();}
 const pickupController=createPickup({document,canvas,camera,getGame:()=>game,getSize:()=>({width:innerWidth,height:innerHeight}),weaponVisuals,hudOccluders,pendingTaps,hover,pickupState,overlay,setRenderDirty:()=>{renderDirty=true;},getDropShapes:(...args)=>dropShapes(...args)});
 function projectToScreen(...args){return pickupController.projectToScreen(...args);}
 function viewRect(){return pickupController.viewRect();}
@@ -172,6 +154,7 @@ function effects(dt){
  }
  fx.update(dt,camera);weaponVisuals.update(dt,game.events,game,camera,innerHeight);allyVisuals.update(dt);shotVisuals.update(dt,camera);
 }
+const renderSync=createRenderSync({scene,getGame:()=>game,getHero:()=>hero,crowd,weaponVisuals,bossVisuals,enemyVisuals,allyVisuals,shotVisuals,fx,enemies,rescued,bullets,enemyPool,freePool,bulletPool,bulletGeometry,bulletMaterial,bulletGlowMaterial,ordinaryEnemies,camera,cameraTarget,cameraDelta,fill,sun,reduceMotion,getSize:()=>({width:innerWidth,height:innerHeight}),makePlush,positionCameraFill});
 setQuality(prefs.quality);reset();resize();renderBestLine();
 // Visual hero cards drive the original #heroSelect value/change interface.
 const heroCards=[$('#heroCardPudding'),$('#heroCardPolar')].filter(Boolean);
