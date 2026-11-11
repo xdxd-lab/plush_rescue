@@ -115,6 +115,11 @@
       "sha256": "6c272d97d17694d754d8fa49672c5d288d11443b50ba79bb4d2bab71d48ddca7"
     },
     {
+      "path": "input-controller.js",
+      "bytes": 7307,
+      "sha256": "09b39b8aff7d7a04c0c8eedf6432a2dce051f8a49763596c2754178665a24ab3"
+    },
+    {
       "path": "keyboard.js",
       "bytes": 1757,
       "sha256": "7723f262b8aecf7b40b42c83eca46d2054b9fa4760ae96a9779412850573586d"
@@ -126,8 +131,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 27108,
-      "sha256": "652f843466e0a957682511a5ed2adfb84e4d7af1f6a1805847fd0f417fd4d319"
+      "bytes": 21039,
+      "sha256": "9de75ddbafca97370ad9d9074ae0802a05317d7aa28a6a22ad195d253bca9df8"
     },
     {
       "path": "maps.js",

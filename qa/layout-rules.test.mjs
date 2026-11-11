@@ -184,9 +184,9 @@ test('start and resume stick to the visible bottom of a dialog taller than the w
    assert.equal(pauseRow.bottom,'calc(9px - var(--pad-b))',`${vp.name}: pause row offset`);
   }else{assert.equal(readyGrid.display,undefined,vp.name);assert.equal(pauseRow.position,undefined,vp.name);}
  }
- const main=fs.readFileSync(new URL('../main.js',import.meta.url),'utf8');
+ const main=fs.readFileSync(new URL('../main.js',import.meta.url),'utf8')+fs.readFileSync(new URL('../input-controller.js',import.meta.url),'utf8');
  assert.ok(main.includes("dialog.addEventListener('focusin',e=>{"),'focused controls are scrolled clear of the sticky button');
- assert.ok(main.includes(".find(el=>getComputedStyle(el).position==='sticky')"),'the scroll fix follows whichever element is sticky');
+ assert.ok(main.includes(".find(el=>getStyle(el).position==='sticky')"),'the scroll fix follows whichever element is sticky');
 });
 
 test('dialogs stay reachable when taller than the window: scroll container, no input capture, focus kept inside',()=>{
@@ -200,11 +200,11 @@ test('dialogs stay reachable when taller than the window: scroll container, no i
   assert.ok(!['fixed','absolute'].includes(declarationsAt('.primary',vp).position),`${vp.name}: primary stays in the scrolling flow`);
  }
  // V12.3.4: start and resume stick to the dialog's visible bottom (see the sticky test below).
- const main=fs.readFileSync(new URL('../main.js',import.meta.url),'utf8');
+ const main=fs.readFileSync(new URL('../main.js',import.meta.url),'utf8')+fs.readFileSync(new URL('../input-controller.js',import.meta.url),'utf8');
  const dialogs=fs.readFileSync(new URL('../dialogs.js',import.meta.url),'utf8');
  // Touches on a shown dialog are never claimed by the game, so the browser can scroll it.
  assert.ok(main.includes("if(game.status!=='running'||overlay.classList.contains('shown')||e.defaultPrevented"),'pointerdown ignores dialogs');
- assert.ok(main.includes("document.addEventListener('gesturestart',e=>{if(game.status==='running'&&!overlay.classList.contains('shown')"),'pinch is only blocked during play');
+ assert.ok(main.includes("document.addEventListener('gesturestart',e=>{const game=getGame();if(game.status==='running'&&!overlay.classList.contains('shown')"),'pinch is only blocked during play');
  // Keyboard: the primary action is focused on open and Tab stays inside the dialog
  // (a browser scrolls a tabbed-to control into view).
  assert.ok(dialogs.includes("(prefs.autoChoose&&autoTarget?autoTarget:dialog.querySelector('#keepWeapon,#resume,.choice,#again,#start'))?.focus("),'recommended target focused only when auto-choice is enabled');

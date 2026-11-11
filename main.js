@@ -20,6 +20,7 @@ import {createAudio} from './audio.js';
 import {createHud} from './hud.js';
 import {createDialogs} from './dialogs.js';
 import {createPickup} from './pickup.js';
+import {createInput} from './input-controller.js';
 import {createWarmupGame,warmupCoverage,finishWarmup,shouldWarmup} from './shader-warmup.js';
 import {createTapTracker,createHoverTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,recommendUpgrade,recommendPickup,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
@@ -85,89 +86,13 @@ function trackRun(){
 }
 function resize(){let w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio,prefs.quality==='high'?2:prefs.quality==='balanced'?1.6:1));fitGameCamera(camera,w,h);}
 function setQuality(v){prefs.quality=v;renderer.shadowMap.enabled=v!=='low';renderer.shadowMap.needsUpdate=true;resize();}
-function updateStick(){const el=$('#stick');el.style.display=stick.id===null?'none':'block';el.style.left=stick.origin.x+'px';el.style.top=stick.origin.y+'px';$('#knob').style.transform=`translate(${stick.x*34}px,${stick.z*34}px)`;}
-// A gesture can start on any non-interactive part of the game, including HUD
-// readouts. Native buttons/inputs keep their own pointer and click behaviour.
-document.addEventListener('pointerdown',e=>{
- clearHover();
- if(game.status!=='running'||overlay.classList.contains('shown')||e.defaultPrevented||e.button!==0||!$('#game').contains(e.target)||isInteractiveTarget(e.target))return;
- if(stick.begin(e.pointerId,e.clientX,e.clientY)){
-  // A browser may revoke a pointer before capture (for example on app switch).
-  // Never retain movement ownership when capture could not be established.
-  try{canvas.setPointerCapture(e.pointerId);}catch{stick.reset();updateStick();return;}
-  e.preventDefault();updateStick();$('#moveHint').style.opacity='.15';
- }
- // Every accepted press may become a tap on a drop, including a second finger
- // while the first one holds the stick. It never takes over movement.
- taps.begin(e.pointerId,e.clientX,e.clientY,eventTime(e,tapClock),e.pointerType);
- touchFx.begin(e.pointerId,e.clientX,e.clientY,e.pointerType,{reduceMotion:reduceMotion()});
- // Tracked presses (never buttons or dialogs, which returned above) keep the browser
- // from adding its own handling to the extra finger.
- e.preventDefault();
-},{passive:false});
-// Safari ignores touch-action for pinch; stop its gesture only while the game is running
-// so dialogs and the rest of the page keep their zoom.
-document.addEventListener('pointerout',e=>{if(e.pointerType==='mouse'&&!e.relatedTarget)clearHover();});
-document.addEventListener('gesturestart',e=>{if(game.status==='running'&&!overlay.classList.contains('shown')&&$('#game').contains(e.target))e.preventDefault();},{passive:false});
-document.addEventListener('pointermove',e=>{
- taps.move(e.pointerId,e.clientX,e.clientY);touchFx.move(e.pointerId,e.clientX,e.clientY);
- // Only a mouse with no button down hovers; a drag, a finger or a pen never does.
- if(e.pointerType==='mouse'){
-  if(e.buttons!==0||isInteractiveTarget(e.target)||!$('#game').contains(e.target))clearHover();
-  else{if(!pickupState.hoverPoint||pickupState.hoverPoint.x!==e.clientX||pickupState.hoverPoint.y!==e.clientY)pickupState.hoverMoved=true;pickupState.hoverPoint={x:e.clientX,y:e.clientY,type:'mouse'};}
- }
- if(e.pointerId!==stick.id)return;
- if(game.status!=='running'){clearInput();return;}
- // A mouse button released outside the page ends only this drag; other fingers
- // and taps already waiting for the next frame are kept.
- if(e.pointerType==='mouse'&&(e.buttons&1)===0){taps.cancel(e.pointerId);endStick();return;}
- if(stick.move(e.pointerId,e.clientX,e.clientY)){e.preventDefault();updateStick();}
-},{passive:false});
-for(const type of ['pointerup','pointercancel','lostpointercapture'])document.addEventListener(type,e=>{
- // Ignore loss of the original target's implicit capture when it transfers
- // to the canvas; only losing our canvas capture cancels the drag.
- if(type==='lostpointercapture'&&e.target!==canvas)return;
- touchFx.end(e.pointerId);
- // A tap on an opaque HUD panel is a tap on the panel, not on the world below it.
- if(type==='pointerup'){const tap=taps.end(e.pointerId,e.clientX,e.clientY,eventTime(e,tapClock));if(tap&&game.status==='running'&&!overlay.classList.contains('shown')&&pendingTaps.length<4&&!pointCovered(tap,hudOccluders))pendingTaps.push(tap);}
- // A pointer whose capture was lost can no longer be trusted: its pointerup may arrive
- // without the matching moves, so it must not turn into a tap.
- else taps.cancel(e.pointerId);
- if(!stick.end(e.pointerId))return;
- if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
- updateStick();
-});
-function endStick(){const id=stick.id;stick.reset();if(id!==null&&canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);updateStick();}
-function clearInput(){touchFx.clear();clearHover();taps.clear();pendingTaps.length=0;endStick();keys.clear();}
+function clearInput(){inputController.clearInput();}
 function pause(){game.pause();clearInput();syncOverlay();}
-window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('resize',()=>{clearInput();resize();});
-window.addEventListener('keydown',e=>{const action=routeKeyDown(e,game.status,keys);if(action==='pause')pause();else if(action==='resume'){game.resume();syncOverlay();}else if(action==='stats'){setStatsVisible(!prefs.stats);}else if(action?.startsWith('upgrade:')){dialog.querySelectorAll('[data-upgrade]')[Number(action.slice(8))-1]?.onclick?.();}});
-window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
-// Keep keyboard navigation inside the active menu without changing native
-// checkbox, slider, select, Space, or Escape behavior.
-document.addEventListener('keydown',e=>{
- if(e.key!=='Tab'||game.status==='running')return;
- const controls=[...dialog.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled):not([tabindex="-1"]),[tabindex="0"]')];
- if(!controls.length)return;
- const first=controls[0],last=controls[controls.length-1];
- if(!dialog.contains(document.activeElement)||(!e.shiftKey&&document.activeElement===last)){e.preventDefault();first.focus();}
- else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
-});
-document.addEventListener('focusin',e=>{if(isInteractiveTarget(e.target))keys.clear();});
-// V12.3.4: the start/resume button (or the pause button row) sticks to the dialog's visible
-// bottom. A control focused underneath it is scrolled clear; browsers skip scroll-padding for
-// a control that is already inside the scrollport.
-dialog.addEventListener('focusin',e=>{
- const bar=[...dialog.querySelectorAll('.pause-actions,#start,#resume')].find(el=>getComputedStyle(el).position==='sticky');
- if(!bar||bar.contains(e.target))return;
- const r=e.target.getBoundingClientRect(),b=bar.getBoundingClientRect(),over=r.bottom-(b.top-14);
- if(over>0&&r.top<b.bottom)dialog.scrollTop+=over;
-});$('#pause').onclick=pause;
-$('#stowTwoHanded').onclick=()=>{if(game.status!=='running'||!game.twoHandedWeapon)return;keys.clear();game.toggleTwoHanded();renderDirty=true;hudView.sync(game);canvas.focus({preventScroll:true});};
-function input(){return screenToWorldAt({x:stick.x+(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0),z:stick.z+(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0)},camera,game.player,innerWidth,innerHeight);}
 // The HUD (hud.js): permanent nodes, change-only writes, notices and hit/rescue feedback.
 const hudView=createHud({doc:document,heroNames}),hud=hudView.els,hudOccluders=hudView.occluders;
 const showNotice=hudView.showNotice;
+const inputController=createInput({document,window,canvas,overlay,dialog,stick,keys,taps,pendingTaps,touchFx,hover,pickupState,clearHover,getGame:()=>game,tapClock,reduceMotion,hudOccluders,pause,syncOverlay,resize,setStatsVisible,prefs,hudView,setRenderDirty:()=>{renderDirty=true;},getCamera:()=>camera,getSize:()=>({width:innerWidth,height:innerHeight}),getStyle:el=>getComputedStyle(el)});
+function input(){return inputController.input();}
 function syncStats(){hudView.syncStats({fps,game,calls:renderer.info.render.calls,quality:prefs.quality});}
 function setStatsVisible(value,persist=true){prefs.stats=Boolean(value);hud.stats.hidden=!prefs.stats;if(prefs.stats)syncStats();if(persist)settings.save();}
 function startGame(){shaderWarmup.startedBeforeReady=!shaderWarmup.ready;game.start();}
