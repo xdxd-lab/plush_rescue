@@ -9,11 +9,13 @@ the root `README.md`.
 
 | Command (from the repository root) | Covers |
 |---|---|
-| `node --test qa/*.test.mjs` | layout rules per viewport, invariants (V11-unchanged modules, weapon-visuals drawing identical to V11, V8/V10/V11 markers, manifest, portraits, P2 warning), ui.js helpers, keyboard, tap-to-pick (core, tap detection and timing, DROP_GEOMETRY measured against every model, ring/item/full-label hit area, shape–viewport intersection incl. portrait edges and far-plane cuts, overlap ranking, HUD cover), drop label policy, size, texture and hero slide, mine visuals, remembered settings, and gameplay signatures proving core.js matches V11 (`sim-signature.mjs`) |
+| `node --test qa/*.test.mjs` | layout rules per viewport, invariants (V11-unchanged modules, selected weapon geometry/material properties matching the V11 fixture (not pixel-identical rendering), V8/V10/V11 markers, manifest, portraits, P2 warning), ui.js helpers, keyboard, tap-to-pick (core, tap detection and timing, DROP_GEOMETRY measured against every model, ring/item/full-label hit area, shape–viewport intersection incl. portrait edges and far-plane cuts, overlap ranking, HUD cover), drop label policy, size, texture and hero slide, mine visuals, remembered settings, and gameplay signatures proving core.js matches V11 (`sim-signature.mjs`) |
 | `node --test qa/equip-slots.test.mjs` | focused pickup choices, main/off-hand replacement and separate magic charge, two-handed equip/stow/toggle, repeated cannon pickups, sequential pickups and firing behavior |
 | `node --test qa/hover-pickup.test.mjs` | mouse hover timing, target changes, hidden blink grace, long stalls, reset and repeat prevention |
 | `node qa/ui-smoke.mjs` | DOM/renderer stub with the real Game: hero cards and `#heroSelect`, pause/settings, pickup, level-up (incl. 1–4 keys), cannon, notices, boss clock, V8 drag, records, blocked storage, two-finger tap-to-pick, on-screen taps in four viewports (label ends, far drops, partly visible drops at the portrait edge, HUD cover, expiry and blink dark/bright beats, slow mouse), five pause/settings/resume rounds, settings reload |
 | `node qa/browser-chrome.mjs [--shots=DIR] [--views=WxH,...] [--dialogs] [--no-pickup] [--self-test=MODE]` | optional, needs Google Chrome and Node 22+ (Node 20: add `--experimental-websocket`): headless Chrome with SwiftShader WebGL, real CSS layout and DevTools-protocol mouse/touch input with explicit timestamps — boot, ring/item/label-end taps, far drops (auto-chosen visible, uncovered spot), real HUD cover, five real pause/settings/resume rounds with a per-round check of the stats checkbox and `localStorage`, slow and busy-thread mouse clicks, drag guard, second finger, reload, separate profile, blocked storage. Default views 1280×720, 390×844, 360×640, 844×390; `--views` also takes 568×320 and 800×600 and now limits the sticky start/resume dialog check (320×568, 360×640, 390×844, 844×390, 568×320, 800×600, 1280×720) to the named sizes too (sizes outside that list are reported on stderr as skipped); without `--views` all seven run as before. `--dialogs` measures start/pause dialog reachability (wheel or touch drag to the end, Tab into view, Enter). Prints one line per check as it finishes. Slow: a full run takes many minutes. Lifecycle: see below |
+| `node --test qa/shader-warmup.test.mjs` | deterministic staging, visible-material coverage, compile/program-query error handling, stale callbacks, late program exclusion and failed-run retry policy; Node stubs, not GPU performance |
+| `node --test qa/enemy-variety.test.mjs` | ranged/dash state rules, warning mesh bounds/material contrast, reduced-motion opacity and mesh cleanup; not final scene visibility |
 | `python3 qa/regenerate-manifest.py` | rewrite runtime sizes/hashes after accepting changes |
 | `python3 verify-export.py` | hashes, non-root URLs, JS syntax (when Node is present) |
 
@@ -143,6 +145,21 @@ no console errors on the release files. Pickup regression at 1280x720, 390x844 a
 3f72408. Enemy warnings were screenshotted on 4f4a3d2 with a separate script outside the repository (`game.step`
 driven); the dasher lane has low contrast in grayscale on the dark map. Not tested in Safari, Firefox, on a phone or
 a hardware GPU.
+
+V12.5.0 (2026-11-11, shader warm-up and clearer dash lanes): final Node checks passed 207 tests and the DOM
+smoke passed 88 checks. Export verification passed 36 hashes / 68 references / 24 JS modules. The complete
+Chrome 157 headless / SwiftShader `--dialogs` run passed 68/68 with no console errors. The three maps, wind-up
+progress, grayscale and reduced-motion dash lanes were compared against the prior release in a separate capture
+harness; the lane is fully in frame, while local character/label overlap can still occur. A single Apple M4 Max
+Metal performance sample is documented in the root CHANGELOG, including driver-cache and diagnostic-setting
+confounders; it is not a phone FPS result.
+
+Firefox 160 headless, attached with geckodriver 0.37.1 / Marionette and a disposable profile, passed the core
+interaction matrix at actual 1280x720. The requested 390x844 headless matrix was not run because content width
+bottomed at 500; native Firefox had only partial checks at a 390x844 iframe. Safari only reached the title page,
+with WebGL and gameplay interaction unverified. These were one-off external test tools, not new repository or
+CI commands. Q3 remains incomplete; see the V12.5.0 CHANGELOG for exact coverage and setup/input distinctions.
+The V12.4.0 count of 85 above is a historical snapshot, not the current smoke total.
 
 ## Locked modules (lock manifest)
 

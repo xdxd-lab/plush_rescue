@@ -68,13 +68,16 @@ export function warmupCoverage(g){
  };
 }
 
+// Retry only on a later reset after an error, or when the shadow mode changes.
+export function shouldWarmup(warmup,shadows){return warmup.shadows!==shadows||warmup.error!==null;}
+
 // Ignore completions from an older compile or a different shadow configuration.
 // Catch errors from both the compile promise and first-use uniform queries.
-export function finishWarmup(done,{warmup,renderer,run,shadows,t0}){
+export function finishWarmup(done,{warmup,renderer,programs,run,shadows,t0}){
  const current=()=>run===warmup.runs&&shadows===renderer.shadowMap.enabled;
  return Promise.resolve(done).then(()=>{
   if(!current())return;
-  for(const program of renderer.info.programs??[])program.getUniforms?.();
+  for(const program of programs)if(!program.isReady||program.isReady())program.getUniforms?.();
   if(current()){warmup.ready=true;warmup.readyMs=performance.now()-t0;}
  }).catch(error=>{if(current())warmup.error=String(error?.message||error);});
 }

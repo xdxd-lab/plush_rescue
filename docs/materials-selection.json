@@ -1,0 +1,478 @@
+{
+  "audited_on": "2026-11-11",
+  "status": "selected-for-future-V2-integration;not-in-runtime",
+  "sources": [
+    {
+      "id": "particle-pack",
+      "name": "Particle Pack",
+      "version_as_recorded": "1.1（包內標示；官網更新欄為1.0）",
+      "source_url": "https://kenney.nl/assets/particle-pack",
+      "license": "CC0-1.0",
+      "license_file": "licenses/Kenney-particle-pack.txt",
+      "license_sha256": "f9e70b81d8cc07c4e07c9f2eff1d94fd371a06070b18cb67c651c41158ec2975"
+    },
+    {
+      "id": "light-masks",
+      "name": "Light Masks",
+      "version_as_recorded": "1.0",
+      "source_url": "https://kenney.nl/assets/light-masks",
+      "license": "CC0-1.0",
+      "license_file": "licenses/Kenney-light-masks.txt",
+      "license_sha256": "62c31143a7c48c4eb067c57ea90a5d5c3b7d659feb5ee8514d13fc394c7d0e94"
+    },
+    {
+      "id": "smoke-particles",
+      "name": "Smoke Particles",
+      "version_as_recorded": "1.0",
+      "source_url": "https://kenney.nl/assets/smoke-particles",
+      "license": "CC0-1.0",
+      "license_file": "licenses/Kenney-smoke-particles.txt",
+      "license_sha256": "16dffa20429eccd9a6ddbffffe7870191974975d192d3934e53da5d486ed2e4f"
+    }
+  ],
+  "atlas": {
+    "file": "particles.png",
+    "dimensions": [
+      2048,
+      1024
+    ],
+    "bytes": 506138,
+    "sha256": "ca39797b59dd36bb3f7fac4a49d44ce119849ed129f9bb8a3734c034e9addf07",
+    "count": 18,
+    "pixel_rebuild_verified_this_audit": false
+  },
+  "items": [
+    {
+      "name": "shape_a",
+      "source_pack": "light-masks",
+      "bytes": 12446,
+      "sha256": "cc46a07143b46c88854f469dfaec851c34db166830c423125af923e2e14de419",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "光彈形狀／實心光斑；柔暈需另選，不直接等同 circle_05",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 2,
+        "y": 2,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.000977,
+        "v0": 0.001953,
+        "u1": 0.125977,
+        "v1": 0.251953
+      }
+    },
+    {
+      "name": "trace_06",
+      "source_pack": "particle-pack",
+      "bytes": 15188,
+      "sha256": "cb0815e708b588161e2e08e72f9b351a105b2162d0716b1d9a624d248e88973b",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "光彈光尾（沿飛行方向拉伸，0.25–0.35 s 淡出）",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 262,
+        "y": 2,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.12793,
+        "v0": 0.001953,
+        "u1": 0.25293,
+        "v1": 0.251953
+      }
+    },
+    {
+      "name": "circle_02",
+      "source_pack": "particle-pack",
+      "bytes": 29252,
+      "sha256": "6a2c5461ec68f187b8846d2d1e0c0e5ccd941ebad56d1788c028fe77f5a31996",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "預警圈備選細環、按下擴散圈",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 522,
+        "y": 2,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.254883,
+        "v0": 0.001953,
+        "u1": 0.379883,
+        "v1": 0.251953
+      }
+    },
+    {
+      "name": "circle_03",
+      "source_pack": "particle-pack",
+      "bytes": 47772,
+      "sha256": "d37f539fb44d8184ed12d51b8620a366c1626f23518c76a8934b445ac582c73f",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "預警圈外框、衝擊波擴散環",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 782,
+        "y": 2,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.381836,
+        "v0": 0.001953,
+        "u1": 0.506836,
+        "v1": 0.251953
+      }
+    },
+    {
+      "name": "ring_b",
+      "source_pack": "light-masks",
+      "bytes": 14515,
+      "sha256": "9ef5c78c4b0f4febf5f5134f2256acfa7c17583ad5d3f5c748c84fd9d0aa1eec",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "預警圈（雙線細環，清晰度較 circle_02 高）",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 1042,
+        "y": 2,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.508789,
+        "v0": 0.001953,
+        "u1": 0.633789,
+        "v1": 0.251953
+      }
+    },
+    {
+      "name": "circle_rings_b",
+      "source_pack": "light-masks",
+      "bytes": 20063,
+      "sha256": "2816a4c9d8fa75ee301346de523271494e2d8a8ae17c5b7e1ace1fda3a4bdd71",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "衝擊波、升級光暈環（多層環）",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 1302,
+        "y": 2,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.635742,
+        "v0": 0.001953,
+        "u1": 0.760742,
+        "v1": 0.251953
+      }
+    },
+    {
+      "name": "cone_c_blur",
+      "source_pack": "light-masks",
+      "bytes": 5543,
+      "sha256": "124c00395727ee568e2e69096c4017750f1bd353338ea9875b557dd4c8c7d204",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "雙手砲光束／光柱（沿長度漸淡，取代 trace_07）",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 1562,
+        "y": 2,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.762695,
+        "v0": 0.001953,
+        "u1": 0.887695,
+        "v1": 0.251953
+      }
+    },
+    {
+      "name": "muzzle_02",
+      "source_pack": "particle-pack",
+      "bytes": 28969,
+      "sha256": "3f8e7912c149b287964ac7b875682cba1871735b9805ba13b9230643565fcd83",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "火焰噴射（疊 4–6 顆）",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 2,
+        "y": 262,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.000977,
+        "v0": 0.255859,
+        "u1": 0.125977,
+        "v1": 0.505859
+      }
+    },
+    {
+      "name": "muzzle_05",
+      "source_pack": "particle-pack",
+      "bytes": 27248,
+      "sha256": "7efa79faa2eddfbd1dd6940ea62c920b88088ea449cb3708fc76db7c4abdae3e",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "砲口火光（圓潤火舌）",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 262,
+        "y": 262,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.12793,
+        "v0": 0.255859,
+        "u1": 0.25293,
+        "v1": 0.505859
+      }
+    },
+    {
+      "name": "star_06",
+      "source_pack": "particle-pack",
+      "bytes": 18024,
+      "sha256": "88c743f7aabae727e4d92ce549f3c0b276e2f08fb035da26a2190cffc51b4a48",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "命中飛散、升級／拾取星光爆",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 522,
+        "y": 262,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.254883,
+        "v0": 0.255859,
+        "u1": 0.379883,
+        "v1": 0.505859
+      }
+    },
+    {
+      "name": "star_08",
+      "source_pack": "particle-pack",
+      "bytes": 21734,
+      "sha256": "7518c9b7e019825a9970f3417c3dca7f36e138d810e19668e3876016e520105b",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "冰霜結晶",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 782,
+        "y": 262,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.381836,
+        "v0": 0.255859,
+        "u1": 0.506836,
+        "v1": 0.505859
+      }
+    },
+    {
+      "name": "star_09",
+      "source_pack": "particle-pack",
+      "bytes": 30844,
+      "sha256": "347ee9b1906fc6c3d0bed12672b64ceec585770ae0a5f218120915e49d87fcfe",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "命中核心、救援成功大光暈",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 1042,
+        "y": 262,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.508789,
+        "v0": 0.255859,
+        "u1": 0.633789,
+        "v1": 0.505859
+      }
+    },
+    {
+      "name": "shape_g",
+      "source_pack": "light-masks",
+      "bytes": 10121,
+      "sha256": "2df9c2ef1b6ae1135fd09fdb7dd427db801e2d82a6bf9e7a485ae8010c63863b",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "四芒星閃光（較圓潤）",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 1302,
+        "y": 262,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.635742,
+        "v0": 0.255859,
+        "u1": 0.760742,
+        "v1": 0.505859
+      }
+    },
+    {
+      "name": "magic_03",
+      "source_pack": "particle-pack",
+      "bytes": 42718,
+      "sha256": "5cec1ea9a12e2ab0ec92dbee68fbb19f84b72aae8fb38d414bef1c4097848662",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "升級光圈（亮環＋四芒）",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 1562,
+        "y": 262,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.762695,
+        "v0": 0.255859,
+        "u1": 0.887695,
+        "v1": 0.505859
+      }
+    },
+    {
+      "name": "light_01",
+      "source_pack": "particle-pack",
+      "bytes": 48091,
+      "sha256": "db415f8bb65b88f18529ad7b8416b8eba4b5d7e781b5068959c0a5779666395d",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "大範圍光暈、靈氣（外暈 30% 透明）",
+      "blend": "additive",
+      "atlas_px": {
+        "x": 2,
+        "y": 522,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.000977,
+        "v0": 0.509766,
+        "u1": 0.125977,
+        "v1": 0.759766
+      }
+    },
+    {
+      "name": "symbol_01",
+      "source_pack": "particle-pack",
+      "bytes": 8083,
+      "sha256": "89f507c474ea7eedccab5bb6fe32dba308cbf2bcad3ac2a05685b281eb4115f3",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "愛心：救援成功、血量",
+      "blend": "normal",
+      "atlas_px": {
+        "x": 262,
+        "y": 522,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.12793,
+        "v0": 0.509766,
+        "u1": 0.25293,
+        "v1": 0.759766
+      }
+    },
+    {
+      "name": "symbol_02",
+      "source_pack": "particle-pack",
+      "bytes": 7428,
+      "sha256": "9a7526ff06318a97959b5c75c610fa73e2992607b8c8513266e58914c4e6c7a6",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "星星：拾取、獎勵",
+      "blend": "normal",
+      "atlas_px": {
+        "x": 522,
+        "y": 522,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.254883,
+        "v0": 0.509766,
+        "u1": 0.379883,
+        "v1": 0.759766
+      }
+    },
+    {
+      "name": "whitePuff05",
+      "source_pack": "smoke-particles",
+      "bytes": 52031,
+      "sha256": "15e908fb28722851523101a3eba865a167ee80b61fb65f8cb69af11849e5afd7",
+      "dimensions": [
+        256,
+        256
+      ],
+      "purpose": "棉絮／軟煙（低透明度，形狀不對稱，可輪替）",
+      "blend": "normal",
+      "atlas_px": {
+        "x": 782,
+        "y": 522,
+        "w": 256,
+        "h": 256
+      },
+      "atlas_uv": {
+        "u0": 0.381836,
+        "v0": 0.509766,
+        "u1": 0.506836,
+        "v1": 0.759766
+      }
+    }
+  ]
+}

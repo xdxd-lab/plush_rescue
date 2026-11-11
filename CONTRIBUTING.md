@@ -2,7 +2,7 @@
 
 本儲存庫是可直接部署到 GitHub Pages 的靜態遊戲，沒有建置步驟。`main` 分支的根目錄就是線上網站。
 
-`.github/workflows/ci-pages.yml` 會對每次推送與指向 `main` 的 PR 自動執行下方的必要檢查，並只在推送到 `main` 且檢查通過時部署。但這個部署門檻要等管理員把 **Settings → Pages → Source** 切為 **GitHub Actions** 才會生效（見 `README.md`「發布到 GitHub Pages」）；在那之前，推送到 `main` 仍等於直接發布，測試失敗也會上線，請在推送前完成下方檢查。
+`.github/workflows/ci-pages.yml` 會對每次推送與指向 `main` 的 PR 自動執行下方的必要檢查，並只在推送到 `main` 且檢查通過時部署。截至 v12.4.1（`3af4239`），本專案 Pages Source 已確認為 **GitHub Actions**，門檻已生效。移植到其他儲存庫時仍須核對設定（見 README「發布到 GitHub Pages」）；推送前也應完成下方檢查。
 
 ## 語言
 

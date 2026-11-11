@@ -1,6 +1,6 @@
 # CI for every push and PR; GitHub Pages deployment only for a push to main whose tests pass.
-# The deploy gate takes effect only after Settings → Pages → Source is set to "GitHub Actions"
-# (see README.md「發布到 GitHub Pages」). Until then the branch deployment keeps publishing main.
+# As of v12.4.1 (3af4239), Settings → Pages → Source is "GitHub Actions" and this gate is active.
+# Keep that setting: switching back to branch deployment bypasses this workflow gate (see README.md).
 name: CI and Pages
 
 on:

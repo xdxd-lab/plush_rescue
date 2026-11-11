@@ -4,7 +4,7 @@
 // Run: node --test qa/*.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createWarmupGame,warmupCoverage,WARMUP_EVENTS,finishWarmup} from '../shader-warmup.js';
+import {createWarmupGame,warmupCoverage,WARMUP_EVENTS,finishWarmup,shouldWarmup} from '../shader-warmup.js';
 import {WEAPONS,MAIN_WEAPONS} from '../weapons.js';
 import {UPGRADES} from '../core.js';
 
@@ -41,10 +41,10 @@ test('the hero muzzle and map are taken from the real game; the staged game stay
 test('async warmup catches uniform query failures and compile rejections',async()=>{
  const warmup={runs:1,ready:false,error:null};
  const renderer={shadowMap:{enabled:true},info:{programs:[{getUniforms(){throw new Error('uniform failed');}}]}};
- await finishWarmup(Promise.resolve(),{warmup,renderer,run:1,shadows:true,t0:performance.now()});
+ await finishWarmup(Promise.resolve(),{warmup,renderer,programs:[...renderer.info.programs],run:1,shadows:true,t0:performance.now()});
  assert.equal(warmup.error,'uniform failed');assert.equal(warmup.ready,false);
  warmup.error=null;
- await finishWarmup(Promise.reject(new Error('compile failed')),{warmup,renderer,run:1,shadows:true,t0:performance.now()});
+ await finishWarmup(Promise.reject(new Error('compile failed')),{warmup,renderer,programs:[...renderer.info.programs],run:1,shadows:true,t0:performance.now()});
  assert.equal(warmup.error,'compile failed');assert.equal(warmup.ready,false);
 });
 
@@ -52,12 +52,43 @@ test('older or different-shadow completions do not query programs or alter the c
  let resolveOld,queries=0;const old=new Promise(resolve=>{resolveOld=resolve;});
  const warmup={runs:1,ready:false,error:null};
  const renderer={shadowMap:{enabled:true},info:{programs:[{getUniforms(){queries++;}}]}};
- const pending=finishWarmup(old,{warmup,renderer,run:1,shadows:true,t0:performance.now()});
+ const pending=finishWarmup(old,{warmup,renderer,programs:[...renderer.info.programs],run:1,shadows:true,t0:performance.now()});
  warmup.runs=2;renderer.shadowMap.enabled=false;
- await finishWarmup(Promise.resolve(),{warmup,renderer,run:2,shadows:false,t0:performance.now()});
+ await finishWarmup(Promise.resolve(),{warmup,renderer,programs:[...renderer.info.programs],run:2,shadows:false,t0:performance.now()});
  assert.equal(warmup.ready,true);assert.equal(queries,1);
  resolveOld();await pending;assert.equal(warmup.ready,true);assert.equal(warmup.error,null);assert.equal(queries,1);
  warmup.runs=3;warmup.ready=false;renderer.shadowMap.enabled=true;
- await finishWarmup(Promise.reject(new Error('stale')),{warmup,renderer,run:3,shadows:false,t0:performance.now()});
+ await finishWarmup(Promise.reject(new Error('stale')),{warmup,renderer,programs:[...renderer.info.programs],run:3,shadows:false,t0:performance.now()});
  assert.equal(warmup.ready,false);assert.equal(warmup.error,null);
+});
+
+
+test('only the compile-time snapshot is queried and unfinished programs are skipped',async()=>{
+ let resolve,staged=0,late=0,unready=0;
+ const pending=new Promise(r=>{resolve=r;});
+ const warmup={runs:1,shadows:true,ready:false,error:null};
+ const renderer={shadowMap:{enabled:true},info:{programs:[
+  {isReady:()=>true,getUniforms(){staged++;}},
+  {isReady:()=>false,getUniforms(){unready++;}},
+ ]}};
+ const programs=[...renderer.info.programs];
+ const done=finishWarmup(pending,{warmup,renderer,programs,run:1,shadows:true,t0:performance.now()});
+ renderer.info.programs.push({getUniforms(){late++;}});
+ resolve();await done;
+ assert.equal(staged,1);assert.equal(unready,0);assert.equal(late,0);assert.equal(warmup.ready,true);
+});
+
+test('a failed run can retry on reset and an old rejection cannot poison the retry',async()=>{
+ let rejectOld;const old=new Promise((_,reject)=>{rejectOld=reject;});
+ const warmup={runs:1,shadows:true,ready:false,error:null};
+ const renderer={shadowMap:{enabled:true},info:{programs:[]}};
+ const pending=finishWarmup(old,{warmup,renderer,programs:[],run:1,shadows:true,t0:performance.now()});
+ assert.equal(shouldWarmup(warmup,true),false);
+ warmup.error='failed';assert.equal(shouldWarmup(warmup,true),true);
+ // Starting a retry clears the previous error and changes the run token.
+ warmup.runs++;warmup.error=null;
+ rejectOld(new Error('old failure'));await pending;
+ assert.equal(warmup.error,null);assert.equal(shouldWarmup(warmup,true),false);
+ await finishWarmup(Promise.resolve(),{warmup,renderer,programs:[],run:2,shadows:true,t0:performance.now()});
+ assert.equal(warmup.ready,true);assert.equal(shouldWarmup(warmup,true),false);
 });
