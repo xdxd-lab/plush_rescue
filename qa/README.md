@@ -49,6 +49,11 @@ a retry. Four short self-tests exercise check timeout, CDP timeout, failed
 assertion and setup cleanup. The always-uploaded artifact contains per-run
 JSON, stderr, screenshots, runner/Chrome/Node versions, WebGL renderer details,
 and evidence that each temporary profile and browser process group was gone.
+Each run records its own loopback HTTP origin and DevTools port; after the child
+exits, the runner requires connection refusal and successful bind for exactly
+those two ports, including all four self-tests. The 1280 matrix must report its
+fixed 18 results in order, including both ready/paused wheel and Tab/Enter
+dialog checks; the timing evidence result is separate from the 17 checks.
 `--require-swiftshader` is an optional strict diagnostic; the first Linux run
 records the renderer without assuming its exact string. This workflow is not
 a required CI gate until the Linux evidence is reviewed.

@@ -97,6 +97,7 @@ server=http.createServer((req,res)=>{
 });
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 origin=`http://127.0.0.1:${server.address().port}`;
+console.error(`loopback origin ${origin}`);
 
 // ---- Chrome + DevTools protocol -------------------------------------------------------
 profile=fs.mkdtempSync(path.join(os.tmpdir(),'plush-chrome-'));console.error(`profile ${profile}`);
@@ -104,6 +105,7 @@ chrome=spawn(CHROME,['--headless=new','--remote-debugging-port=0',`--user-data-d
 console.error(`chrome pid ${chrome.pid}`);
 let port=null;for(let i=0;i<100&&!port;i++){await sleep(100);try{port=fs.readFileSync(path.join(profile,'DevToolsActivePort'),'utf8').split('\n')[0];}catch{}}
 assert.ok(port,'Chrome did not open a DevTools port');
+console.error(`devtools port ${port}`);
 // Both handshake steps are bounded; a failure throws and the caller's finally cleans up.
 // --self-test=handshake-http / handshake-ws point one step at a socket that never answers.
 if(selfTest?.startsWith('handshake-')){blackhole=net.createServer(sock=>blackhole.sockets.add(sock));blackhole.sockets=new Set();await new Promise(r=>blackhole.listen(0,'127.0.0.1',r));}
