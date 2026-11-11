@@ -10,7 +10,7 @@
 python3 tools/atlas/rebuild.py --output-dir /tmp/plush-atlas-rebuilt
 ```
 
-實測工具為 Python 3.12.14／Pillow 13.0.0。`--source-root` 可指向另一份具有相同三個素材包目錄的副本。工具拒絕覆寫既有輸出，也拒絕寫入來源或參考目錄；它會核對來源與授權 SHA、順序、格子座標及六位小數的圖片空間 UV。必要校驗使用明確錯誤判斷，一般模式與 `python -O` 均會執行。
+實測工具為 Python 3.12.14／Pillow 13.0.0。`--source-root` 可指向另一份具有相同三個素材包目錄的副本。工具拒絕覆寫既有輸出，也拒絕寫入來源或參考目錄；它會核對來源與授權 SHA、順序、格子座標及六位小數的圖片空間 UV。必要校驗使用明確錯誤判斷，一般模式與 `python -O` 均會執行。預設產物目錄 `build/atlas/` 已列入 `.gitignore`，避免把重建產物混入版本化來源。
 
 重建會對**整張** 2048×1024 圖集逐一比較 RGBA bytes，包含透明像素的 RGB 與 padding。Pillow 13.0.0 的輸出 PNG bytes 也相同，SHA-256 為 `ca39797b59dd36bb3f7fac4a49d44ce119849ed129f9bb8a3734c034e9addf07`。其他編碼器可能在像素相同時產生不同 PNG bytes，兩者應分開記錄。
 
