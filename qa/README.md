@@ -19,8 +19,9 @@ the root `README.md`.
 | `python3 qa/regenerate-manifest.py` | rewrite runtime sizes/hashes after accepting changes |
 | `python3 verify-export.py` | hashes, non-root URLs, JS syntax (when Node is present) |
 
-Only `browser-chrome.mjs` launches a browser (Chrome only). Safari/WebKit, Firefox, screenshots (360×640, 390×844, 844×390,
-568×320, 1440×900), touch devices and phone FPS are separate manual checks.
+Among the repository commands listed above, only `browser-chrome.mjs` launches a browser (Chrome only).
+Firefox and Safari evidence from external Q3 tools is recorded separately by release; it is not coverage of
+this Chrome command. Physical touch devices and phone FPS require separate checks.
 
 `browser-chrome.mjs` lifecycle. A running check cannot be cancelled in place: `Promise.race` only stops
 waiting, while the check's CDP calls and timers would keep going. So a check that exceeds `CHECK_TIMEOUT_MS`
@@ -154,11 +155,14 @@ harness; the lane is fully in frame, while local character/label overlap can sti
 Metal performance sample is documented in the root CHANGELOG, including driver-cache and diagnostic-setting
 confounders; it is not a phone FPS result.
 
-Firefox 160 headless, attached with geckodriver 0.37.1 / Marionette and a disposable profile, passed the core
+As of V12.5.0, Firefox 160 headless, attached with geckodriver 0.37.1 / Marionette and a disposable profile, passed the core
 interaction matrix at actual 1280x720. The requested 390x844 headless matrix was not run because content width
 bottomed at 500; native Firefox had only partial checks at a 390x844 iframe. Safari only reached the title page,
 with WebGL and gameplay interaction unverified. These were one-off external test tools, not new repository or
-CI commands. Q3 remains incomplete; see the V12.5.0 CHANGELOG for exact coverage and setup/input distinctions.
+CI commands. This is the V12.5.0 snapshot; see that CHANGELOG section for exact coverage and setup/input distinctions.
+Subsequent V12.5.1 and [V12.6.0 verification](../docs/validation-v12.6.0.md) completed the Firefox core matrix
+at 1280×720, 360×640 and 390×844 using actual same-origin iframe dimensions. Q3 remains open for Safari,
+whose automation session requires Allow remote automation; no setting was changed. These are not phone tests.
 The V12.4.0 count of 85 above is a historical snapshot, not the current smoke total.
 
 ## Locked modules (lock manifest)
