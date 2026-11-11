@@ -33,3 +33,10 @@ Chrome headless／SwiftShader 真實 WebGL，使用受控命中 fixture。四組
 ## 執行環境診斷
 
 沙盒內 Chrome 沒有開出 DevTools port，Firefox 也曾在建立 session 前退出；同一隔離流程在核准的外層環境完成。第一次外層 Chrome 被執行器的 420 秒整體上限中斷，之後以直接 Node session／輪詢完成整套，不縮減測項。這些紀錄與遊戲斷言結果分開。
+
+## 發布紀錄
+
+- 發布提交 [`c8bb435`](https://github.com/xdxd-lab/plush_rescue/commit/c8bb435ca1e711484618d90a548ddd26cc222c09)，基礎提交 `9a3431c`；[v12.6.0 Release](https://github.com/xdxd-lab/plush_rescue/releases/tag/v12.6.0)。
+- [CI／Pages](https://github.com/xdxd-lab/plush_rescue/actions/runs/43085655313) 的 test、build-pages、deploy-pages 均成功；[GitHub Pages](https://xdxd-lab.github.io/plush_rescue/)。
+- [Sites](https://plush-rescue-survivor.b892020xx.chatgpt.site) 保存版本 22、來源提交 `2af422f180631224873dc2ae10156fbcfb08c5f8`，正式部署回傳 succeeded。既有公開權限維持。
+- Sites 套件獨立檢查通過：44 個一般檔案，包含 41 個 runtime、manifest、`.nojekyll` 與 hosting 設定。41 個 runtime 的大小與 SHA-256 均符合 manifest、Sites dist 與發布提交；不含 QA、重建工具或來源素材目錄。套件由官方流程從已推送的來源產生。
