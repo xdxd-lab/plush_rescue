@@ -1,0 +1,296 @@
+{
+  "format": "state-v1",
+  "baselineCommit": "274e5dbaf1320490df62c532b8b8322a23b31415",
+  "seed": 1,
+  "steps": 7200,
+  "cases": {
+    "0:false": {
+      "digest": "161d803b173ec4e4a42faf65f16b91efca124db1f194a4346cb2a0b4f56bbc41",
+      "seen": {
+        "boss": 5221,
+        "ally": 0,
+        "spitter": 0,
+        "dasher": 0,
+        "spitHazard": 0,
+        "bossHazard": 944,
+        "hazardHit": 0,
+        "allyShot": 0,
+        "allyRescue": 0,
+        "upgrade": 14,
+        "varietyChoice": 0,
+        "pickup": 46
+      }
+    },
+    "0:true": {
+      "digest": "ad10a4d9fe9ae8608d0f8ad74c17297735dc77ab03bdb716ac20c3b7f2c1d8ab",
+      "seen": {
+        "boss": 8192,
+        "ally": 0,
+        "spitter": 0,
+        "dasher": 0,
+        "spitHazard": 0,
+        "bossHazard": 1616,
+        "hazardHit": 0,
+        "allyShot": 0,
+        "allyRescue": 0,
+        "upgrade": 13,
+        "varietyChoice": 0,
+        "pickup": 0
+      }
+    },
+    "1:false": {
+      "digest": "0ba889c6e9c4b15465af5e0c29b40ba3eefcc6619f87945dc720db7cb02fdfbf",
+      "seen": {
+        "boss": 5361,
+        "ally": 1895,
+        "spitter": 0,
+        "dasher": 0,
+        "spitHazard": 0,
+        "bossHazard": 969,
+        "hazardHit": 0,
+        "allyShot": 159,
+        "allyRescue": 5,
+        "upgrade": 14,
+        "varietyChoice": 0,
+        "pickup": 50
+      }
+    },
+    "1:true": {
+      "digest": "12f55702a6bc33d36ceda0883f12bac9a80fd3cc723a43ff24b3ef81a7b2fc6d",
+      "seen": {
+        "boss": 8967,
+        "ally": 1467,
+        "spitter": 0,
+        "dasher": 0,
+        "spitHazard": 0,
+        "bossHazard": 1531,
+        "hazardHit": 0,
+        "allyShot": 97,
+        "allyRescue": 3,
+        "upgrade": 14,
+        "varietyChoice": 0,
+        "pickup": 0
+      }
+    },
+    "2:false": {
+      "digest": "18702a3c802b5d3625793586ea16f27fcb88753aa449b7c2d402fac3d3ce06c6",
+      "seen": {
+        "boss": 10800,
+        "ally": 0,
+        "spitter": 0,
+        "dasher": 0,
+        "spitHazard": 0,
+        "bossHazard": 1194,
+        "hazardHit": 0,
+        "allyShot": 0,
+        "allyRescue": 0,
+        "upgrade": 13,
+        "varietyChoice": 12,
+        "pickup": 58
+      }
+    },
+    "2:true": {
+      "digest": "5f1112b4c16e24e545a34f60927f70b07a3b6477108657ac990f63429cacb6f6",
+      "seen": {
+        "boss": 7903,
+        "ally": 0,
+        "spitter": 0,
+        "dasher": 0,
+        "spitHazard": 0,
+        "bossHazard": 1416,
+        "hazardHit": 0,
+        "allyShot": 0,
+        "allyRescue": 0,
+        "upgrade": 14,
+        "varietyChoice": 13,
+        "pickup": 0
+      }
+    },
+    "3:false": {
+      "digest": "4b17989cb1c34e11e2815effdbc51faf0919db71964d980cd9826fcd46c0f677",
+      "seen": {
+        "boss": 10800,
+        "ally": 832,
+        "spitter": 0,
+        "dasher": 0,
+        "spitHazard": 0,
+        "bossHazard": 1193,
+        "hazardHit": 0,
+        "allyShot": 50,
+        "allyRescue": 11,
+        "upgrade": 13,
+        "varietyChoice": 12,
+        "pickup": 48
+      }
+    },
+    "3:true": {
+      "digest": "050ca52aadf44282f4445bac5d7b66236082c52b76236d42ec6c7ea12bb5786a",
+      "seen": {
+        "boss": 9639,
+        "ally": 650,
+        "spitter": 0,
+        "dasher": 0,
+        "spitHazard": 0,
+        "bossHazard": 1586,
+        "hazardHit": 0,
+        "allyShot": 70,
+        "allyRescue": 0,
+        "upgrade": 14,
+        "varietyChoice": 13,
+        "pickup": 0
+      }
+    },
+    "4:false": {
+      "digest": "0a8f22bbe4e07ce14341b6260def592a3a9729e406ce4549c37bf6bc0e06b78a",
+      "seen": {
+        "boss": 10072,
+        "ally": 0,
+        "spitter": 36971,
+        "dasher": 33130,
+        "spitHazard": 1947,
+        "bossHazard": 1527,
+        "hazardHit": 0,
+        "allyShot": 0,
+        "allyRescue": 0,
+        "upgrade": 14,
+        "varietyChoice": 0,
+        "pickup": 47
+      }
+    },
+    "4:true": {
+      "digest": "da52459c9da5cbd697ea5c9960b6e2869675b33773882a8a1571cc442b037a06",
+      "seen": {
+        "boss": 7207,
+        "ally": 0,
+        "spitter": 35713,
+        "dasher": 36508,
+        "spitHazard": 2164,
+        "bossHazard": 1282,
+        "hazardHit": 0,
+        "allyShot": 0,
+        "allyRescue": 0,
+        "upgrade": 14,
+        "varietyChoice": 0,
+        "pickup": 0
+      }
+    },
+    "5:false": {
+      "digest": "6180ec630b2d0ad71fc10eac98a2a033263414278ef8fcce0b9147d314320463",
+      "seen": {
+        "boss": 9614,
+        "ally": 1437,
+        "spitter": 36484,
+        "dasher": 35715,
+        "spitHazard": 1975,
+        "bossHazard": 1625,
+        "hazardHit": 6,
+        "allyShot": 95,
+        "allyRescue": 9,
+        "upgrade": 14,
+        "varietyChoice": 0,
+        "pickup": 47
+      }
+    },
+    "5:true": {
+      "digest": "f28c180cca896b4be0ccec3b46d12eb69ddae0d8d5919459afeaa6bd472d61dd",
+      "seen": {
+        "boss": 8855,
+        "ally": 1610,
+        "spitter": 36397,
+        "dasher": 36892,
+        "spitHazard": 1909,
+        "bossHazard": 1684,
+        "hazardHit": 0,
+        "allyShot": 131,
+        "allyRescue": 3,
+        "upgrade": 14,
+        "varietyChoice": 0,
+        "pickup": 0
+      }
+    },
+    "6:false": {
+      "digest": "d48d8ec04426619d32cbd0c02b15ca142703c4ae1dfa97190b936b02dab6e973",
+      "seen": {
+        "boss": 10800,
+        "ally": 0,
+        "spitter": 34861,
+        "dasher": 33219,
+        "spitHazard": 1840,
+        "bossHazard": 1808,
+        "hazardHit": 6,
+        "allyShot": 0,
+        "allyRescue": 0,
+        "upgrade": 13,
+        "varietyChoice": 13,
+        "pickup": 31
+      }
+    },
+    "6:true": {
+      "digest": "0f9a57d0c87bed4caed74e1ee71d3f837e7741d83c1a482f6134d54fa2d79f6c",
+      "seen": {
+        "boss": 10800,
+        "ally": 0,
+        "spitter": 36282,
+        "dasher": 36919,
+        "spitHazard": 1677,
+        "bossHazard": 1253,
+        "hazardHit": 0,
+        "allyShot": 0,
+        "allyRescue": 0,
+        "upgrade": 14,
+        "varietyChoice": 14,
+        "pickup": 0
+      }
+    },
+    "7:false": {
+      "digest": "088dbc57c69ddd2cc1280d5cf8644c67c1f3207c287796284e5c15335fdfb3a4",
+      "seen": {
+        "boss": 10800,
+        "ally": 824,
+        "spitter": 37399,
+        "dasher": 29549,
+        "spitHazard": 2093,
+        "bossHazard": 1808,
+        "hazardHit": 6,
+        "allyShot": 49,
+        "allyRescue": 1,
+        "upgrade": 13,
+        "varietyChoice": 13,
+        "pickup": 24
+      }
+    },
+    "7:true": {
+      "digest": "c269ef1773237fd521e00e9c4e0208b1f222c72b8ca0d69ff5ca761d928748f5",
+      "seen": {
+        "boss": 10800,
+        "ally": 1230,
+        "spitter": 38341,
+        "dasher": 38018,
+        "spitHazard": 1818,
+        "bossHazard": 1400,
+        "hazardHit": 0,
+        "allyShot": 68,
+        "allyRescue": 8,
+        "upgrade": 14,
+        "varietyChoice": 14,
+        "pickup": 0
+      }
+    }
+  },
+  "targeted": {
+    "digest": "353818abad87bd05d74a65b522e183f43064e63dd21130aaefd0e8b6ddd93cf5",
+    "seen": {
+      "spitterAim": true,
+      "spitHazard": true,
+      "spitHit": true,
+      "dashWindup": true,
+      "dashActive": true,
+      "dashRecover": true,
+      "bossHazard": true,
+      "bossHit": true,
+      "allyShot": true,
+      "allyLife": true,
+      "allyCooldown": true
+    }
+  }
+}

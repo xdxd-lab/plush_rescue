@@ -181,3 +181,33 @@ A failing lock check means a locked file changed. To change one:
 5. Note the unlock in CHANGELOG.md in the same release.
 
 The script only records what was approved; it does not check approval itself. Run it only after the user has approved.
+
+### E5 detailed state signature (version 1)
+
+Run `node --test qa/state-signature-v1.test.mjs`. The 16 long-script cases use
+seed 1, 7,200 steps, both `autoEquip` settings and all eight combinations of
+`bossAllies`, `upgradeVariety`, and `enemyVariety`. The digest records a stable
+five-decimal projection of enemies (role, position, HP, boss/attack timers and
+dash phase), hazards (kind, owner, geometry, timing and hit), allies (life,
+cooldown, position and rescues), and relevant player/combat state. The test
+also checks that each enabled feature appeared. A separate forced scenario
+observes both enemy roles, both hazard hits, dash phases and ally timers.
+
+`state-signature-v1.goldens.json` was generated against the **unformatted**
+`core.js` at commit `274e5dbaf1320490df62c532b8b8322a23b31415`: extract that
+commit's `core.js` and `weapons.js` to an isolated directory, import its `Game`,
+then pass it to `signatureV1` and `targetedV1`. The baseline file was produced
+before comparison with the formatted `core.js`; existing `sim-signature.mjs`,
+core-equivalence and upgrade goldens are unchanged. The signature is scoped to
+these deterministic scenarios, not a proof for every possible game state.
+
+For the E5 formatting commit, Prettier 3.6.2 ran with `--single-quote
+--trailing-comma none --print-width 100 --arrow-parens avoid`. Its output also
+normalizes numeric literal spelling (for example `.8` to `0.8`), so the diff
+is more than whitespace. Parsing original and formatted files with Prettier's
+Babel parser 3.6.2, removing location/comment/raw metadata and comparing the
+full AST gave identical SHA-256
+`a02291a0a12e1d7822b7987b118ecd89fd4a8a0db69c99288e5029a0b1b83bec`.
+No expression, statement, property, or evaluation order changed. This AST
+check and the signatures give complementary evidence, with the usual limit
+that the scripts exercise specific states.
