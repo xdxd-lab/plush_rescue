@@ -81,8 +81,8 @@
     },
     {
       "path": "core.js",
-      "bytes": 30374,
-      "sha256": "5e353b22b4f6f1c586234a05b824db43de3dbc4fd928d794aed5589d942f0e36"
+      "bytes": 40438,
+      "sha256": "f4e36a7068dc7329f79134528ff5fc5419ccabdc8f4b8230b0d8cfabe78f7b58"
     },
     {
       "path": "crowd.js",
