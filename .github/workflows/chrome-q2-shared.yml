@@ -1,0 +1,64 @@
+# Reusable, non-deploying implementation for the diagnostic's one- and two-run
+# jobs. A later CI gate must call this same workflow with matrix_runs: 1.
+name: Q2 Linux Chrome shared check
+
+on:
+  workflow_call:
+    inputs:
+      matrix_runs:
+        required: true
+        type: number
+
+permissions:
+  contents: read
+
+jobs:
+  chrome-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.matrix_runs == 1 && 25 || 40 }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Identify runner Chrome and Node
+        shell: bash
+        run: |
+          set -euo pipefail
+          chrome="$(command -v google-chrome || command -v google-chrome-stable || true)"
+          test -n "$chrome" || { echo '::error::runner Google Chrome is unavailable'; exit 1; }
+          echo "CHROME=$chrome" >> "$GITHUB_ENV"
+          "$chrome" --version
+          node --version
+          uname -a
+      - name: Install Ubuntu Noto CJK and record package version
+        shell: bash
+        run: |
+          set -u
+          mkdir -p q2-artifacts
+          if sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-noto-cjk; then
+            version="$(dpkg-query -W -f='${Version}' fonts-noto-cjk 2>/dev/null)"
+            if test -n "$version" && fc-match -f '%{family}\n%{file}\n' 'Noto Sans CJK TC:lang=zh-tw' > q2-artifacts/font-match.txt; then
+              echo "Q2_FONT_STATUS=installed" >> "$GITHUB_ENV"
+              echo "Q2_FONT_VERSION=$version" >> "$GITHUB_ENV"
+              printf 'fonts-noto-cjk %s\n' "$version" > q2-artifacts/font-package.txt
+            else
+              echo "Q2_FONT_STATUS=unavailable" >> "$GITHUB_ENV"
+              printf 'fonts-noto-cjk package version or font match unavailable\n' > q2-artifacts/font-package.txt
+              echo '::warning::CJK font version or match unavailable; diagnostic is functional-only'
+            fi
+          else
+            echo "Q2_FONT_STATUS=unavailable" >> "$GITHUB_ENV"
+            printf 'fonts-noto-cjk install failed\n' > q2-artifacts/font-package.txt
+            echo '::warning::CJK font install failed; diagnostic is functional-only'
+          fi
+      - name: Run bounded WebGL matrices and lifecycle probes
+        run: node qa/chrome-q2-runner.mjs --output=q2-artifacts --matrix-runs=${{ inputs.matrix_runs }}
+      - name: Upload reports, logs and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: q2-chrome-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.matrix_runs }}
+          path: q2-artifacts/
+          if-no-files-found: warn
+          retention-days: 14

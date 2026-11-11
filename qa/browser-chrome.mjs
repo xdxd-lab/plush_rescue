@@ -116,14 +116,14 @@ ws=new WebSocket(wsUrl);
 await new Promise((r,j)=>{const t=setTimeout(()=>j(new Error(`DevTools WebSocket did not open within ${SETUP_TIMEOUT_MS} ms`)),SETUP_TIMEOUT_MS);ws.onopen=()=>{clearTimeout(t);r();};ws.onerror=()=>{clearTimeout(t);j(new Error('DevTools WebSocket failed to open'));};});
 ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&pending.has(m.id)){const p=pending.get(m.id);pending.delete(m.id);m.error?p.reject(new Error(p.method+' '+m.error.message)):p.resolve(m.result);}else for(const l of listeners)l(m);};
 ws.onclose=()=>{rejectPending('DevTools connection closed');if(!cleaning&&!run.aborted)abortRun('DevTools connection closed');};
-if(selfTest==='setup')throw new Error('self-test: setup failure after Chrome started');
+if(selfTest==='setup'){selfTestReport.phaseReached='devtools-ready';throw new Error('self-test: setup failure after Chrome started');}
 }
 // Every request is bounded; a request that times out means the connection can no longer be
 // trusted, so the whole run is aborted. Nothing is sent once the run is aborted.
-function send(method,params={},sessionId){
+function send(method,params={},sessionId,timeoutMs=CDP_TIMEOUT_MS){
  if(run.aborted){run.cdpAfterAbort++;return Promise.reject(new Error(`${method} refused: run aborted (${run.aborted})`));}
  return new Promise((resolve,reject)=>{const id=++seq;
-  const timer=setTimeout(()=>{if(!pending.has(id))return;pending.delete(id);reject(new Error(`${method} timed out after ${CDP_TIMEOUT_MS} ms`));abortRun(`CDP ${method} timed out after ${CDP_TIMEOUT_MS} ms`);},CDP_TIMEOUT_MS);
+  const timer=setTimeout(()=>{if(!pending.has(id))return;pending.delete(id);reject(new Error(`${method} timed out after ${timeoutMs} ms`));abortRun(`CDP ${method} timed out after ${timeoutMs} ms`);},timeoutMs);
   pending.set(id,{method,resolve:v=>{clearTimeout(timer);resolve(v);},reject:e=>{clearTimeout(timer);reject(e);}});
   try{ws.send(JSON.stringify({id,method,params,sessionId}));}catch(e){pending.get(id)?.reject(e);pending.delete(id);}
  });
@@ -210,12 +210,12 @@ const results=[],dialogs=[];let lastDiag=null;
 // cancelled (Promise.race only stops waiting), so the run is aborted: its browser work is cut
 // off and no later check starts on a page it may still be touching.
 class CheckTimeout extends Error{}
-async function check(name,fn){
+async function check(name,fn,timeoutMs=CHECK_TIMEOUT_MS){
  if(run.aborted){results.push({name,ok:false,notRun:true,error:`not run: ${run.aborted}`});console.error(`SKIP ${name} (not run: ${run.aborted})`);return;}
  const t0=Date.now();lastDiag=null;let timer;
  const work=Promise.resolve().then(fn);work.catch(()=>{});
- try{await Promise.race([work,new Promise((_,j)=>{timer=setTimeout(()=>j(new CheckTimeout(`timed out after ${CHECK_TIMEOUT_MS} ms`)),CHECK_TIMEOUT_MS);})]);results.push({name,ok:true,ms:Date.now()-t0});}
- catch(e){results.push({name,ok:false,error:e.message,diag:lastDiag,ms:Date.now()-t0});if(e instanceof CheckTimeout)await abortRun(`check "${name}" timed out after ${CHECK_TIMEOUT_MS} ms`);}
+ try{await Promise.race([work,new Promise((_,j)=>{timer=setTimeout(()=>j(new CheckTimeout(`timed out after ${timeoutMs} ms`)),timeoutMs);})]);results.push({name,ok:true,ms:Date.now()-t0});}
+ catch(e){results.push({name,ok:false,error:e.message,diag:lastDiag,ms:Date.now()-t0});if(e instanceof CheckTimeout)await abortRun(`check "${name}" timed out after ${timeoutMs} ms`);}
  finally{clearTimeout(timer);const r=results.at(-1);console.error(`${r.ok?'ok  ':'FAIL'} ${r.ms??''}ms ${r.name}${r.ok?'':' :: '+String(r.error).split('\n')[0]}`);}}
 async function begin(page,mobile){await page.click('#start');assert.equal(await page.eval('__T.qa.game.status'),'running','game started by a real click/tap');await page.eval('__T.calm()');await page.frames(2);}
 async function settle(page){if(await page.eval("__T.qa.game.status==='pickup'"))await page.click('#keepWeapon');assert.equal(await page.eval('__T.qa.game.status'),'running');}
@@ -535,18 +535,23 @@ async function runSelfTest(){
   // One DevTools request that never answers, on a blank page (no game load, so no slow
   // request comes first): the request limit aborts the run.
   const {targetId}=await send('Target.createTarget',{url:'about:blank'}),{sessionId}=await send('Target.attachToTarget',{targetId,flatten:true});
-  await check('self-test: a CDP request that never completes',async()=>{await send('Runtime.evaluate',{expression:'new Promise(()=>{})',awaitPromise:true},sessionId);});
+  await send('Runtime.enable',{},sessionId);
+  const ready=await send('Runtime.evaluate',{expression:"document.readyState==='complete'",returnByValue:true},sessionId);
+  assert.equal(ready.result.value,true,'blank page ready before CDP timeout injection');
+  selfTestReport.phaseReached='blank-page-ready';
+  await check('self-test: a CDP request that never completes',async()=>{await send('Runtime.evaluate',{expression:'new Promise(()=>{})',awaitPromise:true},sessionId,1500);},5000);
   await check('self-test: later check (must not run)',async()=>{selfTestReport.laterCheckRan=true;});
   return;
  }
  const page=await openPage({width:400,height:300});
+ selfTestReport.phaseReached='game-page-ready';
  if(selfTest==='timeout'){
   // A check that keeps sending CDP commands forever. After its timeout, none may succeed,
   // and the next check must not run on the shared page.
   selfTestReport.okAfterTimeout=0;selfTestReport.okBeforeTimeout=0;
   await check('self-test: stuck check keeps using the page',async()=>{
    for(;;){await page.eval('1+1');if(run.aborted)selfTestReport.okAfterTimeout++;else selfTestReport.okBeforeTimeout++;await sleep(50);}
-  });
+  },1500);
   await check('self-test: later check (must not run)',async()=>{selfTestReport.laterCheckRan=true;await page.eval('1');});
   await sleep(1500);
   // Work between checks (like a screenshot or closing a page) is refused after an abort, which

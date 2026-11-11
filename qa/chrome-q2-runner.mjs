@@ -6,10 +6,12 @@ import path from 'node:path';
 import net from 'node:net';
 import {spawn,execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {matrixNames,matrixComplete,matrixCaseValid,lifecycleValid,completeDiagnostic,expectedCaseNames,parseMatrixRuns} from './chrome-q2-validation.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const outputArg=process.argv.find(a=>a.startsWith('--output='));
 if(!outputArg)throw new Error('pass --output=DIR');
+const matrixRuns=parseMatrixRuns(process.argv);
 const output=path.resolve(outputArg.slice(9));
 const chrome=process.env.CHROME;
 if(!chrome||!fs.existsSync(chrome))throw new Error('set CHROME to the runner-installed Google Chrome executable');
@@ -17,35 +19,14 @@ fs.mkdirSync(output,{recursive:true});
 const environment={node:process.version,platform:process.platform,release:os.release(),arch:process.arch,
  chromePath:chrome,chromeVersion:execFileSync(chrome,['--version'],{encoding:'utf8'}).trim(),
  runnerImage:process.env.ImageOS??null,runnerImageVersion:process.env.ImageVersion??null,
+ fontPackage:'fonts-noto-cjk',fontStatus:process.env.Q2_FONT_STATUS??'unreported',
+ fontVersion:process.env.Q2_FONT_VERSION??null,
  runId:process.env.GITHUB_RUN_ID??null,sha:process.env.GITHUB_SHA??null};
 fs.writeFileSync(path.join(output,'environment.json'),JSON.stringify(environment,null,2)+'\n');
-const summary={environment,cases:[],success:false};
+const summary={environment,matrixRuns,expectedCaseCount:expectedCaseNames(matrixRuns).length,
+ cases:[],success:false};
 function groupGone(pid){if(!pid)return false;try{process.kill(-pid,0);return false;}catch(e){return e.code==='ESRCH';}}
 function requireResult(ok,message){if(!ok)throw new Error(message);}
-const desktop='desktop 1280x720';
-// The fixed --views=1280x720 --dialogs --storage-contexts schedule in browser-chrome.mjs.
-// The timing evidence is a result nested in the blocked-main-thread check, not a check.
-const matrixNames=[
- `${desktop}: boots with WebGL, revision and no errors`,
- `${desktop}: start, then ring, item and both label ends are tappable`,
- `${desktop}: far drop on screen (label hidden) is tappable`,
- `${desktop}: opaque weapon card blocks the drop under it, the uncovered part still works`,
- `${desktop}: five rounds of pause, settings and resume through the real menu`,
- `${desktop}: a slow 600 ms mouse click picks; a 900 ms hold does not`,
- `${desktop}: a quick click is still a click while the main thread is blocked for 900 ms`,
- '  timing evidence',
- `${desktop}: a 15 px mouse drag from a drop does not pick it`,
- `${desktop}: settings and auto-equip survive a reload; the run does not`,
- 'a separate browser profile context starts from defaults (storage is per profile and origin)',
- 'blocked localStorage: the game runs, settings work for the session, a reload falls back to defaults',
- '1280x720: start and resume are fully visible on open; every other control stays reachable',
- 'pause settings: Tab reaches a segmented choice and arrow keys change it',
- ...['ready','paused'].flatMap(state=>{
-  const primary=state==='ready'?'#start':'#resume';
-  return [`dialog 1280x720 ${state}: wheel reaches the end and ${primary} works`,
-   `dialog 1280x720 ${state}: every control tabbed to comes into view, Enter on ${primary} works`];
- })
-];
 function validPort(value){const port=Number(value);return Number.isInteger(port)&&port>0&&port<=65535?port:null;}
 function refusedConnection(port){return new Promise(resolve=>{
  const socket=net.connect({host:'127.0.0.1',port});let done=false;
@@ -112,6 +93,7 @@ async function runCase(name,args,limits,expected){
   reportParsed:!!report,
   passed:report?.passed??null,failed:report?.failed??null,notRun:report?.notRun??null,
   aborted:report?.aborted??null,fatal:report?.fatal??null,
+  selfTestPhaseReached:report?.selfTest?.phaseReached??null,
   webglDiagnostics:report?.webglDiagnostics??[]};
  const cleanupSafe=evidence.profileRemoved&&evidence.browserGroupGone&&portsClean;
  let valid=false;
@@ -119,34 +101,20 @@ async function runCase(name,args,limits,expected){
   const names=report?.results?.map(r=>r.name)??[];
   evidence.expectedResults=matrixNames;
   evidence.actualResults=names;
-  evidence.matrixComplete=names.length===matrixNames.length&&
-   names.every((name,i)=>name===matrixNames[i]&&report.results[i].ok===true&&report.results[i].notRun!==true);
-  valid=exit.code===0&&!outerTimedOut&&cleanupSafe&&report?.failed===0&&report?.notRun===0&&
-   !report?.aborted&&!report?.fatal&&report?.consoleErrors?.length===0&&
-   report?.webglDiagnostics?.length===1&&/WebGL/i.test(report.webglDiagnostics[0].version??'')&&
-   Boolean(report.webglDiagnostics[0].renderer)&&evidence.matrixComplete&&report?.passed===matrixNames.length-1&&
-   ['desktop-title.png','desktop-game.png'].every(file=>fs.existsSync(path.join(dir,'shots',file)));
- }else if(expected==='timeout'){
-  valid=exit.code!==0&&!outerTimedOut&&cleanupSafe&&report?.aborted?.includes('check')&&
-   report?.failed>0&&report?.notRun>0&&report?.selfTest?.laterCheckRan!==true&&report?.selfTest?.okAfterTimeout===0;
- }else if(expected==='cdp'){
-  valid=exit.code!==0&&!outerTimedOut&&cleanupSafe&&report?.aborted?.includes('CDP')&&
-   report?.failed>0&&report?.notRun>0&&report?.selfTest?.laterCheckRan!==true;
- }else if(expected==='assert'){
-  valid=exit.code!==0&&!outerTimedOut&&cleanupSafe&&!report?.aborted&&report?.failed===1&&
-   report?.passed>=1&&report?.selfTest?.laterCheckRan===true;
- }else if(expected==='setup'){
-  valid=exit.code!==0&&!outerTimedOut&&cleanupSafe&&report?.fatal?.includes('self-test: setup failure');
- }
+  evidence.matrixComplete=matrixComplete(report);
+  valid=matrixCaseValid({exit,outerTimedOut,cleanupSafe,report,
+   shotsPresent:['desktop-title.png','desktop-game.png'].every(file=>fs.existsSync(path.join(dir,'shots',file)))});
+ }else valid=lifecycleValid(expected,{exit,outerTimedOut,cleanupSafe,report});
  evidence.valid=Boolean(valid);summary.cases.push(evidence);
  fs.writeFileSync(path.join(dir,'evidence.json'),JSON.stringify(evidence,null,2)+'\n');
  console.log(`${evidence.valid?'PASS':'FAIL'} ${name}: exit=${exit.code} profileRemoved=${evidence.profileRemoved} groupGone=${evidence.browserGroupGone} portsClean=${portsClean} checks=${evidence.passed}/${evidence.failed}`);
  return evidence.valid;
 }
 const matrix={outer:720000,check:120000,cdp:45000,setup:15000};
-const negative={outer:30000,check:1500,cdp:1500,setup:3000};
+const negative={outer:120000,check:240000,cdp:60000,setup:15000};
 try{
- for(const name of ['matrix-1','matrix-2']){
+ for(let i=1;i<=matrixRuns;i++){
+  const name=`matrix-${i}`;
   const started=Date.now();
   const ok=await runCase(name,['--views=1280x720','--dialogs','--storage-contexts',`--shots=${path.join(output,name,'shots')}`],matrix,'matrix');
   summary.cases.at(-1).elapsedMs=Date.now()-started;
@@ -159,7 +127,12 @@ try{
   summary.cases.at(-1).elapsedMs=Date.now()-started;
   fs.writeFileSync(path.join(output,`lifecycle-${mode}`,'evidence.json'),JSON.stringify(summary.cases.at(-1),null,2)+'\n');
  }
- summary.success=summary.cases.length===6&&summary.cases.every(c=>c.valid);
+ summary.functionalSuccess=completeDiagnostic(summary.cases,matrixRuns);
+ summary.success=summary.functionalSuccess&&environment.fontStatus==='installed';
+ summary.visualReviewPending=environment.fontStatus==='installed';
 }catch(error){summary.error=String(error?.stack||error);}
-finally{fs.writeFileSync(path.join(output,'summary.json'),JSON.stringify(summary,null,2)+'\n');}
-requireResult(summary.success,'Q2 Chrome diagnostic failed; inspect uploaded summary, logs and screenshots');
+finally{summary.executedCaseCount=summary.cases.length;
+ fs.writeFileSync(path.join(output,'summary.json'),JSON.stringify(summary,null,2)+'\n');}
+requireResult(summary.success,environment.fontStatus==='installed'
+ ?'Q2 Chrome diagnostic failed; inspect uploaded summary, logs and screenshots'
+ :'Q2 CJK font unavailable: functional evidence only; inspect uploaded summary and font-package.txt');

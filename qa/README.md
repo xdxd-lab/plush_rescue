@@ -38,15 +38,18 @@ of the Node process cannot be cleaned up. `--self-test=timeout|cdp|assert|setup|
 exercises these paths without the game checks.
 
 Q2 branch diagnostic: `.github/workflows/chrome-q2.yml` runs only on
-`ci/chrome-q2` push or manual dispatch, with no Pages job. It uses the
-runner-installed Google Chrome and Node 24. `qa/chrome-q2-runner.mjs` runs
-`--views=1280x720 --dialogs --storage-contexts` twice in fresh profiles;
+`ci/chrome-q2` push or manual dispatch, with no Pages job. Its independent
+one- and two-matrix jobs both call `.github/workflows/chrome-q2-shared.yml`;
+the shared job uses runner-installed Google Chrome, Node 24, and the same apt
+font setup. `qa/chrome-q2-runner.mjs --matrix-runs=1|2` defaults to two and
+rejects other values. Each run uses `--views=1280x720 --dialogs
+--storage-contexts` in a fresh profile;
 `--storage-contexts` explicitly includes separate-context and blocked-storage
 checks when `--views` limits the main matrix; with one selected view, those
 contexts use the same dimensions. Without this new flag, the
 existing `--views` behavior is unchanged. Each full run has a 12-minute outer
-limit, the job has 40 minutes, and timeout never counts as a pass or triggers
-a retry. Four short self-tests exercise check timeout, CDP timeout, failed
+limit; the two-run job has 40 minutes and the one-run job has 25 minutes.
+Timeout never counts as a pass or triggers a retry. Four self-tests exercise check timeout, CDP timeout, failed
 assertion and setup cleanup. The always-uploaded artifact contains per-run
 JSON, stderr, screenshots, runner/Chrome/Node versions, WebGL renderer details,
 and evidence that each temporary profile and browser process group was gone.
@@ -54,7 +57,18 @@ Each run records its own loopback HTTP origin and DevTools port; after the child
 exits, the runner requires connection refusal and successful bind for exactly
 those two ports, including all four self-tests. The 1280 matrix must report its
 fixed 18 results in order, including both ready/paused wheel and Tab/Enter
-dialog checks; the timing evidence result is separate from the 17 checks.
+dialog checks; the timing evidence result appears immediately before its
+enclosing quick-click check, separate from the 17 checks. The one-run job
+requires exactly five cases and the two-run job exactly six; one run does not
+prove repeatability.
+The diagnostic installs Ubuntu's `fonts-noto-cjk` via apt, saves its package
+version and `fc-match` result, and labels a font supply failure as functional-only
+in `summary.json` while failing the overall diagnostic. Installed fonts do not
+establish visual readability; the uploaded Chinese screenshots need review.
+The four lifecycle probes retain normal bounded setup/CDP limits and inject a
+short timeout only in the intended check or request. Each has a 120-second
+outer limit; `qa/chrome-q2-validation.test.mjs` covers rejected false positives,
+missing or reordered matrix cases, and outer timeouts.
 `--require-swiftshader` is an optional strict diagnostic; the first Linux run
 records the renderer without assuming its exact string. This workflow is not
 a required CI gate until the Linux evidence is reviewed.
