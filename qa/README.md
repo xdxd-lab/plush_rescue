@@ -149,8 +149,9 @@ a hardware GPU.
 `qa/locked-modules.json` lists the modules frozen since V11 (`cbfa10e`): `camera.js`, `characters.js`, `crowd.js`,
 `maps.js`, `weapons.js`, `lighting.js`, `effects.js`. Each entry records `path`, `sha256`, `locked_since`, `reason` and
 `approved_changes`. `qa/invariants.test.mjs` compares every locked file's SHA-256 with its entry, and
-`qa/locked-modules.test.mjs` checks the manifest itself (complete fields; each approval chains to the next and the last
-one matches the current `sha256`).
+`qa/locked-modules.test.mjs` checks the manifest itself against an independent V11 baseline: all seven paths must be
+present, an empty approval history must retain the V11 hash, and approvals must chain from that hash through to the
+current `sha256`. Its synthetic cases also check rejection of missing entries and broken or absent approval chains.
 
 A failing lock check means a locked file changed. To change one:
 
