@@ -8,7 +8,7 @@
 
 | 版本 | `revision` | 發布提交 | `source_commit`（基礎） | 建議 tag |
 |---|---|---|---|---|
-| 12.5.1 | `v12.5.1-core-modules-r1` | 見 `v12.5.1` tag | `e6b8dd2` | `v12.5.1` |
+| 12.5.1 | `v12.5.1-core-modules-r1` | `949ff05` | `e6b8dd2` | `v12.5.1` |
 | 12.5.0 | `v12.5.0-warmup-contrast-r1` | `8aa4bed` | `daa2374` | `v12.5.0` |
 | 12.4.1 | `v12.4.1-modular-locks-r1` | `ca2a645` | `4adb4e5` | `v12.4.1` |
 | 12.4.0 | `v12.4.0-variety-r1` | `f097782` | `4f4a3d2` | `v12.4.0` |

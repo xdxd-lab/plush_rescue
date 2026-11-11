@@ -29,3 +29,10 @@
 - 早期截圖工具未恢復目標畫質、被拾取對話框遮住，或以手動推進代替正常 loop 的結果已排除；只使用修正後且有逐張狀態的資料。
 
 E4／E5 維護邊界與狀態投影限制見 [QA 說明](../qa/README.md)。完整私密／離機備份尚未完成，見[復原分項紀錄](recovery-checkpoint-2026-11-12.md)。
+
+## 發布對照
+
+- 遊戲發布提交：[`949ff05`](https://github.com/xdxd-lab/plush_rescue/commit/949ff0523c4c58af081a9411551bc24e48d373e3)，附註 tag [`v12.5.1`](https://github.com/xdxd-lab/plush_rescue/releases/tag/v12.5.1)，基礎提交 `e6b8dd2`。
+- [CI 與 Pages](https://github.com/xdxd-lab/plush_rescue/actions/runs/43069828913) 的 test／build-pages／deploy-pages 均成功。
+- [Sites](https://plush-rescue-survivor.b892020xx.chatgpt.site) 保存版本 21 已部署成功，來源提交 `e71b40f`；部署包獨立驗證為 43 個 regular files（40 執行檔、manifest、.nojekyll 與必要 hosting 設定），逐檔雜湊與遊戲來源吻合。
+- 後續本次發布紀錄文件提交未改執行檔，不另建遊戲版本或重發 Sites。

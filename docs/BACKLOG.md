@@ -1,23 +1,23 @@
 # 待辦與議題索引
 
-更新快照：2026-11-12，v12.5.0 發布後。此索引使用固定代號；最新討論與狀態以各 GitHub Issue 為準。
+更新快照：2026-11-12，v12.5.1 發布後。此索引使用固定代號；最新討論與狀態以各 GitHub Issue 為準。
 
 建立 Issue 是保留需求與決策紀錄，**不代表所有提案都已批准實作**。本輪已授權 D1、D2、R1、R2，以及後續追加的 E5、Q5、Q3、E4；其他工作另行安排。P1 為優先，括號標記適用時機；P2 為後續改善，P3 為探索。
 
 ## 已轉為議題的項目
 
-初次移轉21項；D1、D2完成後保留議題作紀錄，不改動固定代號。R1／R2的私密備份位置、會話識別與密碼等只留在安全本機，不貼到公開議題。
+初次移轉21項；D1、D2、E4、E5 與桌面範圍 Q5 完成後保留議題作紀錄，不改動固定代號。R1／R2的私密備份位置、會話識別與密碼等只留在安全本機，不貼到公開議題。
 
 | 代號 | 重要程度 | 事項 | 狀態快照 | 議題 |
 |---|---|---|---|---|
-| E4 | P2 | 繼續拆分 main.js | 四塊拆分與獨立 CPU 驗證完成，待最終瀏覽器回歸及發布 | [#1](https://github.com/xdxd-lab/plush_rescue/issues/1) |
-| E5 | P2 | Core 整理與決定性測試 | 整理與獨立驗證完成，待本批整合發布 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
+| E4 | P2 | 繼續拆分 main.js | 已完成／v12.5.1 | [#1](https://github.com/xdxd-lab/plush_rescue/issues/1) |
+| E5 | P2 | Core 整理與決定性測試 | 已完成／v12.5.1 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
 | E6 | P2 | 建立渲染效能預算 | 待量測 | [#3](https://github.com/xdxd-lab/plush_rescue/issues/3) |
 | E7 | P2 | 暫停時的繪製與耗電 | 待量測／提案 | [#4](https://github.com/xdxd-lab/plush_rescue/issues/4) |
 | Q2 | P2 | 瀏覽器測試納入 CI | 提案 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
-| Q3 | P1 | 補齊 Safari 與窄視窗跨瀏覽器回歸 | 已授權，依相依性與驗證條件安排 | [#6](https://github.com/xdxd-lab/plush_rescue/issues/6) |
+| Q3 | P1 | 補齊 Safari 與窄視窗跨瀏覽器回歸 | Firefox 三尺寸完整矩陣通過；Safari 等開啟遠端自動化後驗證 | [#6](https://github.com/xdxd-lab/plush_rescue/issues/6) |
 | Q4 | P1 | 手機實機與長時間效能驗證 | 等設備 | [#7](https://github.com/xdxd-lab/plush_rescue/issues/7) |
-| Q5 | P2 | 可讀性、遮擋與減少動態效果 | 已授權，基準診斷中 | [#8](https://github.com/xdxd-lab/plush_rescue/issues/8) |
+| Q5 | P2 | 可讀性、遮擋與減少動態效果 | 桌面限定驗證完成／v12.5.1，遮擋與真機限制見 QA 紀錄 | [#8](https://github.com/xdxd-lab/plush_rescue/issues/8) |
 | Q6 | P2 | 真人平衡與長局測試 | 待辦 | [#9](https://github.com/xdxd-lab/plush_rescue/issues/9) |
 | V2 | P2 | 粒子與特效素材整合 | 已有設計／待選方案 | [#10](https://github.com/xdxd-lab/plush_rescue/issues/10) |
 | V3 | P3 | 背景音樂與音效 | 候選待決定 | [#11](https://github.com/xdxd-lab/plush_rescue/issues/11) |
