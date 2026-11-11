@@ -4,7 +4,7 @@
 // Run: node --test qa/*.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createWarmupGame,warmupCoverage,WARMUP_EVENTS} from '../shader-warmup.js';
+import {createWarmupGame,warmupCoverage,WARMUP_EVENTS,finishWarmup} from '../shader-warmup.js';
 import {WEAPONS,MAIN_WEAPONS} from '../weapons.js';
 import {UPGRADES} from '../core.js';
 
@@ -35,4 +35,29 @@ test('the hero muzzle and map are taken from the real game; the staged game stay
  const g=createWarmupGame({map:1,heroId:'polar',muzzleOffset:{x:.1,y:.7,z:.5}});
  assert.equal(g.map,1);assert.equal(g.heroId,'polar');assert.deepEqual(g.muzzleOffset,{x:.1,y:.7,z:.5});
  assert.ok(g.spawn>1e8&&g.nextBossMinute>1e8&&g.nextExp>1e8,'nothing more spawns or levels up');
+});
+
+
+test('async warmup catches uniform query failures and compile rejections',async()=>{
+ const warmup={runs:1,ready:false,error:null};
+ const renderer={shadowMap:{enabled:true},info:{programs:[{getUniforms(){throw new Error('uniform failed');}}]}};
+ await finishWarmup(Promise.resolve(),{warmup,renderer,run:1,shadows:true,t0:performance.now()});
+ assert.equal(warmup.error,'uniform failed');assert.equal(warmup.ready,false);
+ warmup.error=null;
+ await finishWarmup(Promise.reject(new Error('compile failed')),{warmup,renderer,run:1,shadows:true,t0:performance.now()});
+ assert.equal(warmup.error,'compile failed');assert.equal(warmup.ready,false);
+});
+
+test('older or different-shadow completions do not query programs or alter the current run',async()=>{
+ let resolveOld,queries=0;const old=new Promise(resolve=>{resolveOld=resolve;});
+ const warmup={runs:1,ready:false,error:null};
+ const renderer={shadowMap:{enabled:true},info:{programs:[{getUniforms(){queries++;}}]}};
+ const pending=finishWarmup(old,{warmup,renderer,run:1,shadows:true,t0:performance.now()});
+ warmup.runs=2;renderer.shadowMap.enabled=false;
+ await finishWarmup(Promise.resolve(),{warmup,renderer,run:2,shadows:false,t0:performance.now()});
+ assert.equal(warmup.ready,true);assert.equal(queries,1);
+ resolveOld();await pending;assert.equal(warmup.ready,true);assert.equal(warmup.error,null);assert.equal(queries,1);
+ warmup.runs=3;warmup.ready=false;renderer.shadowMap.enabled=true;
+ await finishWarmup(Promise.reject(new Error('stale')),{warmup,renderer,run:3,shadows:false,t0:performance.now()});
+ assert.equal(warmup.ready,false);assert.equal(warmup.error,null);
 });
