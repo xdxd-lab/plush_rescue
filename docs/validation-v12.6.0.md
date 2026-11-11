@@ -20,7 +20,7 @@ Chrome headless／SwiftShader 真實 WebGL，使用受控命中 fixture。四組
 
 - 正常載入：實際 flash material 使用 atlas／star_09 UV，未見明顯方框或滲色，受控警示仍可見。
 - 等待、阻擋及有效 1×1 圖片回應：保留原 CanvasTexture 與完整 UV，實際可繪。
-- context lost／restored：圖集重載後能以 GPU 再畫出閃光；重設與畫質切換後，新預熱最終 ready、error 為 null。
+- context lost／restored：圖集重載後能以 GPU 再畫出閃光；透過 QA 介面受控切換畫質／重設後，新預熱最終 ready、error 為 null；這項時序補證與完整矩陣的正常 UI 操作分開記錄。
 - 單元測試證明 generation 拒絕舊 callback。瀏覽器的同 URL 請求會合併，本輪只證明 pending→current ready，不宣稱已驗到兩個獨立 HTTP 回呼的完成次序。
 - 固定容量維持 trails 100／flashes 32／puffs 96。受控 draw-call 與 texture 計數未證明效能優勢；不推算手機 FPS、耗電或 GPU 記憶體收益。
 
@@ -28,4 +28,8 @@ Chrome headless／SwiftShader 真實 WebGL，使用受控命中 fixture。四組
 
 定向候選的 Node 228/228、DOM smoke 88/88、export 41 hashes／83 references／28 modules、diff-check 通過。Core、七鎖與既有 signature／golden 維持原內容。
 
-最終版本候選的完整 Chrome／Firefox 回歸執行前，另核對版本資訊；完成後回填。Safari 仍等 Allow remote automation，實體手機 Q4 與真人長局 Q6 各自保留。本紀錄不是 Safari、手機、WCAG、效能提升或完整商用權利驗收。
+最終候選已完成版本資訊核對。Chrome 完整 `--dialogs` 68/68、0 failed、0 notRun、fatal 為 null；Firefox 160 的 1280×720、360×640、390×844 完整核心矩陣均通過，實際 frame／canvas／WebGL2／預熱與輸入座標有核驗，三組升級實際作用、每組 77 trusted events 與合成事件負對照、24 張狀態截圖都有保留。測試程序與 profile 已清理。事件數不是測項數。Safari 仍等 Allow remote automation，實體手機 Q4 與真人長局 Q6 各自保留。本紀錄不是 Safari、手機、WCAG、效能提升或完整商用權利驗收。
+
+## 執行環境診斷
+
+沙盒內 Chrome 沒有開出 DevTools port，Firefox 也曾在建立 session 前退出；同一隔離流程在核准的外層環境完成。第一次外層 Chrome 被執行器的 420 秒整體上限中斷，之後以直接 Node session／輪詢完成整套，不縮減測項。這些紀錄與遊戲斷言結果分開。

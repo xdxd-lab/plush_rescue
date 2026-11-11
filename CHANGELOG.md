@@ -8,6 +8,7 @@
 
 | 版本 | `revision` | 發布提交 | `source_commit`（基礎） | 建議 tag |
 |---|---|---|---|---|
+| 12.6.0 | `v12.6.0-atlas-flash-r1` | 見 `v12.6.0` tag | `9a3431c` | `v12.6.0` |
 | 12.5.1 | `v12.5.1-core-modules-r1` | `949ff05` | `e6b8dd2` | `v12.5.1` |
 | 12.5.0 | `v12.5.0-warmup-contrast-r1` | `8aa4bed` | `daa2374` | `v12.5.0` |
 | 12.4.1 | `v12.4.1-modular-locks-r1` | `ca2a645` | `4adb4e5` | `v12.4.1` |
@@ -26,6 +27,16 @@
 | 11.0.0 | `v11-boss-rescue-r1` | `cbfa10e` | `8a2c6ac`（更早祖先） | `v11.0.0` |
 
 發布提交之後只改文件或 `qa/`、沒有改執行檔的提交（例如 `4d097de`、`84363c8`、`ef9d208`）不另立版本。
+
+## V12.6.0：可攜素材來源與命中星光試點
+
+基礎提交 `9a3431c`。本輪為 R4／V2；已完成的 E4、E5、桌面 Q5 不重做，Q3 的 Safari 仍等遠端自動化設定。
+
+- **R4 可攜重建：**保存 18 張 256px 縮製候選、三份包內授權、參考 atlas 與來源 metadata，工具與說明在 `tools/atlas/`。一般模式／`python -O`、明確／預設來源的四次獨立重建，PNG bytes、完整 2048×1024 RGBA（含透明 RGB／padding）及 UV 均與原圖吻合；14 項拒絕案例通過。必要校驗不用 assert，拒絕覆寫與寫入來源／參考目錄。原本含本機安全副本路徑的未推送提交未納入公開歷史。
+- **V2 有界試點：**只把主武器命中 flash 改用 `star_09`，保留原 trail／puff、100／32／96 固定容量、玩法與 game RNG。其餘 17 格仍為候選；沒有處理鎖定救援 effects。載入等待、失敗或無效尺寸仍用原 CanvasTexture 與完整 UV；context 恢復重新載入，generation 防護拒絕舊回呼，ready 通知畫面重繪。
+- **定向驗證：**Node 228/228、DOM 88、export 41 hashes／83 references／28 modules、diff check 通過；Core／七鎖／舊 signature 與 golden 不變。Chrome headless／SwiftShader 的明暗、360／390、低／均衡／精緻與減少動態場景以原始 before／after PNG、實際 mesh／UV 及 ROI 像素驗證閃光。等待／阻擋／有效 1×1 無效圖 fallback、context 恢復後 GPU 重繪，以及透過 QA 介面受控重設／切換畫質的預熱補證通過。早期抓到空閃光的圖片不列通過證據。
+- **範圍限制：**受控凍結場景不是自然戰鬥；同 URL 的請求會合併，瀏覽器未證明兩個獨立 HTTP 舊回呼的完成次序，stale generation 由單元測試證明。受控 draw-call／texture 觀察沒有證明效能優勢，不推算手機 FPS、耗電或完整 GPU 記憶體成本。Safari、實體手機 Q4、真人長局 Q6 與專案商用權利 S2 另行追蹤。
+- **最終回歸：**12.6.0 的 Chrome 完整 `--dialogs`：68 pass、0 fail、0 notRun、fatal 為 null。Firefox 160 的 1280×720、360×640、390×844 三組完整核心矩陣通過，含實際 frame 尺寸／WebGL2／預熱、每組 77 trusted events 與 synthetic 負對照、三組升級實際作用及 24 張狀態截圖；事件數不等於測項數。測試程序與 profile 已清理。macOS 沙盒啟動失敗與外部執行器 420 秒上限中斷分開列為環境診斷，不算遊戲斷言失敗。[驗證範圍與原圖](docs/validation-v12.6.0.md)。
 
 ## V12.5.1：程式模組整理與回歸補強
 

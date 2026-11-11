@@ -1,8 +1,8 @@
 {
-  "version": "12.5.1",
-  "revision": "v12.5.1-core-modules-r1",
-  "source_commit": "e6b8dd2",
-  "layout": "Static V12.5.1: mechanically formatted core, versioned detailed state regression and extracted dialogs, pickup, input and render-sync controllers; gameplay, portrait camera and seven locked modules unchanged.",
+  "version": "12.6.0",
+  "revision": "v12.6.0-atlas-flash-r1",
+  "source_commit": "9a3431c",
+  "layout": "Static V12.6.0: portable audited atlas sources and reproducible RGBA rebuild; star_09 hit-flash pilot with CanvasTexture fallback and guarded context reload; gameplay, portrait camera, trails, puffs and locked modules retained.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -66,8 +66,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 350,
-      "sha256": "d1322a3c0a43f9ac3d5146f9c6c7780b609874909ea76106c2380ecc938818cc"
+      "bytes": 365,
+      "sha256": "c15067b6113252fe78240e92c8f11f9064ac7002e04952f05bab74d9c8d885c6"
     },
     {
       "path": "camera.js",
@@ -116,8 +116,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13810,
-      "sha256": "52f761fd848d79d16d462860953893744e910d2e5c43353b597aa2e11b7aa330"
+      "bytes": 13809,
+      "sha256": "afc841861b51fbc1e07836b2cf07a435ad1e19749766dc58b695eda38f0ed15b"
     },
     {
       "path": "input-controller.js",
@@ -136,8 +136,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 18355,
-      "sha256": "88b90c2e7917d7b282a8b6bd295907c65651d23364fe4264bf2f815edfd2c29a"
+      "bytes": 18354,
+      "sha256": "f329d742da1169bd5ab7f6e72ab3cdc26ce785951a3d51c133699d1871a688fd"
     },
     {
       "path": "maps.js",

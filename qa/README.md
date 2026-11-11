@@ -284,3 +284,11 @@ checks must settle/freeze the test page's RAF, render a same-age hit away from
 HUD/labels, and compare raw before/after pixels with the actual mesh matrix
 and UV. Keep natural-loop checks separate from these frozen fixtures.
 Results and raw examples are in [the release validation scope](../docs/validation-v12.6.0.md).
+
+Full macOS SwiftShader `--dialogs` runs in this audit exceeded seven minutes.
+`CHECK_TIMEOUT=240s` bounds an individual check, not the entire suite. Use a
+retained asynchronous Node session with bounded polling, or a sufficiently
+long overall runner budget. A wrapper timeout must remain an orchestration
+diagnostic; do not label it a game assertion failure or skip checks to fit it.
+If a wrapper kills Node before its finally runs, verify and stop only that
+test's recorded independent Chrome group/profile before starting another run.
