@@ -263,3 +263,24 @@ unchanged core/seven locked modules/pre-existing goldens/version identity.
 DOM stubs do not establish trusted browser event dispatch or listener counts;
 the release's final real-browser interaction results are recorded in
 [`docs/validation-v12.5.1.md`](../docs/validation-v12.5.1.md).
+
+## R4 / V2 atlas verification
+
+The reproducible input tool is `tools/atlas/rebuild.py`; its README records
+the tested Python/Pillow versions and source provenance. Independent normal
+and optimized-Python builds matched the whole reference RGBA image, including
+RGB under zero alpha. Do not replace that reference or regenerate expected
+hashes from a changed candidate merely to make a test pass.
+
+V2 uses only the star_09 hit flash. The bounded trail/puff behavior and
+100/32/96 capacities remain unchanged. Pending, failed and invalid textures
+must keep the full-UV CanvasTexture fallback. Generation checks prevent old
+callbacks from installing stale maps; browser request coalescing is not proof
+of independent HTTP callback ordering. Context restoration needs actual GPU
+render evidence, not only a ready flag.
+
+A 0.16-second flash can expire between separate CDP calls. Controlled visual
+checks must settle/freeze the test page's RAF, render a same-age hit away from
+HUD/labels, and compare raw before/after pixels with the actual mesh matrix
+and UV. Keep natural-loop checks separate from these frozen fixtures.
+Results and raw examples are in [the release validation scope](../docs/validation-v12.6.0.md).
