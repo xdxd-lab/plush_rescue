@@ -117,7 +117,7 @@
   "same_device_component_backup": {
     "verified_on": "2026-11-12",
     "copied_source_file_count": 13,
-    "contents": "兩張原圖、七張衍生圖、兩張參考肖像、README 與 PROMPTS，另附校驗清單及保存說明。",
+    "contents": "兩張原圖、七張衍生圖、兩張參考肖像、建立副本當時的 README 與 PROMPTS 快照，另附校驗清單及保存說明。",
     "verification": "僅從新副本讀回，檔案集合、大小、SHA-256、圖像尺寸相符。",
     "private_location_published": false,
     "manifest_sha256": "4a81fd92bf3b41a0f0b387966173533307eca3edd0623da79e699f20a1fa8250"
