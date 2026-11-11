@@ -19,6 +19,7 @@ import {createChoiceTimer} from './choice-timer.js';
 import {createAudio} from './audio.js';
 import {createHud} from './hud.js';
 import {createDialogs} from './dialogs.js';
+import {createPickup} from './pickup.js';
 import {createWarmupGame,warmupCoverage,finishWarmup,shouldWarmup} from './shader-warmup.js';
 import {createTapTracker,createHoverTracker,eventTime,pointCovered,HUD_OCCLUDERS,dropHitShape,pickDropAt,readSettings,recommendUpgrade,recommendPickup,iconSvg,weaponIcon,UPGRADE_ICONS,formatClock,nextBossCountdown,bossClockLabel,readRecords,mergeRecords,writeRecords,bestWeapon} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
@@ -45,8 +46,8 @@ const reduceMotion=()=>Boolean(motionQuery?.matches);
 // Short taps on drops (V12.1): each pointer is judged at release; the loop resolves them.
 const taps=createTapTracker(),pendingTaps=[],tapClock=()=>performance.now();
 // V12.2.1 mouse hover pickup: the last mouse position (null until the mouse moves over the game) and whether it moved since the last frame.
-const hover=createHoverTracker();let hoverPoint=null,hoverMoved=false,hoverLabel=null;
-function clearHover(){hover.reset();hoverPoint=null;hoverMoved=false;hoverLabel=null;showHoverRing(null);}
+const hover=createHoverTracker(),pickupState={hoverPoint:null,hoverMoved:false,hoverLabel:null};
+function clearHover(){pickupController.clearHover();}
 // Auto-choice countdown for level-up and pickup dialogs (choice-timer.js).
 const choiceTimer=createChoiceTimer({doc:document,win:window,dialog,enabled:()=>prefs.autoChoose,getGame:()=>game,getKey:()=>lastStatus,onAutoChosen:label=>showNotice('已自動選擇：'+label,'good',2,1)});
 const runTrack={bosses:0,evolved:new Set(),aliveBosses:new Map(),nextAlive:new Map()};
@@ -113,7 +114,7 @@ document.addEventListener('pointermove',e=>{
  // Only a mouse with no button down hovers; a drag, a finger or a pen never does.
  if(e.pointerType==='mouse'){
   if(e.buttons!==0||isInteractiveTarget(e.target)||!$('#game').contains(e.target))clearHover();
-  else{if(!hoverPoint||hoverPoint.x!==e.clientX||hoverPoint.y!==e.clientY)hoverMoved=true;hoverPoint={x:e.clientX,y:e.clientY,type:'mouse'};}
+  else{if(!pickupState.hoverPoint||pickupState.hoverPoint.x!==e.clientX||pickupState.hoverPoint.y!==e.clientY)pickupState.hoverMoved=true;pickupState.hoverPoint={x:e.clientX,y:e.clientY,type:'mouse'};}
  }
  if(e.pointerId!==stick.id)return;
  if(game.status!=='running'){clearInput();return;}
@@ -222,68 +223,13 @@ function syncModels(){
  weaponVisuals.sync(game,hero);
  fx.shadows(game.player,game.enemies,game.rescued);
 }
-const tapPoint=new THREE.Vector3(),tapAxes={right:new THREE.Vector3(),up:new THREE.Vector3()};
-// The canvas box in CSS pixels; pointer coordinates use the same space.
-function viewRect(){const r=canvas.getBoundingClientRect?.();return r&&r.width>0&&r.height>0?{left:r.left,top:r.top,width:r.width,height:r.height}:{left:0,top:0,width:innerWidth,height:innerHeight};}
-function projectToScreen(x,y,z,view=viewRect()){
- tapPoint.set(x,y,z).project(camera);
- if(!Number.isFinite(tapPoint.x)||!Number.isFinite(tapPoint.y)||tapPoint.z>1||tapPoint.z<-1)return null;
- return {x:view.left+(tapPoint.x+1)/2*view.width,y:view.top+(1-tapPoint.y)/2*view.height,z:tapPoint.z};
-}
-// Resolve queued taps against what the player saw: the camera pose of the last
-// render and the drops drawn at the last sync (inside the render pool, label
-// shown or not). Any drop on screen can be tapped; there is no distance limit.
-// The drawn drops as hit shapes, from the camera pose of the last render. With
-// hiddenId, also the shape of that drop when it is still in the game but not drawn
-// (the dark beat of its expiry blink), using hiddenLabel, how its label was last drawn
-// (so a hover on the label is held too, at the size and place it was seen).
-function dropShapes(hiddenId=null,hiddenLabel=null){
- camera.updateMatrixWorld();
- tapAxes.right.setFromMatrixColumn(camera.matrixWorld,0).normalize();tapAxes.up.setFromMatrixColumn(camera.matrixWorld,1).normalize();
- const view=viewRect(),drawn=weaponVisuals.drawnDrops?.()??new Map(),project=(x,y,z)=>projectToScreen(x,y,z,view),shapes=[];let hidden=null;
- for(const drop of game.drops){
-  const seen=drawn.get(drop.id);
-  if(seen&&drop.life>0)shapes.push(dropHitShape(drop,project,tapAxes,view,seen));
-  else if(!seen&&drop.id===hiddenId&&drop.life>0)hidden=dropHitShape(drop,project,tapAxes,view,hiddenLabel??{labelVisible:false});
- }
- return {shapes,hidden};
-}
-function resolveTaps(){
- if(!pendingTaps.length)return;
- while(pendingTaps.length){
-  const tap=pendingTaps.shift();if(game.status!=='running')continue;
-  const drop=pickDropAt(tap,dropShapes().shapes);
-  if(drop&&game.tapPickup(drop.id))renderDirty=true;
- }
-}
-// V12.2.1: a resting mouse takes the drop under it after 0.5 s (see createHoverTracker).
-// Exact hits only (no tap margin); HUD panels cover the world; any state other than a
-// plain running game, or an open dialog, restarts the hover.
-function resolveHover(realDt){
- // Every early return also drops the pending move, so a HUD panel or dialog that goes away never lets an old move start a hover.
- if(!hoverPoint||game.status!=='running'||overlay.classList.contains('shown')||pointCovered(hoverPoint,hudOccluders)){hover.reset();hoverMoved=false;hoverLabel=null;showHoverRing(null);return;}
- // Nothing tracked and no mouse move since the last frame: a hover can only start from a move, so skip the projections.
- if(hover.id===null&&!hoverMoved){showHoverRing(null);return;}
- const {shapes,hidden}=dropShapes(hover.id,hoverLabel),hit=pickDropAt(hoverPoint,shapes,{margin:0}),held=!hit&&hidden&&pickDropAt(hoverPoint,[hidden],{margin:0}),
-  state=hover.update({hitId:hit?hit.id:null,hiddenId:held?held.id:null,dtMs:realDt*1000,moved:hoverMoved});
- // Remember how the hovered drop's label was drawn, for its next dark beat (kept while held).
- if(hit)hoverLabel=weaponVisuals.drawnDrops?.().get(hit.id)??null;else if(!held)hoverLabel=null;
- hoverMoved=false;
- if(state.fire!==null){
-  // After a hover pickup the mouse has to move again before another one can start.
-  hoverPoint=null;showHoverRing(null);
-  if(game.tapPickup(state.fire))renderDirty=true;
-  return;
- }
- // The ring appears as soon as the hover is running, before any progress, so slow frames still show feedback.
- showHoverRing(state.armed?{x:hoverPoint.x,y:hoverPoint.y,progress:state.progress}:null);
-}
-const hoverRing=$('#hoverRing');
-function showHoverRing(info){
- if(!hoverRing)return;
- if(!info){if(!hoverRing.hidden)hoverRing.hidden=true;return;}
- hoverRing.hidden=false;hoverRing.style.left=info.x+'px';hoverRing.style.top=info.y+'px';hoverRing.style.setProperty('--hover',String(Math.round(info.progress*360)));
-}
+const pickupController=createPickup({document,canvas,camera,getGame:()=>game,getSize:()=>({width:innerWidth,height:innerHeight}),weaponVisuals,hudOccluders,pendingTaps,hover,pickupState,overlay,setRenderDirty:()=>{renderDirty=true;},getDropShapes:(...args)=>dropShapes(...args)});
+function projectToScreen(...args){return pickupController.projectToScreen(...args);}
+function viewRect(){return pickupController.viewRect();}
+function dropShapes(...args){return pickupController.dropShapes(...args);}
+const tapAxes=pickupController.tapAxes;
+function resolveTaps(){pickupController.resolveTaps();}
+function resolveHover(realDt){pickupController.resolveHover(realDt);}
 function effects(dt){
  const heard=new Set();
  for(const event of game.events){
@@ -330,4 +276,4 @@ function loop(now){
  if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(prefs.stats)syncStats();}
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v12.5.0-warmup-contrast-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get hud(){return hudView;},get shaderWarmup(){return {...shaderWarmup,programs:renderer.info.programs?.length??0};},get presentation(){return {notice:hud.notice.textContent,noticeTimer:hudView.noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();startGame();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:hoverPoint,moved:hoverMoved,label:hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);hudView.sync(game);syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v12.5.0-warmup-contrast-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get hud(){return hudView;},get shaderWarmup(){return {...shaderWarmup,programs:renderer.info.programs?.length??0};},get presentation(){return {notice:hud.notice.textContent,noticeTimer:hudView.noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();startGame();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:pickupState.hoverPoint,moved:pickupState.hoverMoved,label:pickupState.hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);hudView.sync(game);syncOverlay();renderDirty=false;renderer.render(scene,camera);}};

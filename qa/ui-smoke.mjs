@@ -501,7 +501,7 @@ check('a hover on an enlarged label is held through a dark beat, at the size it 
  d.life=1.5;for(let i=0;i<200&&t.qa.weaponVisuals.drawnDrops().has(d.id);i++){t.qa.weaponVisuals.update(.01);t.qa.renderOnce();}
  assert.equal(t.qa.weaponVisuals.drawnDrops().has(d.id),false,'dark beat');
  const held=label=>t.run(`(()=>{const {hidden}=dropShapes(${d.id},${label});return Boolean(hidden&&pickDropAt({x:${p.x},y:${p.y}},[hidden],{margin:0}));})()`);
- assert.equal(held('hoverLabel'),true,'the pointer is still on the label as drawn');
+ assert.equal(held('pickupState.hoverLabel'),true,'the pointer is still on the label as drawn');
  assert.equal(held('{labelVisible:true}'),false,'a world-size label would have lost the pointer');
 });
 check('a mouse resting on a drop takes it after 0.5 s through the normal pickup flow; 0.4 s does not',()=>{

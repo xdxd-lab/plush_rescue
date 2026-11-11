@@ -126,13 +126,18 @@
     },
     {
       "path": "main.js",
-      "bytes": 30500,
-      "sha256": "02b969f47bd5619e2ae89a486e8bc575f39d51ace0f149559ce506e522f6062d"
+      "bytes": 27108,
+      "sha256": "652f843466e0a957682511a5ed2adfb84e4d7af1f6a1805847fd0f417fd4d319"
     },
     {
       "path": "maps.js",
       "bytes": 45663,
       "sha256": "f582d0240116943835003799a867283a0792e37dbb10f737fc003fc72569b6d7"
+    },
+    {
+      "path": "pickup.js",
+      "bytes": 4984,
+      "sha256": "e2a0fca20e4832fefebfc483639ad6f89f0b1d6058cedf2dc7312df2a4291a73"
     },
     {
       "path": "settings-store.js",
