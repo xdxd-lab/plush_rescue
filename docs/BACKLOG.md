@@ -11,21 +11,21 @@
 | 代號 | 重要程度 | 事項 | 狀態快照 | 議題 |
 |---|---|---|---|---|
 | E4 | P2 | 繼續拆分 main.js | 提案 | [#1](https://github.com/xdxd-lab/plush_rescue/issues/1) |
-| E5 | P2 | Core 整理與決定性測試 | 已授權，依相依性與驗證條件安排 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
+| E5 | P2 | Core 整理與決定性測試 | 整理與獨立驗證完成，待本批整合發布 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
 | E6 | P2 | 建立渲染效能預算 | 待量測 | [#3](https://github.com/xdxd-lab/plush_rescue/issues/3) |
 | E7 | P2 | 暫停時的繪製與耗電 | 待量測／提案 | [#4](https://github.com/xdxd-lab/plush_rescue/issues/4) |
 | Q2 | P2 | 瀏覽器測試納入 CI | 提案 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
 | Q3 | P1 | 補齊 Safari 與窄視窗跨瀏覽器回歸 | 已授權，依相依性與驗證條件安排 | [#6](https://github.com/xdxd-lab/plush_rescue/issues/6) |
 | Q4 | P1 | 手機實機與長時間效能驗證 | 等設備 | [#7](https://github.com/xdxd-lab/plush_rescue/issues/7) |
-| Q5 | P2 | 可讀性、遮擋與減少動態效果 | 已授權，依相依性與驗證條件安排 | [#8](https://github.com/xdxd-lab/plush_rescue/issues/8) |
+| Q5 | P2 | 可讀性、遮擋與減少動態效果 | 已授權，基準診斷中 | [#8](https://github.com/xdxd-lab/plush_rescue/issues/8) |
 | Q6 | P2 | 真人平衡與長局測試 | 待辦 | [#9](https://github.com/xdxd-lab/plush_rescue/issues/9) |
 | V2 | P2 | 粒子與特效素材整合 | 已有設計／待選方案 | [#10](https://github.com/xdxd-lab/plush_rescue/issues/10) |
 | V3 | P3 | 背景音樂與音效 | 候選待決定 | [#11](https://github.com/xdxd-lab/plush_rescue/issues/11) |
 | V4 | P2 | WebGL 啟動失敗復原 | 待查／提案 | [#12](https://github.com/xdxd-lab/plush_rescue/issues/12) |
 | S2 | P1（商用前） | 專案 LICENSE 與商用 IP 策略 | 待決定 | [#13](https://github.com/xdxd-lab/plush_rescue/issues/13) |
 | S3 | P2 | 品牌原圖與衍生流程保全 | 待核對 | [#14](https://github.com/xdxd-lab/plush_rescue/issues/14) |
-| R1 | P1（清理前） | 更新專案與環境安全備份 | 準備中；安全保存方式待指定 | [#15](https://github.com/xdxd-lab/plush_rescue/issues/15) |
-| R2 | P1（清理前） | 執行隔離還原演練 | 等待R1；整體演練未完成 | [#16](https://github.com/xdxd-lab/plush_rescue/issues/16) |
+| R1 | P1（清理前） | 更新專案與環境安全備份 | 非私密專案快照已準備；私密／離機保存方式待選 | [#15](https://github.com/xdxd-lab/plush_rescue/issues/15) |
+| R2 | P1（清理前） | 執行隔離還原演練 | 同機非私密專案分項通過；完整環境／離機待驗 | [#16](https://github.com/xdxd-lab/plush_rescue/issues/16) |
 | R4 | P2 | 素材重建路徑可搬移化 | 待核對／修正 | [#17](https://github.com/xdxd-lab/plush_rescue/issues/17) |
 | D1 | P2 | 補齊可驗證的歷史 Tags 與 Releases | 本輪補建完成，保留紀錄 | [#18](https://github.com/xdxd-lab/plush_rescue/issues/18) |
 | D2 | P2 | 建立固定代號 GitHub 議題追蹤 | 索引與議題移轉完成，保留紀錄 | [#19](https://github.com/xdxd-lab/plush_rescue/issues/19) |

@@ -209,9 +209,31 @@ For the E5 formatting commit, Prettier 3.6.2 ran with `--single-quote
 --trailing-comma none --print-width 100 --arrow-parens avoid`. Its output also
 normalizes numeric literal spelling (for example `.8` to `0.8`), so the diff
 is more than whitespace. Parsing original and formatted files with Prettier's
-Babel parser 3.6.2, removing location/comment/raw metadata and comparing the
+Babel parser bundled with Prettier 3.6.2, removing location/comment/raw metadata and comparing the
 full AST gave identical SHA-256
 `a02291a0a12e1d7822b7987b118ecd89fd4a8a0db69c99288e5029a0b1b83bec`.
 No expression, statement, property, or evaluation order changed. This AST
 check and the signatures give complementary evidence, with the usual limit
 that the scripts exercise specific states.
+
+E5's independent recheck extracted baseline `core.js` and `weapons.js` from
+274 into a fresh scratch directory and recalculated all 16 cases plus the
+forced scenario against both implementations. Digest, observed branches and
+completed steps matched. The pre-existing signatures/goldens and all seven
+locked modules were byte-identical to the baseline. At `bda6964`, the full
+required checks from the unchanged runtime were 224 Node tests, 88 DOM smoke
+checks, and export 36 hashes / 68 references / 24 modules; the final step
+witness change additionally passed all 17 focused tests.
+
+The projection is sampled every 20 steps and rounded to five decimals. The
+long script deliberately keeps the player invulnerable, so observed hazard
+hits do not establish damage balance. Targeted ally timer observations are
+not a standalone proof of the full 30-second lifetime; existing boss-allies
+tests cover that behavior. These limits matter when extending this suite.
+
+Allocation optimization was assessed but not implemented: there is no
+allocation profile establishing a bottleneck or benefit. Candidate paths
+for later profiling include `steerEnemy` map/filter/sort chains, enemy array
+copies in `step`, and projectile/area-hit handling. Preserve RNG and numeric
+evaluation order if revisiting them; formatting and the new suite do not
+by themselves demonstrate a speed or memory improvement.
