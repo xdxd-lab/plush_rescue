@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "audited_on": "2026-11-12",
+  "repository_baseline": "644c32a5365e38bed2d30e4fca0b0a9240264237",
+  "scope": "檔案完整性與來源追溯；非逐位元重製、離機備份或商用權利驗收。",
+  "originals": [
+    {
+      "id": "app-icon-original",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "format": "PNG",
+      "bytes": 2091375,
+      "sha256": "192cda38ad5c0c37da47bb992b66da87583e12b49d8a8a3d8d657bfcf1415ef9",
+      "locally_verified": true
+    },
+    {
+      "id": "banner-original",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "format": "PNG",
+      "bytes": 2322553,
+      "sha256": "a3cfc1451ebd5d7663d8aa8a5413ff152100063a339a694ec3b656a0b4b42392",
+      "locally_verified": true
+    }
+  ],
+  "derivatives": [
+    {
+      "path": "assets/brand/icon-16.png",
+      "source": "app-icon-original",
+      "dimensions": [
+        16,
+        16
+      ],
+      "bytes": 887,
+      "sha256": "b34f7fe445be10aa11f222ab3f740adce1b3a5020729cc0cb55c909853bb3a83",
+      "runtime": true
+    },
+    {
+      "path": "assets/brand/icon-32.png",
+      "source": "app-icon-original",
+      "dimensions": [
+        32,
+        32
+      ],
+      "bytes": 2625,
+      "sha256": "34e587669370717f54068ee202fb82c0d3b05de57ed48c5155d3ae30462aec35",
+      "runtime": true
+    },
+    {
+      "path": "assets/brand/icon-192.png",
+      "source": "app-icon-original",
+      "dimensions": [
+        192,
+        192
+      ],
+      "bytes": 62098,
+      "sha256": "0f9243d7d61083e157110ef2647a90d75bf74ee7f4833be9fde8041841e2f2a1",
+      "runtime": true
+    },
+    {
+      "path": "assets/brand/apple-touch-icon.png",
+      "source": "app-icon-original",
+      "dimensions": [
+        180,
+        180
+      ],
+      "bytes": 55145,
+      "sha256": "a973138a8a1bec5cbae4b32ffc6b0bcba1fb2cfc04b8c9a469657ba721479076",
+      "runtime": true
+    },
+    {
+      "path": "assets/brand/brand-mark.png",
+      "source": "app-icon-original",
+      "dimensions": [
+        64,
+        64
+      ],
+      "bytes": 8593,
+      "sha256": "d182543f736a5c017a47f8e1916bd4dbc82c3c14b1ca4d19c92279544183b464",
+      "runtime": true
+    },
+    {
+      "path": "assets/brand/banner.jpg",
+      "source": "banner-original",
+      "dimensions": [
+        1280,
+        426
+      ],
+      "bytes": 162102,
+      "sha256": "a0144276bc5fb42c48b57dda018dd032d89e4cf1942732271b2833d693794aec",
+      "runtime": false
+    },
+    {
+      "path": "assets/brand/og-image.jpg",
+      "source": "banner-original",
+      "dimensions": [
+        1200,
+        630
+      ],
+      "bytes": 173956,
+      "sha256": "a8aa563bf59fc48b5217656940d581964fea8f9c98dbe6e20b8e95cd539fa2ba",
+      "runtime": true
+    }
+  ],
+  "reproduction": {
+    "documented_tool": "macOS sips",
+    "operations": "README 記錄縮放、JPEG 品質與社群圖補邊；PROMPTS 保存生成描述與參考圖。",
+    "historical_exact_command_transcript_available": false,
+    "byte_exact_rebuild_verified": false
+  },
+  "off_device_backup_verified": false,
+  "rights_review": "S2 另行決定；來源與雜湊驗證不等於商用權利驗收。",
+  "same_device_component_backup": {
+    "verified_on": "2026-11-12",
+    "copied_source_file_count": 13,
+    "contents": "兩張原圖、七張衍生圖、兩張參考肖像、README 與 PROMPTS，另附校驗清單及保存說明。",
+    "verification": "僅從新副本讀回，檔案集合、大小、SHA-256、圖像尺寸相符。",
+    "private_location_published": false,
+    "manifest_sha256": "4a81fd92bf3b41a0f0b387966173533307eca3edd0623da79e699f20a1fa8250"
+  }
+}
