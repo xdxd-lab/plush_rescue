@@ -296,3 +296,16 @@ long overall runner budget. A wrapper timeout must remain an orchestration
 diagnostic; do not label it a game assertion failure or skip checks to fit it.
 If a wrapper kills Node before its finally runs, verify and stop only that
 test's recorded independent Chrome group/profile before starting another run.
+
+## Q6 long-run baseline
+
+`q6-longrun.mjs` runs a seeded, core-only 20-minute simulation across the two
+heroes and three map indices. It records natural-health cases first and only
+adds same-seed invulnerability diagnostics after early death. These are
+repeatable simulation measurements, not browser or balance acceptance. The
+scope, decision policy and interpretation limits are in
+[`q6-longrun-protocol.md`](./q6-longrun-protocol.md); the compact first-run
+baseline and per-minute checkpoints are in
+[`q6-longrun-summary.json`](./q6-longrun-summary.json). The human playtest
+sheet is deliberately unfilled until a participant is available:
+[`q6-human-playtest.md`](./q6-human-playtest.md).
