@@ -62,15 +62,8 @@ node qa/ui-smoke.mjs
 - **唯一來源：**發布版本以 `build-info.json` 的 `version`（語意化版本，例如 `12.1.1`）與 `revision` 為準。新版本的 `revision` 採 `v<version>-<代號>-r<序號>`（例如 `v12.1.1-tap-hit-r1`）；V12、V12.1 的舊值保留作歷史紀錄。`qa/` 內的測試一律從 `build-info.json` 讀取，不另外寫死目前版本。
 - **必須一致的執行檔：**`main.js` 的 `__PLUSH_QA__.revision` 與 `index.html` 的 `#game` `data-build` 必須等於 `revision`；`runtime-manifest.json` 的 `version`／`revision`／基礎來源提交 `source_commit` 由 `qa/regenerate-manifest.py` 從 `build-info.json` 複製。`qa/invariants.test.mjs` 會檢查以上欄位一致。`source_commit` 記錄基礎來源，未必是本儲存庫的發布提交。
 - **發布新版本：**更新 `build-info.json` → 同步 `main.js` 與 `index.html` 的 `revision` → `python3 qa/regenerate-manifest.py`（說明文字有變時加 `--layout=…`）→ `node --test qa/*.test.mjs`、`node qa/ui-smoke.mjs`、`python3 verify-export.py` → 更新 `CHANGELOG.md`（新增版本段落與對照表一列）→ 提交後建立 tag 與 GitHub Release（見下一項）。
-- **tag 與 GitHub Release：**每個發布提交建立附註 tag `v<version>`（例如 `v12.1.1`），訊息寫 `revision`；推送 tag 後在 GitHub 以該 tag 建立 Release，內容取自 `CHANGELOG.md` 對應段落。只改文件或 `qa/` 的後續提交不另立 tag。補建既有版本的 tag（需有推送權限的維護者執行）：
+- **tag 與 GitHub Release：**每個發布提交建立附註 tag `v<version>`（例如 `v12.1.1`），訊息寫 `revision`；推送 tag 後在 GitHub 以該 tag 建立 Release，內容取自 `CHANGELOG.md` 對應段落。只改文件或 `qa/` 的後續提交不另立 tag。2026-11-11 已補齊本倉庫 V11～V12.5.0 的15個可驗證版本之tag與Release；補建明確標為歷史紀錄、未重測或部署舊版，最新版未變。不要重複建立或改寫既有tag；核對表與補建規則見[歷史發布紀錄](docs/releases-history.md)。
 
-  ```sh
-  git tag -a v11.0.0 cbfa10e -m v11-boss-rescue-r1
-  git tag -a v12.0.0 4080051 -m v12-commercial-ui-r1
-  git tag -a v12.1.0 dd01898 -m v12.1-tap-pickup-r1
-  git tag -a v12.1.1 6858765 -m v12.1.1-tap-hit-r1
-  git push origin v11.0.0 v12.0.0 v12.1.0 v12.1.1
-  ```
 - **`build-info.json` 欄位語意：**`source_commit` 是發布提交的父提交（基礎提交），不是發布提交本身；發布提交由 tag 與 `CHANGELOG.md` 對照表對應。`validation_at_build` 與 `built_at` 是建置當下的快照，之後只改 `qa/` 或文件時不更新（測試數量可能因此比快照多）。
 - **文件中的時間標注：**描述某個時點的狀態時，以版本加提交標明，不用日期或模糊的「目前」：
   - `截至 vX.Y.Z（<commit>）`：當時的快照，例如驗證數量、檔案是否變更；之後不再更新。
@@ -79,6 +72,8 @@ node qa/ui-smoke.mjs
   - 程式註解用英文對應寫法：`as of vX.Y.Z (<commit>)`、`since vX.Y.Z`、`until vX.Y.Z`。
 
 ## 參與協作
+
+固定代號的待辦、優先級、狀態與GitHub Issues連結見[待辦與議題索引](docs/BACKLOG.md)。建立議題不等於批准實作，私密備份及會話資訊不放公開Issue。
 
 修改流程、必要檢查、提交訊息與驗證紀錄的寫法見 [`CONTRIBUTING.md`](CONTRIBUTING.md)；PR 與問題回報範本在 `.github/`。
 
