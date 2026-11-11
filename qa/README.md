@@ -74,8 +74,19 @@ The five-round settings check records bounded round/subphase begin/done times
 and current pending phase; the report and abort/fatal stderr include the last
 20 CDP methods with elapsed/completed state and a separate active snapshot.
 `--require-swiftshader` is an optional strict diagnostic; the first Linux run
-records the renderer without assuming its exact string. This workflow is not
-a required CI gate until the Linux evidence is reviewed.
+records the renderer without assuming its exact string. The branch diagnostic itself has no Pages job.
+After the R3 evidence review, `ci-pages.yml` calls this exact shared implementation with
+`matrix_runs: 1` as `chrome-smoke`, after `test`; Pages build requires both. This does not
+turn the single run into repeatability evidence or replace the full multi-size suite.
+
+Q2 R3 evidence (2026-11-12, `31b8a25`): the same-SHA single/repeat jobs passed all three
+1280x720 matrices (17 checks and one timing record each), eight deliberate-failure probes,
+and cleanup for all eleven cases. All six raw screenshots were checked for CJK glyphs;
+this is not mobile, hardware-GPU, broad visual-conformance or accessibility certification.
+The single-mode five-round check took 122,396 ms with all 60 phases complete; the prior
+120-second bound would not fit that observed valid execution. R1/R2 failures are preserved,
+not relabeled as successful. See the [dated audit](../docs/quality-audit-2026-11-12.md) and
+[compact evidence](evidence/q2-linux/summary.json). Build metadata remains the release-time snapshot.
 
 V12.2.1 hover follow-up: Node 24.22.1 passed 82 tests and the DOM smoke passed 75 checks. A focused
 Chrome 156 / SwiftShader run used real CDP mouse input to check the visible progress ring, leaving and

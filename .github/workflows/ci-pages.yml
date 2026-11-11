@@ -1,4 +1,4 @@
-# CI for every push and PR; GitHub Pages deployment only for a push to main whose tests pass.
+# CI for every push and PR; GitHub Pages deployment only for a push to main whose tests and Chrome smoke pass.
 # As of v12.4.1 (3af4239), Settings → Pages → Source is "GitHub Actions" and this gate is active.
 # Keep that setting: switching back to branch deployment bypasses this workflow gate (see README.md).
 name: CI and Pages
@@ -42,10 +42,16 @@ jobs:
       - name: UI smoke
         run: node qa/ui-smoke.mjs
 
-  # Packs the same commit the tests ran on. Chrome QA (qa/browser-chrome.mjs) is not part of
-  # the gate: it is only verified on macOS so far.
-  build-pages:
+  # Use the same verified Chrome workflow and dependencies as the branch diagnostic.
+  chrome-smoke:
     needs: test
+    uses: ./.github/workflows/chrome-q2-shared.yml
+    with:
+      matrix_runs: 1
+
+  # Packs the same commit after both independent checks pass.
+  build-pages:
+    needs: [test, chrome-smoke]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:

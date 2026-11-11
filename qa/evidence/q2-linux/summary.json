@@ -1,0 +1,524 @@
+{
+  "status": "PASS_Q2_R3_TWO_MODE_LINUX_DIAGNOSTIC",
+  "scope": "Q2 headless Linux Chrome diagnostic only; no local browser launch and no physical GPU/mobile/Safari claim.",
+  "source": {
+    "repository": "xdxd-lab/plush_rescue",
+    "branch": "ci/chrome-q2",
+    "commit": "31b8a2552ea588546e48e7c6e61a424865408922",
+    "parent": "d7833bca1c8f0b4e83537ecdd6c31940ef8d9cbc",
+    "tree": "02156c528d5703c0c70fd3450baec79747172df6",
+    "same_tree_as_reviewed_candidate": true
+  },
+  "q2_run": {
+    "run_id": 43106622090,
+    "url": "https://github.com/xdxd-lab/plush_rescue/actions/runs/43106622090",
+    "conclusion": "success",
+    "jobs": {
+      "single_matrix": {
+        "conclusion": "success",
+        "duration": "10m16s",
+        "artifact": "q2-chrome-43106622090-1-1"
+      },
+      "repeat_matrix": {
+        "conclusion": "success",
+        "duration": "18m16s",
+        "artifact": "q2-chrome-43106622090-1-2"
+      }
+    }
+  },
+  "environment": {
+    "node": "v24.22.2",
+    "platform": "linux",
+    "chromeVersion": "Google Chrome 156.0.8078.79",
+    "runnerImage": "ubuntu26",
+    "runnerImageVersion": "20261101.186.1"
+  },
+  "runner_observations": {
+    "mode1": {
+      "cpuModel": "AMD EPYC 7763 64-Core Processor",
+      "cpuCount": 4,
+      "availableParallelism": 4,
+      "initialLoadAvg": [
+        0.39,
+        0.18,
+        0.09
+      ]
+    },
+    "mode2": {
+      "cpuModel": "AMD EPYC 7763 64-Core Processor",
+      "cpuCount": 4,
+      "availableParallelism": 4,
+      "initialLoadAvg": [
+        0.82,
+        0.46,
+        0.19
+      ]
+    },
+    "interpretation": "Observations only; no causal CPU/load claim."
+  },
+  "font": {
+    "package": "fonts-noto-cjk",
+    "version": "1:20240730+repack1-1build1",
+    "status": "installed",
+    "fc_match_family": "Noto Sans CJK TC",
+    "visual_check": "Mode 1 and mode 2 title/game PNGs (six images total across three matrices) visually inspected; Chinese UI text legible, no missing-glyph squares observed."
+  },
+  "timeouts_and_job_budgets": {
+    "matrix": {
+      "outer_ms": 720000,
+      "check_ms": 240000,
+      "cdp_ms": 60000,
+      "setup_ms": 15000,
+      "job_timeout_minutes": {
+        "single": 25,
+        "repeat": 40
+      }
+    },
+    "lifecycle_negative": {
+      "outer_ms": 120000,
+      "setup_ms": 15000,
+      "timeout_check_body_ms": 1500,
+      "cdp_request_body_ms": 1500
+    }
+  },
+  "mode1": {
+    "matrix_runs": 1,
+    "cases_expected": 5,
+    "cases_executed": 5,
+    "matrix": {
+      "elapsed_ms": 567900,
+      "result_records": "18/18 exact order",
+      "checks": "17 passed, 0 failed, 0 not run",
+      "console_errors": 0,
+      "abort": null,
+      "fatal": null,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "webgl_version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+    },
+    "phase_telemetry": {
+      "configured_bounds": {
+        "phase_records_max": 64,
+        "recent_cdp_max": 20,
+        "active_cdp_list_max": 8
+      },
+      "phase_records": 60,
+      "rounds": [
+        {
+          "round": 1,
+          "total_ms": 26510,
+          "pause_ms": 3299,
+          "choices_ms": 8,
+          "stats_ms": 3950,
+          "resume_ms": 3973,
+          "pickup_ms": 15277
+        },
+        {
+          "round": 2,
+          "total_ms": 23472,
+          "pause_ms": 4,
+          "choices_ms": 0,
+          "stats_ms": 5167,
+          "resume_ms": 3550,
+          "pickup_ms": 14748
+        },
+        {
+          "round": 3,
+          "total_ms": 24312,
+          "pause_ms": 2279,
+          "choices_ms": 2,
+          "stats_ms": 3425,
+          "resume_ms": 3763,
+          "pickup_ms": 14843
+        },
+        {
+          "round": 4,
+          "total_ms": 23257,
+          "pause_ms": 5,
+          "choices_ms": 3,
+          "stats_ms": 4393,
+          "resume_ms": 3727,
+          "pickup_ms": 15128
+        },
+        {
+          "round": 5,
+          "total_ms": 24843,
+          "pause_ms": 4887,
+          "choices_ms": 1,
+          "stats_ms": 2538,
+          "resume_ms": 3422,
+          "pickup_ms": 13994
+        }
+      ],
+      "final_current_phase": null,
+      "active_cdp_count": 0,
+      "active_cdp_entries": 0,
+      "recent_cdp_entries": 20,
+      "recent_cdp_all_completed": true,
+      "abort_snapshot": null,
+      "fatal_snapshot": null
+    },
+    "negative_probes": [
+      {
+        "mode": "timeout",
+        "runner_valid": true,
+        "phase_reached": "game-page-ready",
+        "observed_failure_source": "check timer fired at 1500 ms; later check refused after abort",
+        "elapsed_ms": 15004,
+        "cleanup": "pass"
+      },
+      {
+        "mode": "cdp",
+        "runner_valid": true,
+        "phase_reached": "blank-page-ready",
+        "observed_failure_source": "CDP Runtime.evaluate request timer fired at 1500 ms; later check not run",
+        "elapsed_ms": 2572,
+        "cleanup": "pass"
+      },
+      {
+        "mode": "assert",
+        "runner_valid": true,
+        "phase_reached": "game-page-ready",
+        "observed_failure_source": "intentional assertion failed; following check ran and passed",
+        "elapsed_ms": 11105,
+        "cleanup": "pass"
+      },
+      {
+        "mode": "setup",
+        "runner_valid": true,
+        "phase_reached": "devtools-ready",
+        "observed_failure_source": "intentional setup failure after DevTools ready",
+        "elapsed_ms": 953,
+        "cleanup": "pass"
+      }
+    ],
+    "cleanup": {
+      "cases_executed": 5,
+      "all_profiles_removed": true,
+      "all_process_groups_gone": true,
+      "all_owned_ports_released": true,
+      "forced_cleanup_count": 0
+    },
+    "screenshots": [
+      {
+        "label": "title",
+        "file": "desktop-title.png",
+        "relative_path": "run-43106622090/mode1-artifact/matrix-1/shots/desktop-title.png",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "bytes": 769054,
+        "sha256": "0aad792114d3e8d0ec06bc94b3cad2b894ef945cf3851b1f9de581e176737295",
+        "cjk_visual_review": "legible; no missing-glyph boxes observed"
+      },
+      {
+        "label": "game",
+        "file": "desktop-game.png",
+        "relative_path": "run-43106622090/mode1-artifact/matrix-1/shots/desktop-game.png",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "bytes": 1005002,
+        "sha256": "345bb768c4f862cdcbeffd980b35544dd7605d2fb41864ac3b09176b218f523f",
+        "cjk_visual_review": "legible; no missing-glyph boxes observed"
+      }
+    ]
+  },
+  "mode2": {
+    "matrix_runs": 2,
+    "cases_expected": 6,
+    "cases_executed": 6,
+    "matrices": [
+      {
+        "matrix": 1,
+        "elapsed_ms": 537897,
+        "records": 18,
+        "passed": 17,
+        "failed": 0,
+        "not_run": 0,
+        "name_order_exact": true,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "webgl_version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "phase_records": 60,
+        "current_phase": null,
+        "active_cdp_count": 0,
+        "recent_cdp_count": 20,
+        "recent_cdp_completed": true
+      },
+      {
+        "matrix": 2,
+        "elapsed_ms": 504158,
+        "records": 18,
+        "passed": 17,
+        "failed": 0,
+        "not_run": 0,
+        "name_order_exact": true,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "webgl_version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "phase_records": 60,
+        "current_phase": null,
+        "active_cdp_count": 0,
+        "recent_cdp_count": 20,
+        "recent_cdp_completed": true
+      }
+    ],
+    "phase_durations": [
+      {
+        "round": 1,
+        "total_ms": 23209,
+        "pause_ms": 2914,
+        "choices_ms": 16,
+        "stats_ms": 3427,
+        "resume_ms": 3440,
+        "pickup_ms": 13411,
+        "matrix": 1
+      },
+      {
+        "round": 2,
+        "total_ms": 19473,
+        "pause_ms": 3,
+        "choices_ms": 0,
+        "stats_ms": 4490,
+        "resume_ms": 3145,
+        "pickup_ms": 11834,
+        "matrix": 1
+      },
+      {
+        "round": 3,
+        "total_ms": 22370,
+        "pause_ms": 2894,
+        "choices_ms": 1,
+        "stats_ms": 3222,
+        "resume_ms": 3214,
+        "pickup_ms": 13038,
+        "matrix": 1
+      },
+      {
+        "round": 4,
+        "total_ms": 19528,
+        "pause_ms": 3,
+        "choices_ms": 1,
+        "stats_ms": 3197,
+        "resume_ms": 3422,
+        "pickup_ms": 12905,
+        "matrix": 1
+      },
+      {
+        "round": 5,
+        "total_ms": 21268,
+        "pause_ms": 3131,
+        "choices_ms": 0,
+        "stats_ms": 3270,
+        "resume_ms": 2881,
+        "pickup_ms": 11985,
+        "matrix": 1
+      },
+      {
+        "round": 1,
+        "total_ms": 22440,
+        "pause_ms": 3059,
+        "choices_ms": 12,
+        "stats_ms": 3301,
+        "resume_ms": 3278,
+        "pickup_ms": 12788,
+        "matrix": 2
+      },
+      {
+        "round": 2,
+        "total_ms": 19412,
+        "pause_ms": 3,
+        "choices_ms": 1,
+        "stats_ms": 4397,
+        "resume_ms": 3067,
+        "pickup_ms": 11943,
+        "matrix": 2
+      },
+      {
+        "round": 3,
+        "total_ms": 22099,
+        "pause_ms": 2873,
+        "choices_ms": 1,
+        "stats_ms": 2883,
+        "resume_ms": 3181,
+        "pickup_ms": 13160,
+        "matrix": 2
+      },
+      {
+        "round": 4,
+        "total_ms": 19369,
+        "pause_ms": 6,
+        "choices_ms": 3,
+        "stats_ms": 3176,
+        "resume_ms": 3188,
+        "pickup_ms": 12995,
+        "matrix": 2
+      },
+      {
+        "round": 5,
+        "total_ms": 21086,
+        "pause_ms": 3173,
+        "choices_ms": 1,
+        "stats_ms": 3238,
+        "resume_ms": 2881,
+        "pickup_ms": 11793,
+        "matrix": 2
+      }
+    ],
+    "negative_probes": [
+      {
+        "mode": "timeout",
+        "runner_valid": true,
+        "phase_reached": "game-page-ready",
+        "observed_failure_source": "check-level timeout at 1500 ms; later check refused",
+        "elapsed_ms": 14385,
+        "abort_snapshot": {
+          "settings_phase_records": 0,
+          "current_phase": null,
+          "active_cdp_count": 0,
+          "recent_cdp_count": 20,
+          "active_cdp_entries": []
+        },
+        "cleanup": "pass"
+      },
+      {
+        "mode": "cdp",
+        "runner_valid": true,
+        "phase_reached": "blank-page-ready",
+        "observed_failure_source": "CDP Runtime.evaluate request timeout at 1500 ms; later check not run",
+        "elapsed_ms": 2676,
+        "abort_snapshot": {
+          "settings_phase_records": 0,
+          "current_phase": null,
+          "active_cdp_count": 0,
+          "recent_cdp_count": 5,
+          "active_cdp_entries": [],
+          "last_record": {
+            "method": "Runtime.evaluate",
+            "state": "timeout",
+            "elapsed_ms": 1501
+          }
+        },
+        "cleanup": "pass"
+      },
+      {
+        "mode": "assert",
+        "runner_valid": true,
+        "phase_reached": "game-page-ready",
+        "observed_failure_source": "intentional assertion failure; following check ran and passed",
+        "elapsed_ms": 11405,
+        "abort_snapshot": null,
+        "cleanup": "pass"
+      },
+      {
+        "mode": "setup",
+        "runner_valid": true,
+        "phase_reached": "devtools-ready",
+        "observed_failure_source": "intentional setup failure after DevTools ready",
+        "elapsed_ms": 972,
+        "abort_snapshot": {
+          "settings_phase_records": 0,
+          "current_phase": null,
+          "active_cdp_count": 0,
+          "recent_cdp_count": 0,
+          "active_cdp_entries": []
+        },
+        "cleanup": "pass"
+      }
+    ],
+    "cleanup": {
+      "cases_executed": 6,
+      "all_temp_profiles_removed": true,
+      "all_chrome_process_groups_gone": true,
+      "all_owned_http_devtools_ports_released": true,
+      "forced_cleanup_count": 0
+    },
+    "screenshots": [
+      {
+        "matrix": 1,
+        "label": "title",
+        "file": "desktop-title.png",
+        "relative_path": "run-43106622090/repeat-artifact/matrix-1/shots/desktop-title.png",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "bytes": 766696,
+        "sha256": "247065ce399b116f6273439c191f61ebe284b8eaece3bb43f6c86055375ea42c",
+        "cjk_visual_review": "Chinese UI text legible at 1280x720; no missing-glyph squares observed"
+      },
+      {
+        "matrix": 1,
+        "label": "game",
+        "file": "desktop-game.png",
+        "relative_path": "run-43106622090/repeat-artifact/matrix-1/shots/desktop-game.png",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "bytes": 988941,
+        "sha256": "a52ded1ea48566617b5769f838acd899c32ba9bceece6cd3625c8fab9afbb704",
+        "cjk_visual_review": "Chinese UI text legible at 1280x720; no missing-glyph squares observed"
+      },
+      {
+        "matrix": 2,
+        "label": "title",
+        "file": "desktop-title.png",
+        "relative_path": "run-43106622090/repeat-artifact/matrix-2/shots/desktop-title.png",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "bytes": 766696,
+        "sha256": "247065ce399b116f6273439c191f61ebe284b8eaece3bb43f6c86055375ea42c",
+        "cjk_visual_review": "Chinese UI text legible at 1280x720; no missing-glyph squares observed"
+      },
+      {
+        "matrix": 2,
+        "label": "game",
+        "file": "desktop-game.png",
+        "relative_path": "run-43106622090/repeat-artifact/matrix-2/shots/desktop-game.png",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "bytes": 989690,
+        "sha256": "49c2e89168cbf2558d8f4a87d808bb3cd7747fc3677d0abdd70afaf33347b46f",
+        "cjk_visual_review": "Chinese UI text legible at 1280x720; no missing-glyph squares observed"
+      }
+    ],
+    "visual_review": "All four repeat-matrix title/game PNGs visually inspected; Chinese UI text legible, no missing-glyph squares observed."
+  },
+  "same_source_general_ci": {
+    "run_id": 43106622208,
+    "url": "https://github.com/xdxd-lab/plush_rescue/actions/runs/43106622208",
+    "conclusion": "success",
+    "export": "41 runtime hashes, 83 non-root references, 28 JavaScript modules parsed",
+    "node_tests": "233 passed, 0 failed",
+    "ui_smoke": "88 passed",
+    "pages_build_deploy": "skipped on branch"
+  },
+  "preflight": {
+    "focused_node_tests": "5 passed, 0 failed",
+    "qa_module_syntax": "4 files passed",
+    "manifest_entries_identical_to_baseline_0d033ab": 41,
+    "baseline_manifest_sha256": "614d822af4ac1d3373da196da0fa581613e480cdaa2df76a77d09d4db7d2b1cd",
+    "git_diff_check": "passed"
+  },
+  "overall_conclusion": "PASS for the specified two-mode Linux Q2 diagnostic: mode1 passed its single matrix and four lifecycle probes; mode2 passed two matrices and four lifecycle probes. All matrix phases and lifecycle failure sources were independently checked in raw artifacts.",
+  "limitations": [
+    "Both jobs used headless Google Chrome with SwiftShader; no physical GPU, phone, Safari, or WCAG certification is claimed.",
+    "Screenshots were visually inspected for CJK glyph legibility; no broad product visual audit is claimed.",
+    "The run is a QA diagnostic and does not change application behavior."
+  ],
+  "run_totals": {
+    "matrices": 3,
+    "matrix_result_records": 54,
+    "check_executions": 51,
+    "timing_evidence_records": 3,
+    "cases_executed": 11,
+    "negative_probe_types": 4,
+    "negative_probe_instances": 8,
+    "record_accounting": "51 counted check executions + 3 matrix timing evidence records = 54 result records."
+  }
+}

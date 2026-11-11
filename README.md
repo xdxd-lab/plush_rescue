@@ -16,9 +16,11 @@
 
 本儲存庫的網站內容就是 `main` 分支的根目錄。後續更新請將網站檔案直接提交至根目錄，並保留隱藏檔 `.nojekyll`；不要再把匯出內容包進子資料夾。
 
-**測試與部署 workflow：**`.github/workflows/ci-pages.yml` 會在每次推送（任何分支）、指向 `main` 的 PR 與手動觸發時執行 `test` job（Node 24、Python 3.12）：依序執行 `python3 verify-export.py`、`node --test qa/*.test.mjs`、`node qa/ui-smoke.mjs`。只有推送到 `main` 且 `test` 成功時，才會以同一個提交（`github.sha`）打包根目錄；部署前會再確認 `main` 仍指向這個提交，若 `main` 已有更新的提交就略過部署（以成功結束），避免較晚完成或重新執行的舊 run 蓋掉新版。通過後才部署到 GitHub Pages（`configure-pages` → `upload-pages-artifact` → `deploy-pages`，environment `github-pages`）。`qa/browser-chrome.mjs` 尚未在 Linux 驗證，不在必跑檢查內。
+**測試與部署 workflow：**`.github/workflows/ci-pages.yml` 在各分支推送、指向 `main` 的 PR 與手動觸發時先執行 `test`（Node 24、Python 3.12）：`python3 verify-export.py`、`node --test qa/*.test.mjs`、`node qa/ui-smoke.mjs`。通過後，`chrome-smoke` 呼叫共用的 `chrome-q2-shared.yml`，在 Linux 執行一輪 1280×720 真實 Chrome／WebGL 矩陣及四種故障探測，保存版本、截圖與清理證據。這是單尺寸 CI 範圍，不取代完整 Chrome、多瀏覽器、手機或真人驗收；執行方式與限制見 [Q2 紀錄](docs/quality-audit-2026-11-12.md)。
 
-**目前設定與移植注意：**截至 v12.4.1（`3af4239`），已核對本專案 Pages Source 為 **GitHub Actions**，上述門檻已生效。若移植到其他儲存庫，只有同樣設定為 GitHub Actions 後，workflow 才是唯一部署途徑；仍用 **Deploy from a branch** 時會直接發布 `main` 根目錄，測試失敗也可能上線。切換由管理員在 GitHub 設定頁進行，本 workflow 不會自動變更設定。
+只有推送到 `main` 且 `test`、`chrome-smoke` 都成功，才以該次提交（`github.sha`）打包根目錄。部署前再確認 `main` 仍指向同一提交；已有更新時略過舊提交的部署，避免較晚完成或重跑的舊 run 蓋掉新版。Pages 流程為 `configure-pages` → `upload-pages-artifact` → `deploy-pages`，environment 為 `github-pages`。
+
+**目前設定與移植注意：**截至 v12.4.1（`3af4239`），已核對本專案 Pages Source 為 **GitHub Actions**，當時的 Node／DOM／export 部署門檻已生效；Chrome 子集為 v12.6.0 後追加的 CI 改善。若移植到其他儲存庫，只有同樣設定為 GitHub Actions 後，workflow 才是唯一部署途徑；仍用 **Deploy from a branch** 時會直接發布 `main` 根目錄，測試失敗也可能上線。切換由管理員在 GitHub 設定頁進行，本 workflow 不會自動變更設定。
 
 若要在其他儲存庫部署，請至 **Settings → Pages**，選擇 **GitHub Actions**（使用上述 workflow），或選擇 **Deploy from a branch**、`main` 與 `/ (root)`（沒有測試門檻）；儲存後以 Pages 設定頁顯示的網址為準。能否使用 GitHub Pages，仍取決於該帳號方案及儲存庫的公開狀態。
 

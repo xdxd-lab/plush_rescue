@@ -14,7 +14,7 @@
 | E5 | P2 | Core 整理與決定性測試 | 已完成／v12.5.1 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
 | E6 | P2 | 建立渲染效能預算 | 待量測 | [#3](https://github.com/xdxd-lab/plush_rescue/issues/3) |
 | E7 | P2 | 暫停時的繪製與耗電 | 待量測／提案 | [#4](https://github.com/xdxd-lab/plush_rescue/issues/4) |
-| Q2 | P2 | 瀏覽器測試納入 CI | Linux 首輪矩陣 17 項通過，驗證器／負測有問題；暫停待決定，未接部署關卡 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
+| Q2 | P2 | 瀏覽器測試納入 CI | Linux 單／雙輪診斷通過、單尺寸 CI 已接入；主線啟用驗收見議題 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
 | Q3 | P1 | 補齊 Safari 與窄視窗跨瀏覽器回歸 | v12.6.0 Firefox 三尺寸完整矩陣通過；Safari 等開啟遠端自動化後驗證 | [#6](https://github.com/xdxd-lab/plush_rescue/issues/6) |
 | Q4 | P1 | 手機實機與長時間效能驗證 | 等設備 | [#7](https://github.com/xdxd-lab/plush_rescue/issues/7) |
 | Q5 | P2 | 可讀性、遮擋與減少動態效果 | 桌面限定驗證完成／v12.5.1，遮擋與真機限制見 QA 紀錄 | [#8](https://github.com/xdxd-lab/plush_rescue/issues/8) |
@@ -58,4 +58,4 @@
 - 不公開私人備份、會話、登入憑證或實際加密密碼；公開議題僅記錄可公開的範圍與結果。
 - D4依使用者要求保持未完成，本輪做過一次不代表永久完成。
 
-本批 Q2／Q6／D4／S3 的結果與限制見[後續驗證紀錄](quality-audit-2026-11-12.md)。Q2 的失敗診斷留在獨立分支；不以本批文件提交宣稱已接入 Chrome 部署關卡。
+本批 Q2／Q6／D4／S3 的結果與限制見[後續驗證紀錄](quality-audit-2026-11-12.md)。Q2 先前失敗與排隊紀錄保留；主線 Chrome 部署依賴、限定驗證範圍與最終啟用證據見該紀錄及議題。
