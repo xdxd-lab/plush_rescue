@@ -1,0 +1,4583 @@
+{
+  "schemaVersion": 1,
+  "title": "Q6 reproducible core-only long-run baseline",
+  "scope": "QA harness, not browser/map-geometry/human-play evidence",
+  "firstRunAt": "2026-11-11T19:55:44.919Z",
+  "repeatRunAt": "2026-11-11T19:55:51.648Z",
+  "repeatCasesIdentical": true,
+  "caseCount": 12,
+  "casePayloadSha256": "731b542e164bf67333edb1fc31c5347e3eb8febe55ec5161fcaf5c62338ab1db",
+  "runCommand": "node qa/q6-longrun.mjs --out=<report-path>",
+  "runtime": {
+    "node": "v24.22.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "source": {
+    "branch": "test/longrun-q6",
+    "head": "644c32a5365e38bed2d30e4fca0b0a9240264237",
+    "workingTreeStatus": "?? qa/q6-human-playtest.md\n?? qa/q6-longrun-protocol.md\n?? qa/q6-longrun-results.json\n?? qa/q6-longrun.mjs",
+    "sha256": {
+      "core.js": "f4e36a7068dc7329f79134528ff5fc5419ccabdc8f4b8230b0d8cfabe78f7b58",
+      "weapons.js": "c90d851a097646455317cb5df273914b0b2cde73b0a6c24687ef78b6df25dbef",
+      "qa/q6-longrun.mjs": "3acba10438e4d7b062f335c637cfe319f3df0a0f3eba8c13c6602380368cc013"
+    }
+  },
+  "configuration": {
+    "heroes": [
+      "pudding",
+      "polar"
+    ],
+    "maps": [
+      {
+        "index": 0,
+        "id": "courtyard"
+      },
+      {
+        "index": 1,
+        "id": "greenhouse"
+      },
+      {
+        "index": 2,
+        "id": "park"
+      }
+    ],
+    "dtSeconds": 0.05,
+    "nominalSteps": 24000,
+    "maxStepsPerCase": 24001,
+    "extraTerminationStepAllowed": true,
+    "naturalRuns": 6,
+    "diagnosticRuns": 6,
+    "diagnosticPolicy": "same seed and strategy after early natural death; set game.invuln=1 before every step",
+    "mapGeometry": "excluded: core-only Game does not construct maps.js Three.js collision geometry",
+    "movement": "nearest live drop within 9 world units, otherwise 16-second cardinal patrol E/N/W/S",
+    "weaponPickup": "always replace serialized pickup",
+    "upgradePriority": [
+      "heart",
+      "speed",
+      "rate",
+      "power"
+    ],
+    "fallback": "first dealt card if no priority item is offered",
+    "rng": "one fixed seeded PRNG per run; harness does not make additional draws"
+  },
+  "rawEvidenceFiles": [
+    "core-longrun.json",
+    "core-longrun-repeat.json"
+  ],
+  "cases": [
+    {
+      "id": "natural-pudding-courtyard",
+      "mode": "natural-health",
+      "seed": 261112007,
+      "hero": "pudding",
+      "map": {
+        "index": 0,
+        "id": "courtyard"
+      },
+      "stepsCompleted": 753,
+      "rawGameTimeSeconds": 37.65,
+      "reportedGameTimeSeconds": 37.65,
+      "status": "ended",
+      "reason": "fallen",
+      "targetDurationReached": false,
+      "fullDurationReached": false,
+      "naturalSurvivalClaim": false,
+      "level": 4,
+      "exp": 15,
+      "hp": 0,
+      "maxHp": 9,
+      "saved": 49,
+      "levelUpSelections": [
+        {
+          "atSeconds": 12.05,
+          "level": 2,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 16.7,
+          "level": 3,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 24.55,
+          "level": 4,
+          "selected": "heart"
+        }
+      ],
+      "skillPickups": {
+        "count": 2,
+        "byUpgradeId": {
+          "heart": 1,
+          "magnet": 1
+        }
+      },
+      "weaponPickupDecisions": {
+        "count": 9,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 1,
+          "frostwand": 1,
+          "ember": 1,
+          "bomber": 1,
+          "burst": 1,
+          "cannon": 3,
+          "moonfan": 1
+        },
+        "bySlot": {
+          "main": 4,
+          "offhand": 2,
+          "twohand": 3
+        }
+      },
+      "damageDealtHPClamped": 446.2,
+      "damageTakenActualHpLoss": 11,
+      "damageTakenEvents": 11,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {
+        "spitter": true
+      },
+      "observedBossKinds": {},
+      "allyRescues": 0,
+      "allyCountPeak": 0,
+      "maxHostileEntitiesIncludingBosses": 90,
+      "maxDrops": 6,
+      "checkpoints": [
+        {
+          "atSeconds": 37.65,
+          "stepCalls": 753,
+          "status": "ended",
+          "hp": 0,
+          "maxHp": 9,
+          "level": 4,
+          "exp": 15,
+          "saved": 49,
+          "enemyCount": 88,
+          "roleCountsSeen": {
+            "spitter": true
+          },
+          "bossKindsSeen": {},
+          "allyRescues": 0
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "burst",
+          "offhand": "moonfan"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 3,
+          "pulse": 1,
+          "shotgun": 1,
+          "burst": 1,
+          "ember": 1,
+          "bomber": 1,
+          "moonfan": 2,
+          "frostwand": 1
+        },
+        "enemyCount": 88,
+        "roleCountsAlive": {
+          "dasher": 0,
+          "spitter": 3
+        },
+        "allyRescues": 0,
+        "alliesAlive": 0,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 0
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "none"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "diagnostic-pudding-courtyard",
+      "mode": "diagnostic-invulnerability",
+      "seed": 261112007,
+      "hero": "pudding",
+      "map": {
+        "index": 0,
+        "id": "courtyard"
+      },
+      "stepsCompleted": 24001,
+      "rawGameTimeSeconds": 1200,
+      "reportedGameTimeSeconds": 1200,
+      "status": "ended",
+      "reason": "survived",
+      "targetDurationReached": true,
+      "fullDurationReached": true,
+      "naturalSurvivalClaim": false,
+      "level": 23,
+      "exp": 1867,
+      "hp": 12,
+      "maxHp": 12,
+      "saved": 18860,
+      "levelUpSelections": [
+        {
+          "atSeconds": 12.05,
+          "level": 2,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 16.7,
+          "level": 3,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 24.55,
+          "level": 4,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 47.35,
+          "level": 5,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 85.6,
+          "level": 6,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 131.35,
+          "level": 7,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 140.9,
+          "level": 8,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 172.45,
+          "level": 9,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 217.55,
+          "level": 10,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 230.15,
+          "level": 11,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 253.1,
+          "level": 12,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 284.4,
+          "level": 13,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 314.15,
+          "level": 14,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 351.3,
+          "level": 15,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 392.75,
+          "level": 16,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 435.4,
+          "level": 17,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 480.65,
+          "level": 18,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 544.5,
+          "level": 19,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 633.2,
+          "level": 20,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 745.25,
+          "level": 21,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 902,
+          "level": 22,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 1106.2,
+          "level": 23,
+          "selected": "heart"
+        }
+      ],
+      "skillPickups": {
+        "count": 295,
+        "byUpgradeId": {
+          "heart": 41,
+          "magnet": 30,
+          "reach": 35,
+          "guard": 43,
+          "power": 35,
+          "rate": 42,
+          "speed": 38,
+          "crit": 31
+        }
+      },
+      "weaponPickupDecisions": {
+        "count": 1238,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 149,
+          "frostwand": 163,
+          "ember": 154,
+          "bomber": 158,
+          "burst": 159,
+          "cannon": 163,
+          "moonfan": 148,
+          "pulse": 144
+        },
+        "bySlot": {
+          "main": 764,
+          "offhand": 311,
+          "twohand": 163
+        }
+      },
+      "damageDealtHPClamped": 746596,
+      "damageTakenActualHpLoss": 0,
+      "damageTakenEvents": 0,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {
+        "spitter": true,
+        "dasher": true
+      },
+      "observedBossKinds": {
+        "mini": true,
+        "big": true
+      },
+      "allyRescues": 8,
+      "allyCountPeak": 2,
+      "maxHostileEntitiesIncludingBosses": 92,
+      "maxDrops": 16,
+      "checkpoints": [
+        {
+          "atSeconds": 60.05,
+          "stepCalls": 1201,
+          "status": "running",
+          "hp": 9,
+          "maxHp": 9,
+          "level": 5,
+          "exp": 8,
+          "saved": 62,
+          "enemyCount": 91,
+          "roleCountsSeen": {
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 120.05,
+          "stepCalls": 2401,
+          "status": "running",
+          "hp": 9,
+          "maxHp": 9,
+          "level": 6,
+          "exp": 19,
+          "saved": 100,
+          "enemyCount": 92,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 180,
+          "stepCalls": 3600,
+          "status": "running",
+          "hp": 10,
+          "maxHp": 10,
+          "level": 9,
+          "exp": 6,
+          "saved": 238,
+          "enemyCount": 92,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 240,
+          "stepCalls": 4800,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 11,
+          "exp": 44,
+          "saved": 485,
+          "enemyCount": 70,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 300,
+          "stepCalls": 6000,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 13,
+          "exp": 141,
+          "saved": 963,
+          "enemyCount": 64,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 360,
+          "stepCalls": 7200,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 15,
+          "exp": 96,
+          "saved": 1614,
+          "enemyCount": 36,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 420,
+          "stepCalls": 8400,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 16,
+          "exp": 444,
+          "saved": 2502,
+          "enemyCount": 48,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 480,
+          "stepCalls": 9600,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 17,
+          "exp": 957,
+          "saved": 3744,
+          "enemyCount": 56,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 540,
+          "stepCalls": 10800,
+          "status": "pickup",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 18,
+          "exp": 1215,
+          "saved": 4986,
+          "enemyCount": 38,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 600,
+          "stepCalls": 12000,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 19,
+          "exp": 1037,
+          "saved": 6136,
+          "enemyCount": 75,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 660.05,
+          "stepCalls": 13201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 20,
+          "exp": 556,
+          "saved": 7448,
+          "enemyCount": 68,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 720.05,
+          "stepCalls": 14401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 20,
+          "exp": 1873,
+          "saved": 8765,
+          "enemyCount": 42,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 780.05,
+          "stepCalls": 15601,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 688,
+          "saved": 10001,
+          "enemyCount": 55,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 840.05,
+          "stepCalls": 16801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 1996,
+          "saved": 11309,
+          "enemyCount": 31,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 900.05,
+          "stepCalls": 18001,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 3224,
+          "saved": 12537,
+          "enemyCount": 80,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 960.05,
+          "stepCalls": 19201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 1275,
+          "saved": 13856,
+          "enemyCount": 65,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 1020.05,
+          "stepCalls": 20401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 2589,
+          "saved": 15170,
+          "enemyCount": 60,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 1080.05,
+          "stepCalls": 21601,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 3791,
+          "saved": 16372,
+          "enemyCount": 91,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 1140.05,
+          "stepCalls": 22801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 710,
+          "saved": 17703,
+          "enemyCount": 40,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 1200,
+          "stepCalls": 24001,
+          "status": "ended",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 1867,
+          "saved": 18860,
+          "enemyCount": 65,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "shotgun",
+          "offhand": "frostwand"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 163,
+          "pulse": 145,
+          "shotgun": 149,
+          "burst": 159,
+          "ember": 154,
+          "bomber": 158,
+          "moonfan": 149,
+          "frostwand": 163
+        },
+        "enemyCount": 65,
+        "roleCountsAlive": {
+          "dasher": 8,
+          "spitter": 5
+        },
+        "allyRescues": 8,
+        "alliesAlive": 0,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 1
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "set game.invuln=1 immediately before each step; excludes natural damage/survival claims"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "natural-pudding-greenhouse",
+      "mode": "natural-health",
+      "seed": 261112108,
+      "hero": "pudding",
+      "map": {
+        "index": 1,
+        "id": "greenhouse"
+      },
+      "stepsCompleted": 572,
+      "rawGameTimeSeconds": 28.60000000000027,
+      "reportedGameTimeSeconds": 28.6,
+      "status": "ended",
+      "reason": "fallen",
+      "targetDurationReached": false,
+      "fullDurationReached": false,
+      "naturalSurvivalClaim": false,
+      "level": 4,
+      "exp": 18,
+      "hp": 0,
+      "maxHp": 6,
+      "saved": 52,
+      "levelUpSelections": [
+        {
+          "atSeconds": 9,
+          "level": 2,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 15,
+          "level": 3,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 22.4,
+          "level": 4,
+          "selected": "speed"
+        }
+      ],
+      "skillPickups": {
+        "count": 1,
+        "byUpgradeId": {
+          "magnet": 1
+        }
+      },
+      "weaponPickupDecisions": {
+        "count": 10,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 2,
+          "frostwand": 1,
+          "ember": 2,
+          "bomber": 2,
+          "burst": 2,
+          "cannon": 1
+        },
+        "bySlot": {
+          "main": 8,
+          "offhand": 1,
+          "twohand": 1
+        }
+      },
+      "damageDealtHPClamped": 515.125,
+      "damageTakenActualHpLoss": 8,
+      "damageTakenEvents": 8,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {},
+      "observedBossKinds": {},
+      "allyRescues": 0,
+      "allyCountPeak": 0,
+      "maxHostileEntitiesIncludingBosses": 65,
+      "maxDrops": 6,
+      "checkpoints": [
+        {
+          "atSeconds": 28.6,
+          "stepCalls": 572,
+          "status": "ended",
+          "hp": 0,
+          "maxHp": 6,
+          "level": 4,
+          "exp": 18,
+          "saved": 52,
+          "enemyCount": 60,
+          "roleCountsSeen": {},
+          "bossKindsSeen": {},
+          "allyRescues": 0
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "ember",
+          "offhand": "frostwand"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 1,
+          "pulse": 1,
+          "shotgun": 2,
+          "burst": 2,
+          "ember": 2,
+          "bomber": 2,
+          "moonfan": 1,
+          "frostwand": 1
+        },
+        "enemyCount": 60,
+        "roleCountsAlive": {
+          "dasher": 0,
+          "spitter": 0
+        },
+        "allyRescues": 0,
+        "alliesAlive": 0,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 0
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "none"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "diagnostic-pudding-greenhouse",
+      "mode": "diagnostic-invulnerability",
+      "seed": 261112108,
+      "hero": "pudding",
+      "map": {
+        "index": 1,
+        "id": "greenhouse"
+      },
+      "stepsCompleted": 24001,
+      "rawGameTimeSeconds": 1200,
+      "reportedGameTimeSeconds": 1200,
+      "status": "ended",
+      "reason": "survived",
+      "targetDurationReached": true,
+      "fullDurationReached": true,
+      "naturalSurvivalClaim": false,
+      "level": 23,
+      "exp": 2808,
+      "hp": 12,
+      "maxHp": 12,
+      "saved": 19801,
+      "levelUpSelections": [
+        {
+          "atSeconds": 9,
+          "level": 2,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 15,
+          "level": 3,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 22.4,
+          "level": 4,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 29.6,
+          "level": 5,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 36.1,
+          "level": 6,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 47.05,
+          "level": 7,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 62.65,
+          "level": 8,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 66.3,
+          "level": 9,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 88.75,
+          "level": 10,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 112.9,
+          "level": 11,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 141.2,
+          "level": 12,
+          "selected": "power"
+        },
+        {
+          "atSeconds": 184.35,
+          "level": 13,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 230.55,
+          "level": 14,
+          "selected": "power"
+        },
+        {
+          "atSeconds": 282.35,
+          "level": 15,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 338.1,
+          "level": 16,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 397.45,
+          "level": 17,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 448.65,
+          "level": 18,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 515.15,
+          "level": 19,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 596.15,
+          "level": 20,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 709.7,
+          "level": 21,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 864,
+          "level": 22,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 1073.7,
+          "level": 23,
+          "selected": "heart"
+        }
+      ],
+      "skillPickups": {
+        "count": 341,
+        "byUpgradeId": {
+          "magnet": 40,
+          "rate": 43,
+          "reach": 34,
+          "speed": 40,
+          "guard": 41,
+          "heart": 42,
+          "power": 51,
+          "crit": 50
+        }
+      },
+      "weaponPickupDecisions": {
+        "count": 1238,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 178,
+          "frostwand": 149,
+          "ember": 150,
+          "bomber": 136,
+          "burst": 162,
+          "cannon": 160,
+          "moonfan": 156,
+          "pulse": 147
+        },
+        "bySlot": {
+          "main": 773,
+          "offhand": 305,
+          "twohand": 160
+        }
+      },
+      "damageDealtHPClamped": 769036,
+      "damageTakenActualHpLoss": 0,
+      "damageTakenEvents": 0,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {
+        "spitter": true,
+        "dasher": true
+      },
+      "observedBossKinds": {
+        "mini": true,
+        "big": true
+      },
+      "allyRescues": 2,
+      "allyCountPeak": 2,
+      "maxHostileEntitiesIncludingBosses": 91,
+      "maxDrops": 16,
+      "checkpoints": [
+        {
+          "atSeconds": 60.05,
+          "stepCalls": 1201,
+          "status": "running",
+          "hp": 8,
+          "maxHp": 8,
+          "level": 7,
+          "exp": 38,
+          "saved": 155,
+          "enemyCount": 89,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 120.05,
+          "stepCalls": 2401,
+          "status": "running",
+          "hp": 9,
+          "maxHp": 9,
+          "level": 11,
+          "exp": 31,
+          "saved": 472,
+          "enemyCount": 48,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 180,
+          "stepCalls": 3600,
+          "status": "running",
+          "hp": 11,
+          "maxHp": 11,
+          "level": 12,
+          "exp": 202,
+          "saved": 805,
+          "enemyCount": 37,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 240,
+          "stepCalls": 4800,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 14,
+          "exp": 79,
+          "saved": 1197,
+          "enemyCount": 28,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 1
+        },
+        {
+          "atSeconds": 300,
+          "stepCalls": 6000,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 15,
+          "exp": 163,
+          "saved": 1681,
+          "enemyCount": 17,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 360,
+          "stepCalls": 7200,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 16,
+          "exp": 245,
+          "saved": 2303,
+          "enemyCount": 17,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 420,
+          "stepCalls": 8400,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 17,
+          "exp": 404,
+          "saved": 3191,
+          "enemyCount": 33,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 480,
+          "stepCalls": 9600,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 18,
+          "exp": 588,
+          "saved": 4359,
+          "enemyCount": 26,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 540,
+          "stepCalls": 10800,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 19,
+          "exp": 551,
+          "saved": 5650,
+          "enemyCount": 24,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 600,
+          "stepCalls": 12000,
+          "status": "pickup",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 20,
+          "exp": 64,
+          "saved": 6956,
+          "enemyCount": 46,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 660.05,
+          "stepCalls": 13201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 20,
+          "exp": 1392,
+          "saved": 8284,
+          "enemyCount": 31,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 720.05,
+          "stepCalls": 14401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 247,
+          "saved": 9560,
+          "enemyCount": 50,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 780.05,
+          "stepCalls": 15601,
+          "status": "pickup",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 1409,
+          "saved": 10722,
+          "enemyCount": 61,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 840.05,
+          "stepCalls": 16801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 2667,
+          "saved": 11980,
+          "enemyCount": 83,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 900.05,
+          "stepCalls": 18001,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 756,
+          "saved": 13337,
+          "enemyCount": 54,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 960.05,
+          "stepCalls": 19201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 2026,
+          "saved": 14607,
+          "enemyCount": 40,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 1020.05,
+          "stepCalls": 20401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 3241,
+          "saved": 15822,
+          "enemyCount": 73,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 1080.05,
+          "stepCalls": 21601,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 94,
+          "saved": 17087,
+          "enemyCount": 74,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 1140.05,
+          "stepCalls": 22801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 1453,
+          "saved": 18446,
+          "enemyCount": 33,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 1200,
+          "stepCalls": 24001,
+          "status": "ended",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 2808,
+          "saved": 19801,
+          "enemyCount": 0,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "bomber",
+          "offhand": "moonfan"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 160,
+          "pulse": 148,
+          "shotgun": 178,
+          "burst": 162,
+          "ember": 150,
+          "bomber": 136,
+          "moonfan": 157,
+          "frostwand": 149
+        },
+        "enemyCount": 0,
+        "roleCountsAlive": {
+          "dasher": 0,
+          "spitter": 0
+        },
+        "allyRescues": 2,
+        "alliesAlive": 1,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 0
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "set game.invuln=1 immediately before each step; excludes natural damage/survival claims"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "natural-pudding-park",
+      "mode": "natural-health",
+      "seed": 261112209,
+      "hero": "pudding",
+      "map": {
+        "index": 2,
+        "id": "park"
+      },
+      "stepsCompleted": 509,
+      "rawGameTimeSeconds": 25.450000000000227,
+      "reportedGameTimeSeconds": 25.45,
+      "status": "ended",
+      "reason": "fallen",
+      "targetDurationReached": false,
+      "fullDurationReached": false,
+      "naturalSurvivalClaim": false,
+      "level": 3,
+      "exp": 11,
+      "hp": 0,
+      "maxHp": 7,
+      "saved": 30,
+      "levelUpSelections": [
+        {
+          "atSeconds": 10.75,
+          "level": 2,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 21.3,
+          "level": 3,
+          "selected": "heart"
+        }
+      ],
+      "skillPickups": {
+        "count": 0,
+        "byUpgradeId": {}
+      },
+      "weaponPickupDecisions": {
+        "count": 11,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 3,
+          "frostwand": 1,
+          "ember": 1,
+          "bomber": 2,
+          "burst": 1,
+          "cannon": 2,
+          "pulse": 1
+        },
+        "bySlot": {
+          "main": 8,
+          "offhand": 1,
+          "twohand": 2
+        }
+      },
+      "damageDealtHPClamped": 276.9,
+      "damageTakenActualHpLoss": 9,
+      "damageTakenEvents": 9,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {},
+      "observedBossKinds": {},
+      "allyRescues": 0,
+      "allyCountPeak": 0,
+      "maxHostileEntitiesIncludingBosses": 73,
+      "maxDrops": 6,
+      "checkpoints": [
+        {
+          "atSeconds": 25.45,
+          "stepCalls": 509,
+          "status": "ended",
+          "hp": 0,
+          "maxHp": 7,
+          "level": 3,
+          "exp": 11,
+          "saved": 30,
+          "enemyCount": 70,
+          "roleCountsSeen": {},
+          "bossKindsSeen": {},
+          "allyRescues": 0
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "shotgun",
+          "offhand": "frostwand"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 2,
+          "pulse": 2,
+          "shotgun": 3,
+          "burst": 1,
+          "ember": 1,
+          "bomber": 2,
+          "moonfan": 1,
+          "frostwand": 1
+        },
+        "enemyCount": 70,
+        "roleCountsAlive": {
+          "dasher": 0,
+          "spitter": 0
+        },
+        "allyRescues": 0,
+        "alliesAlive": 0,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 0
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "none"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "diagnostic-pudding-park",
+      "mode": "diagnostic-invulnerability",
+      "seed": 261112209,
+      "hero": "pudding",
+      "map": {
+        "index": 2,
+        "id": "park"
+      },
+      "stepsCompleted": 24001,
+      "rawGameTimeSeconds": 1200,
+      "reportedGameTimeSeconds": 1200,
+      "status": "ended",
+      "reason": "survived",
+      "targetDurationReached": true,
+      "fullDurationReached": true,
+      "naturalSurvivalClaim": false,
+      "level": 23,
+      "exp": 2799,
+      "hp": 12,
+      "maxHp": 12,
+      "saved": 19792,
+      "levelUpSelections": [
+        {
+          "atSeconds": 10.75,
+          "level": 2,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 21.3,
+          "level": 3,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 28.15,
+          "level": 4,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 30.85,
+          "level": 5,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 32.65,
+          "level": 6,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 39.45,
+          "level": 7,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 58.6,
+          "level": 8,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 69.05,
+          "level": 9,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 91.4,
+          "level": 10,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 112.05,
+          "level": 11,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 145.3,
+          "level": 12,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 204,
+          "level": 13,
+          "selected": "magnet"
+        },
+        {
+          "atSeconds": 247.55,
+          "level": 14,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 291,
+          "level": 15,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 347.45,
+          "level": 16,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 400.05,
+          "level": 17,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 451.7,
+          "level": 18,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 514.6,
+          "level": 19,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 602.6,
+          "level": 20,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 712.1,
+          "level": 21,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 865.05,
+          "level": 22,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 1068.75,
+          "level": 23,
+          "selected": "heart"
+        }
+      ],
+      "skillPickups": {
+        "count": 327,
+        "byUpgradeId": {
+          "crit": 45,
+          "guard": 54,
+          "power": 46,
+          "speed": 40,
+          "magnet": 32,
+          "rate": 40,
+          "reach": 37,
+          "heart": 33
+        }
+      },
+      "weaponPickupDecisions": {
+        "count": 1233,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 158,
+          "frostwand": 164,
+          "ember": 164,
+          "bomber": 159,
+          "burst": 149,
+          "cannon": 145,
+          "pulse": 139,
+          "moonfan": 155
+        },
+        "bySlot": {
+          "main": 769,
+          "offhand": 319,
+          "twohand": 145
+        }
+      },
+      "damageDealtHPClamped": 768276,
+      "damageTakenActualHpLoss": 0,
+      "damageTakenEvents": 0,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {
+        "spitter": true,
+        "dasher": true
+      },
+      "observedBossKinds": {
+        "mini": true,
+        "big": true
+      },
+      "allyRescues": 3,
+      "allyCountPeak": 2,
+      "maxHostileEntitiesIncludingBosses": 92,
+      "maxDrops": 16,
+      "checkpoints": [
+        {
+          "atSeconds": 60.05,
+          "stepCalls": 1201,
+          "status": "running",
+          "hp": 10,
+          "maxHp": 10,
+          "level": 8,
+          "exp": 3,
+          "saved": 169,
+          "enemyCount": 75,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 120.05,
+          "stepCalls": 2401,
+          "status": "running",
+          "hp": 11,
+          "maxHp": 11,
+          "level": 11,
+          "exp": 36,
+          "saved": 477,
+          "enemyCount": 44,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 180,
+          "stepCalls": 3600,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 12,
+          "exp": 148,
+          "saved": 751,
+          "enemyCount": 92,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 240,
+          "stepCalls": 4800,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 13,
+          "exp": 276,
+          "saved": 1098,
+          "enemyCount": 43,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 300,
+          "stepCalls": 6000,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 15,
+          "exp": 75,
+          "saved": 1593,
+          "enemyCount": 21,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 360,
+          "stepCalls": 7200,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 16,
+          "exp": 110,
+          "saved": 2168,
+          "enemyCount": 68,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 420,
+          "stepCalls": 8400,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 17,
+          "exp": 309,
+          "saved": 3096,
+          "enemyCount": 44,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 480,
+          "stepCalls": 9600,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 18,
+          "exp": 595,
+          "saved": 4366,
+          "enemyCount": 39,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 540,
+          "stepCalls": 10800,
+          "status": "pickup",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 19,
+          "exp": 498,
+          "saved": 5597,
+          "enemyCount": 56,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 600,
+          "stepCalls": 12000,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 19,
+          "exp": 1744,
+          "saved": 6843,
+          "enemyCount": 69,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 660.05,
+          "stepCalls": 13201,
+          "status": "pickup",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 20,
+          "exp": 1272,
+          "saved": 8164,
+          "enemyCount": 58,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 720.05,
+          "stepCalls": 14401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 190,
+          "saved": 9503,
+          "enemyCount": 44,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 780.05,
+          "stepCalls": 15601,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 1468,
+          "saved": 10781,
+          "enemyCount": 71,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 840.05,
+          "stepCalls": 16801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 2716,
+          "saved": 12029,
+          "enemyCount": 36,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 900.05,
+          "stepCalls": 18001,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 770,
+          "saved": 13351,
+          "enemyCount": 48,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 960.05,
+          "stepCalls": 19201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 2098,
+          "saved": 14679,
+          "enemyCount": 33,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 1020.05,
+          "stepCalls": 20401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 3370,
+          "saved": 15951,
+          "enemyCount": 49,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 1080.05,
+          "stepCalls": 21601,
+          "status": "pickup",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 201,
+          "saved": 17194,
+          "enemyCount": 84,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 1140.05,
+          "stepCalls": 22801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 1497,
+          "saved": 18490,
+          "enemyCount": 59,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 1200,
+          "stepCalls": 24001,
+          "status": "ended",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 2799,
+          "saved": 19792,
+          "enemyCount": 60,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "shotgun",
+          "offhand": "frostwand"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 145,
+          "pulse": 140,
+          "shotgun": 158,
+          "burst": 149,
+          "ember": 164,
+          "bomber": 159,
+          "moonfan": 156,
+          "frostwand": 164
+        },
+        "enemyCount": 60,
+        "roleCountsAlive": {
+          "dasher": 5,
+          "spitter": 6
+        },
+        "allyRescues": 3,
+        "alliesAlive": 0,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 1
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "set game.invuln=1 immediately before each step; excludes natural damage/survival claims"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "natural-polar-courtyard",
+      "mode": "natural-health",
+      "seed": 261122007,
+      "hero": "polar",
+      "map": {
+        "index": 0,
+        "id": "courtyard"
+      },
+      "stepsCompleted": 492,
+      "rawGameTimeSeconds": 24.600000000000215,
+      "reportedGameTimeSeconds": 24.6,
+      "status": "ended",
+      "reason": "fallen",
+      "targetDurationReached": false,
+      "fullDurationReached": false,
+      "naturalSurvivalClaim": false,
+      "level": 3,
+      "exp": 10,
+      "hp": 0,
+      "maxHp": 7,
+      "saved": 29,
+      "levelUpSelections": [
+        {
+          "atSeconds": 9.15,
+          "level": 2,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 16.7,
+          "level": 3,
+          "selected": "heart"
+        }
+      ],
+      "skillPickups": {
+        "count": 2,
+        "byUpgradeId": {
+          "speed": 1,
+          "reach": 1
+        }
+      },
+      "weaponPickupDecisions": {
+        "count": 8,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 2,
+          "frostwand": 1,
+          "ember": 1,
+          "bomber": 1,
+          "burst": 1,
+          "cannon": 1,
+          "moonfan": 1
+        },
+        "bySlot": {
+          "main": 5,
+          "offhand": 2,
+          "twohand": 1
+        }
+      },
+      "damageDealtHPClamped": 319.825,
+      "damageTakenActualHpLoss": 9,
+      "damageTakenEvents": 9,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {},
+      "observedBossKinds": {},
+      "allyRescues": 0,
+      "allyCountPeak": 0,
+      "maxHostileEntitiesIncludingBosses": 67,
+      "maxDrops": 6,
+      "checkpoints": [
+        {
+          "atSeconds": 24.6,
+          "stepCalls": 492,
+          "status": "ended",
+          "hp": 0,
+          "maxHp": 7,
+          "level": 3,
+          "exp": 10,
+          "saved": 29,
+          "enemyCount": 67,
+          "roleCountsSeen": {},
+          "bossKindsSeen": {},
+          "allyRescues": 0
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "shotgun",
+          "offhand": "moonfan"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 1,
+          "pulse": 1,
+          "shotgun": 2,
+          "burst": 1,
+          "ember": 1,
+          "bomber": 1,
+          "moonfan": 2,
+          "frostwand": 1
+        },
+        "enemyCount": 67,
+        "roleCountsAlive": {
+          "dasher": 0,
+          "spitter": 0
+        },
+        "allyRescues": 0,
+        "alliesAlive": 0,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 0
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "none"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "diagnostic-polar-courtyard",
+      "mode": "diagnostic-invulnerability",
+      "seed": 261122007,
+      "hero": "polar",
+      "map": {
+        "index": 0,
+        "id": "courtyard"
+      },
+      "stepsCompleted": 24001,
+      "rawGameTimeSeconds": 1200,
+      "reportedGameTimeSeconds": 1200,
+      "status": "ended",
+      "reason": "survived",
+      "targetDurationReached": true,
+      "fullDurationReached": true,
+      "naturalSurvivalClaim": false,
+      "level": 23,
+      "exp": 2671,
+      "hp": 12,
+      "maxHp": 12,
+      "saved": 19664,
+      "levelUpSelections": [
+        {
+          "atSeconds": 9.15,
+          "level": 2,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 16.7,
+          "level": 3,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 27.8,
+          "level": 4,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 29.9,
+          "level": 5,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 31.95,
+          "level": 6,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 38.55,
+          "level": 7,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 55.35,
+          "level": 8,
+          "selected": "power"
+        },
+        {
+          "atSeconds": 75.2,
+          "level": 9,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 96.8,
+          "level": 10,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 110.25,
+          "level": 11,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 141.15,
+          "level": 12,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 178.25,
+          "level": 13,
+          "selected": "power"
+        },
+        {
+          "atSeconds": 228.3,
+          "level": 14,
+          "selected": "power"
+        },
+        {
+          "atSeconds": 280.4,
+          "level": 15,
+          "selected": "power"
+        },
+        {
+          "atSeconds": 338.95,
+          "level": 16,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 397.95,
+          "level": 17,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 448.05,
+          "level": 18,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 512.55,
+          "level": 19,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 593.8,
+          "level": 20,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 706.95,
+          "level": 21,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 863.15,
+          "level": 22,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 1074.5,
+          "level": 23,
+          "selected": "heart"
+        }
+      ],
+      "skillPickups": {
+        "count": 340,
+        "byUpgradeId": {
+          "speed": 51,
+          "reach": 37,
+          "power": 38,
+          "crit": 40,
+          "rate": 42,
+          "heart": 44,
+          "magnet": 50,
+          "guard": 38
+        }
+      },
+      "weaponPickupDecisions": {
+        "count": 1279,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 167,
+          "frostwand": 153,
+          "ember": 173,
+          "bomber": 138,
+          "burst": 161,
+          "cannon": 163,
+          "moonfan": 152,
+          "pulse": 172
+        },
+        "bySlot": {
+          "main": 811,
+          "offhand": 305,
+          "twohand": 163
+        }
+      },
+      "damageDealtHPClamped": 758908,
+      "damageTakenActualHpLoss": 0,
+      "damageTakenEvents": 0,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {
+        "dasher": true,
+        "spitter": true
+      },
+      "observedBossKinds": {
+        "mini": true,
+        "big": true
+      },
+      "allyRescues": 2,
+      "allyCountPeak": 2,
+      "maxHostileEntitiesIncludingBosses": 91,
+      "maxDrops": 16,
+      "checkpoints": [
+        {
+          "atSeconds": 60.05,
+          "stepCalls": 1201,
+          "status": "running",
+          "hp": 9,
+          "maxHp": 9,
+          "level": 8,
+          "exp": 22,
+          "saved": 188,
+          "enemyCount": 56,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 120.05,
+          "stepCalls": 2401,
+          "status": "running",
+          "hp": 11,
+          "maxHp": 11,
+          "level": 11,
+          "exp": 43,
+          "saved": 484,
+          "enemyCount": 37,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 1
+        },
+        {
+          "atSeconds": 180,
+          "stepCalls": 3600,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 13,
+          "exp": 9,
+          "saved": 831,
+          "enemyCount": 12,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 240,
+          "stepCalls": 4800,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 14,
+          "exp": 97,
+          "saved": 1215,
+          "enemyCount": 11,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 300,
+          "stepCalls": 6000,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 15,
+          "exp": 147,
+          "saved": 1665,
+          "enemyCount": 34,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 360,
+          "stepCalls": 7200,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 16,
+          "exp": 237,
+          "saved": 2295,
+          "enemyCount": 26,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 420,
+          "stepCalls": 8400,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 17,
+          "exp": 403,
+          "saved": 3190,
+          "enemyCount": 35,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 480,
+          "stepCalls": 9600,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 18,
+          "exp": 604,
+          "saved": 4375,
+          "enemyCount": 89,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 540,
+          "stepCalls": 10800,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 19,
+          "exp": 605,
+          "saved": 5704,
+          "enemyCount": 47,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 600,
+          "stepCalls": 12000,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 20,
+          "exp": 106,
+          "saved": 6998,
+          "enemyCount": 87,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 660.05,
+          "stepCalls": 13201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 20,
+          "exp": 1374,
+          "saved": 8266,
+          "enemyCount": 50,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 720.05,
+          "stepCalls": 14401,
+          "status": "pickup",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 234,
+          "saved": 9547,
+          "enemyCount": 91,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 780.05,
+          "stepCalls": 15601,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 1518,
+          "saved": 10831,
+          "enemyCount": 38,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 840.05,
+          "stepCalls": 16801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 2793,
+          "saved": 12106,
+          "enemyCount": 70,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 900.05,
+          "stepCalls": 18001,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 768,
+          "saved": 13349,
+          "enemyCount": 49,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 960.05,
+          "stepCalls": 19201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 2029,
+          "saved": 14610,
+          "enemyCount": 53,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 1020.05,
+          "stepCalls": 20401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 3236,
+          "saved": 15817,
+          "enemyCount": 67,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 1080.05,
+          "stepCalls": 21601,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 119,
+          "saved": 17112,
+          "enemyCount": 54,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 1140.05,
+          "stepCalls": 22801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 1455,
+          "saved": 18448,
+          "enemyCount": 40,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 1200,
+          "stepCalls": 24001,
+          "status": "ended",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 2671,
+          "saved": 19664,
+          "enemyCount": 91,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "ember",
+          "offhand": "moonfan"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 163,
+          "pulse": 173,
+          "shotgun": 167,
+          "burst": 161,
+          "ember": 173,
+          "bomber": 138,
+          "moonfan": 153,
+          "frostwand": 153
+        },
+        "enemyCount": 91,
+        "roleCountsAlive": {
+          "dasher": 8,
+          "spitter": 7
+        },
+        "allyRescues": 2,
+        "alliesAlive": 0,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 1
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "set game.invuln=1 immediately before each step; excludes natural damage/survival claims"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "natural-polar-greenhouse",
+      "mode": "natural-health",
+      "seed": 261122108,
+      "hero": "polar",
+      "map": {
+        "index": 1,
+        "id": "greenhouse"
+      },
+      "stepsCompleted": 456,
+      "rawGameTimeSeconds": 22.80000000000019,
+      "reportedGameTimeSeconds": 22.8,
+      "status": "ended",
+      "reason": "fallen",
+      "targetDurationReached": false,
+      "fullDurationReached": false,
+      "naturalSurvivalClaim": false,
+      "level": 3,
+      "exp": 12,
+      "hp": 0,
+      "maxHp": 5,
+      "saved": 31,
+      "levelUpSelections": [
+        {
+          "atSeconds": 9.15,
+          "level": 2,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 15.5,
+          "level": 3,
+          "selected": "rate"
+        }
+      ],
+      "skillPickups": {
+        "count": 0,
+        "byUpgradeId": {}
+      },
+      "weaponPickupDecisions": {
+        "count": 9,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 2,
+          "frostwand": 1,
+          "ember": 2,
+          "bomber": 1,
+          "burst": 1,
+          "cannon": 2
+        },
+        "bySlot": {
+          "main": 6,
+          "offhand": 1,
+          "twohand": 2
+        }
+      },
+      "damageDealtHPClamped": 270.6,
+      "damageTakenActualHpLoss": 5,
+      "damageTakenEvents": 5,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {},
+      "observedBossKinds": {},
+      "allyRescues": 0,
+      "allyCountPeak": 0,
+      "maxHostileEntitiesIncludingBosses": 58,
+      "maxDrops": 6,
+      "checkpoints": [
+        {
+          "atSeconds": 22.8,
+          "stepCalls": 456,
+          "status": "ended",
+          "hp": 0,
+          "maxHp": 5,
+          "level": 3,
+          "exp": 12,
+          "saved": 31,
+          "enemyCount": 58,
+          "roleCountsSeen": {},
+          "bossKindsSeen": {},
+          "allyRescues": 0
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "ember",
+          "offhand": "frostwand"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 2,
+          "pulse": 1,
+          "shotgun": 2,
+          "burst": 1,
+          "ember": 2,
+          "bomber": 1,
+          "moonfan": 1,
+          "frostwand": 1
+        },
+        "enemyCount": 58,
+        "roleCountsAlive": {
+          "dasher": 0,
+          "spitter": 0
+        },
+        "allyRescues": 0,
+        "alliesAlive": 0,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 0
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "none"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "diagnostic-polar-greenhouse",
+      "mode": "diagnostic-invulnerability",
+      "seed": 261122108,
+      "hero": "polar",
+      "map": {
+        "index": 1,
+        "id": "greenhouse"
+      },
+      "stepsCompleted": 24001,
+      "rawGameTimeSeconds": 1200,
+      "reportedGameTimeSeconds": 1200,
+      "status": "ended",
+      "reason": "survived",
+      "targetDurationReached": true,
+      "fullDurationReached": true,
+      "naturalSurvivalClaim": false,
+      "level": 23,
+      "exp": 2671,
+      "hp": 12,
+      "maxHp": 12,
+      "saved": 19664,
+      "levelUpSelections": [
+        {
+          "atSeconds": 9.15,
+          "level": 2,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 15.5,
+          "level": 3,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 24.45,
+          "level": 4,
+          "selected": "power"
+        },
+        {
+          "atSeconds": 31.6,
+          "level": 5,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 36.4,
+          "level": 6,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 47.4,
+          "level": 7,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 61.8,
+          "level": 8,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 90.6,
+          "level": 9,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 132.6,
+          "level": 10,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 155.25,
+          "level": 11,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 192.1,
+          "level": 12,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 217.7,
+          "level": 13,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 260.85,
+          "level": 14,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 310.6,
+          "level": 15,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 361.05,
+          "level": 16,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 412.25,
+          "level": 17,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 459.85,
+          "level": 18,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 521.25,
+          "level": 19,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 602.7,
+          "level": 20,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 715,
+          "level": 21,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 868.2,
+          "level": 22,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 1078.7,
+          "level": 23,
+          "selected": "heart"
+        }
+      ],
+      "skillPickups": {
+        "count": 304,
+        "byUpgradeId": {
+          "rate": 49,
+          "magnet": 35,
+          "guard": 38,
+          "reach": 40,
+          "crit": 42,
+          "speed": 31,
+          "power": 40,
+          "heart": 29
+        }
+      },
+      "weaponPickupDecisions": {
+        "count": 1203,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 150,
+          "frostwand": 156,
+          "ember": 184,
+          "bomber": 148,
+          "burst": 131,
+          "cannon": 134,
+          "moonfan": 144,
+          "pulse": 156
+        },
+        "bySlot": {
+          "main": 769,
+          "offhand": 300,
+          "twohand": 134
+        }
+      },
+      "damageDealtHPClamped": 766532,
+      "damageTakenActualHpLoss": 0,
+      "damageTakenEvents": 0,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {
+        "spitter": true,
+        "dasher": true
+      },
+      "observedBossKinds": {
+        "mini": true,
+        "big": true
+      },
+      "allyRescues": 3,
+      "allyCountPeak": 2,
+      "maxHostileEntitiesIncludingBosses": 92,
+      "maxDrops": 16,
+      "checkpoints": [
+        {
+          "atSeconds": 60.05,
+          "stepCalls": 1201,
+          "status": "running",
+          "hp": 5,
+          "maxHp": 5,
+          "level": 7,
+          "exp": 43,
+          "saved": 160,
+          "enemyCount": 84,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 120.05,
+          "stepCalls": 2401,
+          "status": "running",
+          "hp": 5,
+          "maxHp": 5,
+          "level": 9,
+          "exp": 41,
+          "saved": 273,
+          "enemyCount": 91,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 180,
+          "stepCalls": 3600,
+          "status": "running",
+          "hp": 7,
+          "maxHp": 7,
+          "level": 11,
+          "exp": 122,
+          "saved": 563,
+          "enemyCount": 77,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 1
+        },
+        {
+          "atSeconds": 240,
+          "stepCalls": 4800,
+          "status": "running",
+          "hp": 9,
+          "maxHp": 9,
+          "level": 13,
+          "exp": 151,
+          "saved": 973,
+          "enemyCount": 24,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 300,
+          "stepCalls": 6000,
+          "status": "running",
+          "hp": 10,
+          "maxHp": 10,
+          "level": 14,
+          "exp": 322,
+          "saved": 1440,
+          "enemyCount": 30,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 2
+        },
+        {
+          "atSeconds": 360,
+          "stepCalls": 7200,
+          "status": "running",
+          "hp": 11,
+          "maxHp": 11,
+          "level": 15,
+          "exp": 521,
+          "saved": 2039,
+          "enemyCount": 53,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 420,
+          "stepCalls": 8400,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 17,
+          "exp": 157,
+          "saved": 2944,
+          "enemyCount": 52,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 480,
+          "stepCalls": 9600,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 18,
+          "exp": 491,
+          "saved": 4262,
+          "enemyCount": 14,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 540,
+          "stepCalls": 10800,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 19,
+          "exp": 399,
+          "saved": 5498,
+          "enemyCount": 83,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 600,
+          "stepCalls": 12000,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 19,
+          "exp": 1716,
+          "saved": 6815,
+          "enemyCount": 58,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 660.05,
+          "stepCalls": 13201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 20,
+          "exp": 1277,
+          "saved": 8169,
+          "enemyCount": 40,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 720.05,
+          "stepCalls": 14401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 104,
+          "saved": 9417,
+          "enemyCount": 69,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 780.05,
+          "stepCalls": 15601,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 1349,
+          "saved": 10662,
+          "enemyCount": 75,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 840.05,
+          "stepCalls": 16801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 2616,
+          "saved": 11929,
+          "enemyCount": 79,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 900.05,
+          "stepCalls": 18001,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 647,
+          "saved": 13228,
+          "enemyCount": 73,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 960.05,
+          "stepCalls": 19201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 1957,
+          "saved": 14538,
+          "enemyCount": 65,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 1020.05,
+          "stepCalls": 20401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 3204,
+          "saved": 15785,
+          "enemyCount": 91,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 1080.05,
+          "stepCalls": 21601,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 26,
+          "saved": 17019,
+          "enemyCount": 62,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 1140.05,
+          "stepCalls": 22801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 1364,
+          "saved": 18357,
+          "enemyCount": 58,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        },
+        {
+          "atSeconds": 1200,
+          "stepCalls": 24001,
+          "status": "ended",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 2671,
+          "saved": 19664,
+          "enemyCount": 71,
+          "roleCountsSeen": {
+            "spitter": true,
+            "dasher": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 3
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "bomber",
+          "offhand": "moonfan"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 134,
+          "pulse": 157,
+          "shotgun": 150,
+          "burst": 131,
+          "ember": 184,
+          "bomber": 148,
+          "moonfan": 145,
+          "frostwand": 156
+        },
+        "enemyCount": 71,
+        "roleCountsAlive": {
+          "dasher": 7,
+          "spitter": 8
+        },
+        "allyRescues": 3,
+        "alliesAlive": 0,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 1
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "set game.invuln=1 immediately before each step; excludes natural damage/survival claims"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "natural-polar-park",
+      "mode": "natural-health",
+      "seed": 261122209,
+      "hero": "polar",
+      "map": {
+        "index": 2,
+        "id": "park"
+      },
+      "stepsCompleted": 484,
+      "rawGameTimeSeconds": 24.20000000000021,
+      "reportedGameTimeSeconds": 24.2,
+      "status": "ended",
+      "reason": "fallen",
+      "targetDurationReached": false,
+      "fullDurationReached": false,
+      "naturalSurvivalClaim": false,
+      "level": 3,
+      "exp": 13,
+      "hp": 0,
+      "maxHp": 6,
+      "saved": 32,
+      "levelUpSelections": [
+        {
+          "atSeconds": 9.25,
+          "level": 2,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 15.2,
+          "level": 3,
+          "selected": "rate"
+        }
+      ],
+      "skillPickups": {
+        "count": 1,
+        "byUpgradeId": {
+          "magnet": 1
+        }
+      },
+      "weaponPickupDecisions": {
+        "count": 8,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 1,
+          "frostwand": 1,
+          "ember": 1,
+          "bomber": 1,
+          "burst": 1,
+          "cannon": 2,
+          "moonfan": 1
+        },
+        "bySlot": {
+          "main": 4,
+          "offhand": 2,
+          "twohand": 2
+        }
+      },
+      "damageDealtHPClamped": 270.5,
+      "damageTakenActualHpLoss": 6,
+      "damageTakenEvents": 6,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {},
+      "observedBossKinds": {},
+      "allyRescues": 0,
+      "allyCountPeak": 0,
+      "maxHostileEntitiesIncludingBosses": 63,
+      "maxDrops": 6,
+      "checkpoints": [
+        {
+          "atSeconds": 24.2,
+          "stepCalls": 484,
+          "status": "ended",
+          "hp": 0,
+          "maxHp": 6,
+          "level": 3,
+          "exp": 13,
+          "saved": 32,
+          "enemyCount": 63,
+          "roleCountsSeen": {},
+          "bossKindsSeen": {},
+          "allyRescues": 0
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "burst",
+          "offhand": "moonfan"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 2,
+          "pulse": 1,
+          "shotgun": 1,
+          "burst": 1,
+          "ember": 1,
+          "bomber": 1,
+          "moonfan": 2,
+          "frostwand": 1
+        },
+        "enemyCount": 63,
+        "roleCountsAlive": {
+          "dasher": 0,
+          "spitter": 0
+        },
+        "allyRescues": 0,
+        "alliesAlive": 0,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 0
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "none"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    },
+    {
+      "id": "diagnostic-polar-park",
+      "mode": "diagnostic-invulnerability",
+      "seed": 261122209,
+      "hero": "polar",
+      "map": {
+        "index": 2,
+        "id": "park"
+      },
+      "stepsCompleted": 24001,
+      "rawGameTimeSeconds": 1200,
+      "reportedGameTimeSeconds": 1200,
+      "status": "ended",
+      "reason": "survived",
+      "targetDurationReached": true,
+      "fullDurationReached": true,
+      "naturalSurvivalClaim": false,
+      "level": 23,
+      "exp": 2426,
+      "hp": 12,
+      "maxHp": 12,
+      "saved": 19419,
+      "levelUpSelections": [
+        {
+          "atSeconds": 9.25,
+          "level": 2,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 15.2,
+          "level": 3,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 25.25,
+          "level": 4,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 29.15,
+          "level": 5,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 32.75,
+          "level": 6,
+          "selected": "power"
+        },
+        {
+          "atSeconds": 35.95,
+          "level": 7,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 49.85,
+          "level": 8,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 72.35,
+          "level": 9,
+          "selected": "power"
+        },
+        {
+          "atSeconds": 84.15,
+          "level": 10,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 112.05,
+          "level": 11,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 148,
+          "level": 12,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 190.5,
+          "level": 13,
+          "selected": "magnet"
+        },
+        {
+          "atSeconds": 238.45,
+          "level": 14,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 281.25,
+          "level": 15,
+          "selected": "power"
+        },
+        {
+          "atSeconds": 342.05,
+          "level": 16,
+          "selected": "rate"
+        },
+        {
+          "atSeconds": 397.5,
+          "level": 17,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 448.5,
+          "level": 18,
+          "selected": "speed"
+        },
+        {
+          "atSeconds": 512.9,
+          "level": 19,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 600.9,
+          "level": 20,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 714.75,
+          "level": 21,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 864.3,
+          "level": 22,
+          "selected": "heart"
+        },
+        {
+          "atSeconds": 1077.9,
+          "level": 23,
+          "selected": "heart"
+        }
+      ],
+      "skillPickups": {
+        "count": 317,
+        "byUpgradeId": {
+          "magnet": 46,
+          "reach": 42,
+          "heart": 35,
+          "rate": 33,
+          "speed": 42,
+          "power": 41,
+          "guard": 44,
+          "crit": 34
+        }
+      },
+      "weaponPickupDecisions": {
+        "count": 1262,
+        "alwaysReplace": true,
+        "byWeaponId": {
+          "shotgun": 163,
+          "frostwand": 160,
+          "ember": 161,
+          "bomber": 140,
+          "burst": 157,
+          "cannon": 160,
+          "moonfan": 163,
+          "pulse": 158
+        },
+        "bySlot": {
+          "main": 779,
+          "offhand": 323,
+          "twohand": 160
+        }
+      },
+      "damageDealtHPClamped": 748488,
+      "damageTakenActualHpLoss": 0,
+      "damageTakenEvents": 0,
+      "observedEnemyTypes": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "observedEnemyRoles": {
+        "dasher": true,
+        "spitter": true
+      },
+      "observedBossKinds": {
+        "mini": true,
+        "big": true
+      },
+      "allyRescues": 8,
+      "allyCountPeak": 1,
+      "maxHostileEntitiesIncludingBosses": 91,
+      "maxDrops": 16,
+      "checkpoints": [
+        {
+          "atSeconds": 60.05,
+          "stepCalls": 1201,
+          "status": "running",
+          "hp": 9,
+          "maxHp": 9,
+          "level": 8,
+          "exp": 25,
+          "saved": 191,
+          "enemyCount": 53,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 0
+        },
+        {
+          "atSeconds": 120.05,
+          "stepCalls": 2401,
+          "status": "running",
+          "hp": 10,
+          "maxHp": 10,
+          "level": 11,
+          "exp": 20,
+          "saved": 461,
+          "enemyCount": 60,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true
+          },
+          "allyRescues": 1
+        },
+        {
+          "atSeconds": 180,
+          "stepCalls": 3600,
+          "status": "pickup",
+          "hp": 11,
+          "maxHp": 11,
+          "level": 12,
+          "exp": 157,
+          "saved": 760,
+          "enemyCount": 77,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 240,
+          "stepCalls": 4800,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 14,
+          "exp": 13,
+          "saved": 1131,
+          "enemyCount": 84,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 300,
+          "stepCalls": 6000,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 15,
+          "exp": 160,
+          "saved": 1678,
+          "enemyCount": 10,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 360,
+          "stepCalls": 7200,
+          "status": "pickup",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 16,
+          "exp": 212,
+          "saved": 2270,
+          "enemyCount": 40,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 420,
+          "stepCalls": 8400,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 17,
+          "exp": 406,
+          "saved": 3193,
+          "enemyCount": 21,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 480,
+          "stepCalls": 9600,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 18,
+          "exp": 732,
+          "saved": 4503,
+          "enemyCount": 21,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 540,
+          "stepCalls": 10800,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 19,
+          "exp": 599,
+          "saved": 5698,
+          "enemyCount": 34,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 600,
+          "stepCalls": 12000,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 19,
+          "exp": 1781,
+          "saved": 6880,
+          "enemyCount": 77,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 660.05,
+          "stepCalls": 13201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 20,
+          "exp": 1216,
+          "saved": 8108,
+          "enemyCount": 63,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 720.05,
+          "stepCalls": 14401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 117,
+          "saved": 9430,
+          "enemyCount": 28,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 780.05,
+          "stepCalls": 15601,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 1443,
+          "saved": 10756,
+          "enemyCount": 36,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 840.05,
+          "stepCalls": 16801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 21,
+          "exp": 2708,
+          "saved": 12021,
+          "enemyCount": 79,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 900.05,
+          "stepCalls": 18001,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 733,
+          "saved": 13314,
+          "enemyCount": 56,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 960.05,
+          "stepCalls": 19201,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 1954,
+          "saved": 14535,
+          "enemyCount": 76,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 1020.05,
+          "stepCalls": 20401,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 22,
+          "exp": 3246,
+          "saved": 15827,
+          "enemyCount": 91,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 1080.05,
+          "stepCalls": 21601,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 58,
+          "saved": 17051,
+          "enemyCount": 42,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 1140.05,
+          "stepCalls": 22801,
+          "status": "running",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 1182,
+          "saved": 18175,
+          "enemyCount": 43,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        },
+        {
+          "atSeconds": 1200,
+          "stepCalls": 24001,
+          "status": "ended",
+          "hp": 12,
+          "maxHp": 12,
+          "level": 23,
+          "exp": 2426,
+          "saved": 19419,
+          "enemyCount": 47,
+          "roleCountsSeen": {
+            "dasher": true,
+            "spitter": true
+          },
+          "bossKindsSeen": {
+            "mini": true,
+            "big": true
+          },
+          "allyRescues": 8
+        }
+      ],
+      "final": {
+        "loadout": {
+          "main": "pulse",
+          "offhand": "frostwand"
+        },
+        "twoHandedWeapon": "cannon",
+        "weaponLevels": {
+          "cannon": 160,
+          "pulse": 159,
+          "shotgun": 163,
+          "burst": 157,
+          "ember": 161,
+          "bomber": 140,
+          "moonfan": 164,
+          "frostwand": 160
+        },
+        "enemyCount": 47,
+        "roleCountsAlive": {
+          "dasher": 4,
+          "spitter": 3
+        },
+        "allyRescues": 8,
+        "alliesAlive": 1,
+        "bossKindsAlive": {
+          "big": 0,
+          "mini": 0
+        }
+      },
+      "strategy": {
+        "dtSeconds": 0.05,
+        "movement": "nearest live drop within 9 units, else 16-second cardinal patrol E/N/W/S; Game.move and proximity collection only",
+        "pickup": "replace every serialized weapon pickup (resolvePickup(true)); proximity upgrades apply via core",
+        "upgrade": "fixed priority heart, speed, rate, power; first available dealt choice",
+        "invulnerability": "set game.invuln=1 immediately before each step; excludes natural damage/survival claims"
+      },
+      "mapGeometry": "not constructed: core-only run; map index recorded, map.js collision geometry excluded"
+    }
+  ],
+  "evidenceRevision": "final-r2",
+  "casePayloadHashAlgorithm": "SHA-256 of compact UTF-8 JSON for cases, object keys recursively sorted and array order preserved",
+  "supersededIntermediateCasePayloadSha256": "3e269c5729fd77fd9ca725802231440a0a17dd0d1e1e1293aa22435968c9fd78",
+  "supersededIntermediateNote": "Earlier draft output was superseded after correcting the terminal step count and adding skill-drop/source provenance fields; do not compare it as an additional run.",
+  "rawEvidenceAvailability": "The two full event/decision logs remain local in the batch report directory and are not included in the public repository. This compact summary is reproducible from the versioned harness and fixed seeds; it does not provide public access to those full raw files."
+}
