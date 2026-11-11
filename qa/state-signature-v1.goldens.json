@@ -19,7 +19,8 @@
         "upgrade": 14,
         "varietyChoice": 0,
         "pickup": 46
-      }
+      },
+      "stepsCompleted": 7200
     },
     "0:true": {
       "digest": "ad10a4d9fe9ae8608d0f8ad74c17297735dc77ab03bdb716ac20c3b7f2c1d8ab",
@@ -36,7 +37,8 @@
         "upgrade": 13,
         "varietyChoice": 0,
         "pickup": 0
-      }
+      },
+      "stepsCompleted": 7200
     },
     "1:false": {
       "digest": "0ba889c6e9c4b15465af5e0c29b40ba3eefcc6619f87945dc720db7cb02fdfbf",
@@ -53,7 +55,8 @@
         "upgrade": 14,
         "varietyChoice": 0,
         "pickup": 50
-      }
+      },
+      "stepsCompleted": 7200
     },
     "1:true": {
       "digest": "12f55702a6bc33d36ceda0883f12bac9a80fd3cc723a43ff24b3ef81a7b2fc6d",
@@ -70,7 +73,8 @@
         "upgrade": 14,
         "varietyChoice": 0,
         "pickup": 0
-      }
+      },
+      "stepsCompleted": 7200
     },
     "2:false": {
       "digest": "18702a3c802b5d3625793586ea16f27fcb88753aa449b7c2d402fac3d3ce06c6",
@@ -87,7 +91,8 @@
         "upgrade": 13,
         "varietyChoice": 12,
         "pickup": 58
-      }
+      },
+      "stepsCompleted": 7200
     },
     "2:true": {
       "digest": "5f1112b4c16e24e545a34f60927f70b07a3b6477108657ac990f63429cacb6f6",
@@ -104,7 +109,8 @@
         "upgrade": 14,
         "varietyChoice": 13,
         "pickup": 0
-      }
+      },
+      "stepsCompleted": 7200
     },
     "3:false": {
       "digest": "4b17989cb1c34e11e2815effdbc51faf0919db71964d980cd9826fcd46c0f677",
@@ -121,7 +127,8 @@
         "upgrade": 13,
         "varietyChoice": 12,
         "pickup": 48
-      }
+      },
+      "stepsCompleted": 7200
     },
     "3:true": {
       "digest": "050ca52aadf44282f4445bac5d7b66236082c52b76236d42ec6c7ea12bb5786a",
@@ -138,7 +145,8 @@
         "upgrade": 14,
         "varietyChoice": 13,
         "pickup": 0
-      }
+      },
+      "stepsCompleted": 7200
     },
     "4:false": {
       "digest": "0a8f22bbe4e07ce14341b6260def592a3a9729e406ce4549c37bf6bc0e06b78a",
@@ -155,7 +163,8 @@
         "upgrade": 14,
         "varietyChoice": 0,
         "pickup": 47
-      }
+      },
+      "stepsCompleted": 7200
     },
     "4:true": {
       "digest": "da52459c9da5cbd697ea5c9960b6e2869675b33773882a8a1571cc442b037a06",
@@ -172,7 +181,8 @@
         "upgrade": 14,
         "varietyChoice": 0,
         "pickup": 0
-      }
+      },
+      "stepsCompleted": 7200
     },
     "5:false": {
       "digest": "6180ec630b2d0ad71fc10eac98a2a033263414278ef8fcce0b9147d314320463",
@@ -189,7 +199,8 @@
         "upgrade": 14,
         "varietyChoice": 0,
         "pickup": 47
-      }
+      },
+      "stepsCompleted": 7200
     },
     "5:true": {
       "digest": "f28c180cca896b4be0ccec3b46d12eb69ddae0d8d5919459afeaa6bd472d61dd",
@@ -206,7 +217,8 @@
         "upgrade": 14,
         "varietyChoice": 0,
         "pickup": 0
-      }
+      },
+      "stepsCompleted": 7200
     },
     "6:false": {
       "digest": "d48d8ec04426619d32cbd0c02b15ca142703c4ae1dfa97190b936b02dab6e973",
@@ -223,7 +235,8 @@
         "upgrade": 13,
         "varietyChoice": 13,
         "pickup": 31
-      }
+      },
+      "stepsCompleted": 7200
     },
     "6:true": {
       "digest": "0f9a57d0c87bed4caed74e1ee71d3f837e7741d83c1a482f6134d54fa2d79f6c",
@@ -240,7 +253,8 @@
         "upgrade": 14,
         "varietyChoice": 14,
         "pickup": 0
-      }
+      },
+      "stepsCompleted": 7200
     },
     "7:false": {
       "digest": "088dbc57c69ddd2cc1280d5cf8644c67c1f3207c287796284e5c15335fdfb3a4",
@@ -257,7 +271,8 @@
         "upgrade": 13,
         "varietyChoice": 13,
         "pickup": 24
-      }
+      },
+      "stepsCompleted": 7200
     },
     "7:true": {
       "digest": "c269ef1773237fd521e00e9c4e0208b1f222c72b8ca0d69ff5ca761d928748f5",
@@ -274,7 +289,8 @@
         "upgrade": 14,
         "varietyChoice": 14,
         "pickup": 0
-      }
+      },
+      "stepsCompleted": 7200
     }
   },
   "targeted": {

@@ -14,6 +14,8 @@ for(let bits=0;bits<8;bits++)for(const autoEquip of [false,true]){
   const actual=signatureV1(Game,goldens.seed,{autoEquip,...flags,steps:goldens.steps});
   assert.equal(actual.digest,goldens.cases[key].digest,`baseline state digest ${key}`);
   assert.deepEqual(actual.seen,goldens.cases[key].seen,`baseline branch counts ${key}`);
+  assert.equal(actual.stepsCompleted,goldens.cases[key].stepsCompleted,`baseline completed steps ${key}`);
+  assert.equal(actual.stepsCompleted,goldens.steps,`full scripted run ${key}`);
   assert.ok(actual.seen.boss>0&&actual.seen.bossHazard>0&&actual.seen.upgrade>0);
   if(flags.bossAllies)assert.ok(actual.seen.ally>0&&actual.seen.allyShot>0);
   else assert.equal(actual.seen.ally,0);

@@ -190,7 +190,11 @@ seed 1, 7,200 steps, both `autoEquip` settings and all eight combinations of
 five-decimal projection of enemies (role, position, HP, boss/attack timers and
 dash phase), hazards (kind, owner, geometry, timing and hit), allies (life,
 cooldown, position and rescues), and relevant player/combat state. The test
-also checks that each enabled feature appeared. A separate forced scenario
+also compares `stepsCompleted` to the independently generated baseline value
+and asserts all 7,200 `step` calls completed for every case. The 16 new
+metadata values were computed by running the same signature code with the
+**unformatted** 274 `Game`; existing digest and `seen` entries were checked
+unchanged before writing them. A separate forced scenario
 observes both enemy roles, both hazard hits, dash phases and ally timers.
 
 `state-signature-v1.goldens.json` was generated against the **unformatted**

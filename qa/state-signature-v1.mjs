@@ -47,11 +47,12 @@ export function signatureV1(Game,seed,{autoEquip=false,bossAllies=false,upgradeV
  game.start();
  const hash=createHash('sha256');
  const seen={boss:0,ally:0,spitter:0,dasher:0,spitHazard:0,bossHazard:0,hazardHit:0,allyShot:0,allyRescue:0,upgrade:0,varietyChoice:0,pickup:0};
- let replace=false;
+ let replace=false,stepsCompleted=0;
  for(let i=0;i<steps;i++){
   game.invuln=1;
   const angle=i*.013;
   game.step(.05,{x:Math.cos(angle),z:Math.sin(angle*1.3)});
+  stepsCompleted++;
   if(game.status==='ended')break;
   for(const enemy of game.enemies){
    if(enemy.boss)seen.boss++;
@@ -77,7 +78,7 @@ export function signatureV1(Game,seed,{autoEquip=false,bossAllies=false,upgradeV
   }
   if(i%20===0)hash.update(JSON.stringify([i,stateV1(game)]));
  }
- return {digest:hash.digest('hex'),seen};
+ return {digest:hash.digest('hex'),seen,stepsCompleted};
 }
 
 // Forced branches complement the long script: each setup is explicit so a
