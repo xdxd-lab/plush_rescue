@@ -39,8 +39,8 @@
     "bytes": 506138,
     "sha256": "ca39797b59dd36bb3f7fac4a49d44ce119849ed129f9bb8a3734c034e9addf07",
     "count": 18,
-    "pixel_rebuild_verified_this_audit": true,
-    "runtime_pilot": "star_09 hit flash only; trails and puffs unchanged"
+    "runtime_pilot": "star_09 hit flash only; trails and puffs unchanged",
+    "pixel_rebuild_verified": true
   },
   "items": [
     {
@@ -475,5 +475,17 @@
         "v1": 0.759766
       }
     }
-  ]
+  ],
+  "rebuild_audit": {
+    "verified_on": "2026-11-12",
+    "tool": "tools/atlas/rebuild.py",
+    "python": "3.12.14",
+    "pillow": "13.0.0",
+    "independent_rebuild": "PASS",
+    "portable_output_count": 4,
+    "negative_cases": 14,
+    "png_sha256": "ca39797b59dd36bb3f7fac4a49d44ce119849ed129f9bb8a3734c034e9addf07",
+    "rgba_sha256": "4635b79793e0c6c5823755dc437a93a5489422f30f32d62fa6861666159d5abc",
+    "scope": "18 selected 256px prepared inputs, not upstream original resolution; original S1 source-audit date retained"
+  }
 }

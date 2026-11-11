@@ -37,3 +37,5 @@ package while the website update label was recorded as 1.0. The official
 asset pages could not be reopened during this audit; these credits rely on the
 previous S1 record and the matching package notices. Project or character
 commercial rights are separate from these asset notices.
+
+Generated metadata records `source_selection_sha256` for the selection JSON read by that particular build. Later audit-document edits can change that input-file hash without changing the selected pixels or UVs; preserve the generated metadata as a dated snapshot rather than updating its hash in place.
