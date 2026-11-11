@@ -8,6 +8,7 @@
 // Needs Google Chrome and Node 22+ (global WebSocket); on Node 20 add
 // --experimental-websocket. Run from the repository root:
 //   node qa/browser-chrome.mjs [--shots=DIR] [--views=WxH,...] [--dialogs] [--no-pickup]
+//     [--storage-contexts] [--require-swiftshader]
 // Default: the four main viewports (1280x720, 390x844, 360x640, 844x390) plus the
 // storage contexts. --views also accepts the extra sizes 568x320 and 800x600.
 // --dialogs adds the dialog reachability measurements; --no-pickup skips the rest.
@@ -41,6 +42,11 @@ const shots=process.argv.find(a=>a.startsWith('--shots='))?.slice(8);
 // --views=390x844,844x390 limits the per-viewport part to the named sizes.
 const onlyViews=process.argv.find(a=>a.startsWith('--views='))?.slice(8).split(',');
 const runDialogs=process.argv.includes('--dialogs'),runPickup=!process.argv.includes('--no-pickup');
+const runStorageContexts=!onlyViews||process.argv.includes('--storage-contexts');
+const storageView=process.argv.includes('--storage-contexts')&&onlyViews?.length===1&&/^\d+x\d+$/.test(onlyViews[0])
+ ?{width:Number(onlyViews[0].split('x')[0]),height:Number(onlyViews[0].split('x')[1])}
+ :{width:800,height:600};
+const requireSwiftShader=process.argv.includes('--require-swiftshader');
 const CHECK_TIMEOUT_MS=Number(process.env.CHECK_TIMEOUT_MS||240000),CDP_TIMEOUT_MS=Number(process.env.CDP_TIMEOUT_MS||60000),SETUP_TIMEOUT_MS=Number(process.env.SETUP_TIMEOUT_MS||15000);
 const selfTest=process.argv.find(a=>a.startsWith('--self-test='))?.slice(12);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -95,6 +101,7 @@ origin=`http://127.0.0.1:${server.address().port}`;
 // ---- Chrome + DevTools protocol -------------------------------------------------------
 profile=fs.mkdtempSync(path.join(os.tmpdir(),'plush-chrome-'));console.error(`profile ${profile}`);
 chrome=spawn(CHROME,['--headless=new','--remote-debugging-port=0',`--user-data-dir=${profile}`,'--use-angle=swiftshader','--enable-unsafe-swiftshader','--no-first-run','--no-default-browser-check','--disable-breakpad','--disable-crash-reporter','--disable-background-timer-throttling','--disable-renderer-backgrounding','about:blank'],{stdio:'ignore',detached:true});
+console.error(`chrome pid ${chrome.pid}`);
 let port=null;for(let i=0;i<100&&!port;i++){await sleep(100);try{port=fs.readFileSync(path.join(profile,'DevToolsActivePort'),'utf8').split('\n')[0];}catch{}}
 assert.ok(port,'Chrome did not open a DevTools port');
 // Both handshake steps are bounded; a failure throws and the caller's finally cleans up.
@@ -120,7 +127,7 @@ function send(method,params={},sessionId){
  });
 }
 
-const errors=[],scrolled=new Set();
+const errors=[],scrolled=new Set(),webglDiagnostics=[];
 async function openPage({width,height,mobile=false,scale=1,context=null,blockStorage=false,logInputs=false}){
  const {targetId}=await send('Target.createTarget',{url:'about:blank',...(context?{browserContextId:context}:{})});
  const {sessionId:s}=await send('Target.attachToTarget',{targetId,flatten:true});
@@ -247,9 +254,11 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
  const {browserContextId}=await send('Target.createBrowserContext');
  const page=await openPage({...view,context:browserContextId}),mobile=!!view.mobile;
  await check(`${view.name}: boots with WebGL, revision and no errors`,async()=>{
-  const info=await page.eval("({rev:__T.qa.revision,build:document.querySelector('#game').dataset.build,gl:!!document.querySelector('#world').getContext('webgl2')||!!__T.qa.renderer.getContext(),w:document.querySelector('#world').clientWidth,h:document.querySelector('#world').clientHeight})");
+  const info=await page.eval("(()=>{const canvas=document.querySelector('#world'),gl=canvas.getContext('webgl2')||__T.qa.renderer.getContext(),ext=gl?.getExtension('WEBGL_debug_renderer_info');return {rev:__T.qa.revision,build:document.querySelector('#game').dataset.build,gl:!!gl,w:canvas.clientWidth,h:canvas.clientHeight,vendor:gl?.getParameter(ext?.UNMASKED_VENDOR_WEBGL??gl.VENDOR),renderer:gl?.getParameter(ext?.UNMASKED_RENDERER_WEBGL??gl.RENDERER),version:gl?.getParameter(gl.VERSION)};})()");
+  webglDiagnostics.push({view:view.name,vendor:info.vendor,renderer:info.renderer,version:info.version});
   const {revision}=JSON.parse(fs.readFileSync(path.join(root,'build-info.json'),'utf8'));
   assert.equal(info.rev,revision);assert.equal(info.build,revision);assert.ok(info.gl);assert.equal(info.w,view.width);assert.equal(info.h,view.height);
+  if(requireSwiftShader)assert.match(info.renderer||'',/SwiftShader/i,'Linux Q2 must use software WebGL');
  });
  await page.shot(view.name.split(' ')[0]+'-title');
  await check(`${view.name}: start, then ring, item and both label ends are tappable`,async()=>{
@@ -366,20 +375,20 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
  await page.close();await send('Target.disposeBrowserContext',{browserContextId});
 }
 
-if(runPickup&&!onlyViews)await check('a separate browser profile context starts from defaults (storage is per profile and origin)',async()=>{
+if(runPickup&&runStorageContexts)await check('a separate browser profile context starts from defaults (storage is per profile and origin)',async()=>{
  const {browserContextId}=await send('Target.createBrowserContext');let page,failed;
  try{
-  page=await openPage({width:800,height:600,context:browserContextId});
+  page=await openPage({...storageView,context:browserContextId});
   assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
  }catch(e){failed=e}
  try{await page?.close();}catch(e){failed??=e}
  try{await send('Target.disposeBrowserContext',{browserContextId});}catch(e){failed??=e}
  if(failed)throw failed;
 });
-if(runPickup&&!onlyViews)await check('blocked localStorage: the game runs, settings work for the session, a reload falls back to defaults',async()=>{
+if(runPickup&&runStorageContexts)await check('blocked localStorage: the game runs, settings work for the session, a reload falls back to defaults',async()=>{
  const {browserContextId}=await send('Target.createBrowserContext');let page,failed;
  try{
-  page=await openPage({width:800,height:600,context:browserContextId,blockStorage:true});
+  page=await openPage({...storageView,context:browserContextId,blockStorage:true});
   assert.equal(await page.eval("(()=>{try{localStorage;return 'open'}catch{return 'blocked'}})()"),'blocked');
   await begin(page,false);await page.click('#pause');await page.eval("(()=>{document.querySelector('#quality-high').click();})()");
   await page.click('#resume');assert.ok(await tapDrop(page,{mobile:false,where:'labelLeft'}),'taps work without storage');
@@ -558,5 +567,5 @@ try{await setup();if(selfTest)await runSelfTest();else await runAll();}
 catch(e){fatal=e;console.error(`fatal: ${e?.stack||e}`);}
 finally{await cleanup();}
 const failed=results.filter(r=>!r.ok);
-console.log(JSON.stringify({method:'headless Google Chrome, SwiftShader WebGL, DevTools-protocol input',chrome:CHROME,aborted:run.aborted,fatal:fatal?String(fatal.message||fatal):null,cdpRefusedAfterAbort:run.cdpAfterAbort,selfTest:selfTest?{mode:selfTest,...selfTestReport}:undefined,passed:results.filter(r=>r.ok&&!r.note).length,failed:failed.length,notRun:results.filter(r=>r.notRun).length,consoleErrors:errors,dialogButtonsNeedingScroll:[...scrolled],dialogs,results},null,1));
+console.log(JSON.stringify({method:'headless Google Chrome, SwiftShader-requested WebGL, DevTools-protocol input',chrome:CHROME,webglDiagnostics,aborted:run.aborted,fatal:fatal?String(fatal.message||fatal):null,cdpRefusedAfterAbort:run.cdpAfterAbort,selfTest:selfTest?{mode:selfTest,...selfTestReport}:undefined,passed:results.filter(r=>r.ok&&!r.note).length,failed:failed.length,notRun:results.filter(r=>r.notRun).length,consoleErrors:errors,dialogButtonsNeedingScroll:[...scrolled],dialogs,results},null,1));
 process.exit(fatal||run.aborted||failed.length||errors.length?1:0);

@@ -1,0 +1,42 @@
+# Branch-only diagnostic. It does not deploy Pages and is not a required gate.
+# Review two successful Linux runs, renderer details and cleanup evidence before
+# considering a small required gate in the existing CI workflow.
+name: Q2 Linux Chrome diagnostic
+
+on:
+  push:
+    branches: [ci/chrome-q2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chrome-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Identify runner Chrome and Node
+        shell: bash
+        run: |
+          set -euo pipefail
+          chrome="$(command -v google-chrome || command -v google-chrome-stable || true)"
+          test -n "$chrome" || { echo '::error::runner Google Chrome is unavailable'; exit 1; }
+          echo "CHROME=$chrome" >> "$GITHUB_ENV"
+          "$chrome" --version
+          node --version
+          uname -a
+      - name: Run two bounded WebGL matrices and lifecycle probes
+        run: node qa/chrome-q2-runner.mjs --output=q2-artifacts
+      - name: Upload reports, logs and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: q2-chrome-${{ github.run_id }}-${{ github.run_attempt }}
+          path: q2-artifacts/
+          if-no-files-found: warn
+          retention-days: 14

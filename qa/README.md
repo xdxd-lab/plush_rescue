@@ -36,6 +36,23 @@ profile are removed on success, failed checks, setup errors, uncaught errors and
 of the Node process cannot be cleaned up. `--self-test=timeout|cdp|assert|setup|handshake-http|handshake-ws|signal`
 exercises these paths without the game checks.
 
+Q2 branch diagnostic: `.github/workflows/chrome-q2.yml` runs only on
+`ci/chrome-q2` push or manual dispatch, with no Pages job. It uses the
+runner-installed Google Chrome and Node 24. `qa/chrome-q2-runner.mjs` runs
+`--views=1280x720 --dialogs --storage-contexts` twice in fresh profiles;
+`--storage-contexts` explicitly includes separate-context and blocked-storage
+checks when `--views` limits the main matrix; with one selected view, those
+contexts use the same dimensions. Without this new flag, the
+existing `--views` behavior is unchanged. Each full run has a 12-minute outer
+limit, the job has 40 minutes, and timeout never counts as a pass or triggers
+a retry. Four short self-tests exercise check timeout, CDP timeout, failed
+assertion and setup cleanup. The always-uploaded artifact contains per-run
+JSON, stderr, screenshots, runner/Chrome/Node versions, WebGL renderer details,
+and evidence that each temporary profile and browser process group was gone.
+`--require-swiftshader` is an optional strict diagnostic; the first Linux run
+records the renderer without assuming its exact string. This workflow is not
+a required CI gate until the Linux evidence is reviewed.
+
 V12.2.1 hover follow-up: Node 24.22.1 passed 82 tests and the DOM smoke passed 75 checks. A focused
 Chrome 156 / SwiftShader run used real CDP mouse input to check the visible progress ring, leaving and
 re-entering a drop, pickup after re-entry and a HUD-covered drop; all passed. Desktop click and 390×844
