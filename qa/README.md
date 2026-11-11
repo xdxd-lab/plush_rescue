@@ -261,4 +261,5 @@ At extraction commit `47b5995`, independent checks passed: Node 224, DOM 88,
 export 40 hashes / 82 references / 28 modules, no module import cycle, and
 unchanged core/seven locked modules/pre-existing goldens/version identity.
 DOM stubs do not establish trusted browser event dispatch or listener counts;
-final real-browser interaction checks remain necessary for release.
+the release's final real-browser interaction results are recorded in
+[`docs/validation-v12.5.1.md`](../docs/validation-v12.5.1.md).

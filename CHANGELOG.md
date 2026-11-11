@@ -8,6 +8,7 @@
 
 | 版本 | `revision` | 發布提交 | `source_commit`（基礎） | 建議 tag |
 |---|---|---|---|---|
+| 12.5.1 | `v12.5.1-core-modules-r1` | 見 `v12.5.1` tag | `e6b8dd2` | `v12.5.1` |
 | 12.5.0 | `v12.5.0-warmup-contrast-r1` | `8aa4bed` | `daa2374` | `v12.5.0` |
 | 12.4.1 | `v12.4.1-modular-locks-r1` | `ca2a645` | `4adb4e5` | `v12.4.1` |
 | 12.4.0 | `v12.4.0-variety-r1` | `f097782` | `4f4a3d2` | `v12.4.0` |
@@ -25,6 +26,18 @@
 | 11.0.0 | `v11-boss-rescue-r1` | `cbfa10e` | `8a2c6ac`（更早祖先） | `v11.0.0` |
 
 發布提交之後只改文件或 `qa/`、沒有改執行檔的提交（例如 `4d097de`、`84363c8`、`ef9d208`）不另立版本。
+
+## V12.5.1：程式模組整理與回歸補強
+
+基礎提交 `e6b8dd2`。本輪處理 E5、E4、Q5、Q3；玩法、原有直式視角與輸入規則維持前版。
+
+- **E5 Core：**以獨立提交整理排版；Prettier 3.6.2 也將 `.8` 正規化為 `0.8`，因此不宣稱只有空白差異。獨立 AST 比較與從未排版基準 `274e5db` 重算的詳細狀態一致。新增 state-v1：三旗標八種組合、兩種 autoEquip，各實際完成 7,200 步，涵蓋敵人／hazard／隊友狀態及強制分支。舊 signature 與 golden 保留。這是限定情境、五位小數與每 20 步取樣的回歸證據，不是全部狀態等價證明；未量測或實作配置最佳化，不宣稱效能收益。
+- **E4 模組：**拆出 `dialogs.js`、`pickup.js`、`input-controller.js`、`render-sync.js`，主程式保留組裝、單一 RAF、reset 與 warmup 的 try/finally。使用即時 getter 取得重設後的 game／hero，維持既有 QA 介面、事件次序及過期對話框回呼防護。七個鎖定模組與 Core 玩法均未改動。
+- **Q5 桌面限定驗證：**Chrome headless／SwiftShader，360×640 DPR2 的低／均衡／精緻及 390×844 DPR3 的低畫質，三地圖、進度、灰階與減少動態效果擷取。逐張核對實際 renderer ratio／buffer、無對話框及畫質重載保存；另有正常 RAF／game loop 的短序列。早期工具誤留 balanced、拾取對話框遮圖及手動推進 trace 不列正式通過證據。低畫質文字較柔，多條預警與角色交錯及下方 HUD 仍有局部遮擋風險；上方警示在計時 HUD 下方，不能算已測到上方 HUD 遮擋。尚未證實需立即修補的產品缺陷，本版沒有因此改動視覺 runtime。
+- **Q3 最終候選：**Chrome 157 headless／SwiftShader 完整 `--dialogs`：68 pass、0 fail、0 notRun、無 fatal 或 console 錯誤；28 個對話框情境、8 張截圖，沒有標為必須捲動才能看到的主要按鈕。Firefox 160／geckodriver 0.37.1 的 1280×720、360×640、390×844 三組完整核心矩陣通過，包含設定重載、移動、click／hover 拾取、主副手／雙手收起還原、升級實際作用、強制結算／再玩與三輪重啟。窄尺寸由同源 iframe 實測，77 trusted events／組是事件數，不是測項數；有合成事件負對照、24 張截圖及清理紀錄。受控掉落／結算不代表自然完成一局。SafariDriver 的本機服務可啟動，但建立 session 明確回覆須開啟 Safari 設定的 Allow remote automation；未改設定、未建立會話，Safari 遊戲實測仍未完成。
+- **獨立基礎檢查：**E4 抽取提交 `47b5995` 的 Node 224/224、DOM smoke 88 項、export 40 hashes／82 references／28 JS modules、diff check 通過，四模組未有靜態 import cycle；最終版本資訊另以 invariants／DOM／export 作一致性驗證。
+- **發布與復原文件：**D1／D2 歷史 tag／Release 與固定代號議題已完成；公開新增[備份與還原分項紀錄](docs/recovery-checkpoint-2026-11-12.md)。同機非私密專案演練通過不代表完整環境、私密或離機備份完成，R1／R2 保持開啟。
+- **限制：**以上不是手機、Safari、WCAG、耗電或真人完整一局驗收；實體手機 Q4 與真人平衡 Q6 仍各自追蹤。
 
 ## V12.5.0：材質預熱與衝刺預警對比
 

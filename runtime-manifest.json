@@ -1,8 +1,8 @@
 {
-  "version": "12.5.0",
-  "revision": "v12.5.0-warmup-contrast-r1",
-  "source_commit": "daa2374",
-  "layout": "Static V12.5.0: staged shader warm-up with safe completion handling and unchanged game random stream; steady inset high-contrast dash warnings within existing damage footprint; V12.4.1 modular presentation and lock protections retained.",
+  "version": "12.5.1",
+  "revision": "v12.5.1-core-modules-r1",
+  "source_commit": "e6b8dd2",
+  "layout": "Static V12.5.1: mechanically formatted core, versioned detailed state regression and extracted dialogs, pickup, input and render-sync controllers; gameplay, portrait camera and seven locked modules unchanged.",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -61,8 +61,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 299,
-      "sha256": "da9415546d8e50af4d8cc12df2c5f30497ed1f5bf4a24b50f59b538711be619d"
+      "bytes": 350,
+      "sha256": "d1322a3c0a43f9ac3d5146f9c6c7780b609874909ea76106c2380ecc938818cc"
     },
     {
       "path": "camera.js",
@@ -111,8 +111,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13813,
-      "sha256": "6c272d97d17694d754d8fa49672c5d288d11443b50ba79bb4d2bab71d48ddca7"
+      "bytes": 13810,
+      "sha256": "52f761fd848d79d16d462860953893744e910d2e5c43353b597aa2e11b7aa330"
     },
     {
       "path": "input-controller.js",
@@ -131,8 +131,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 18220,
-      "sha256": "3ff4a4b65efd8231c8eb0fa7625f5d281c72529bb6214624d1b9d5a14f80f1a1"
+      "bytes": 18217,
+      "sha256": "28e1c65247245a61b20fb716deba0c843ca99f9c66fd3ef03dc9a12bbc5cc455"
     },
     {
       "path": "maps.js",
