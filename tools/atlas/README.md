@@ -14,7 +14,7 @@ python3 tools/atlas/rebuild.py --output-dir /tmp/plush-atlas-rebuilt
 
 重建會對**整張** 2048×1024 圖集逐一比較 RGBA bytes，包含透明像素的 RGB 與 padding。Pillow 13.0.0 的輸出 PNG bytes 也相同，SHA-256 為 `ca39797b59dd36bb3f7fac4a49d44ce119849ed129f9bb8a3734c034e9addf07`。其他編碼器可能在像素相同時產生不同 PNG bytes，兩者應分開記錄。
 
-圖集使用 256px 內容格、2px inset、260px pitch、8 欄，18 格依選材清單排序。UV 以圖片左上角為原點；Three.js 使用 `flipY=true` 時換算為 `v_gl=1-v`。`shape_a` 是實心光斑，不能當成 `circle_05` 的柔暈；也不能將圖集裁格冒充原始輸入來源。
+圖集使用 256px 內容格、2px inset、260px pitch、7 欄（2048 // 260），18 格依選材清單排序。UV 以圖片左上角為原點；Three.js 使用 `flipY=true` 時換算為 `v_gl=1-v`。`shape_a` 是實心光斑，不能當成 `circle_05` 的柔暈；也不能將圖集裁格冒充原始輸入來源。
 
 來源為 Kenney Particle Pack、Light Masks 與 Smoke Particles，依本目錄保存的包內 CC0 授權文字記錄。Particle Pack 包內標示 1.1，先前官網更新標籤記錄為 1.0；此次無法重新開啟官方素材頁，不宣稱已重新線上核實，來源依既有 S1 與相符的包內授權交叉核對。專案與角色的商用權利另由 S2 處理。
 
