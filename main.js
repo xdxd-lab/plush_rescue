@@ -67,7 +67,7 @@ const bulletGeometry=new THREE.SphereGeometry(1,12,8),bulletMaterial=new THREE.M
 const fx=createEffects(THREE,scene,LIMITS),cameraDelta=cameraOffset(),cameraTarget=new THREE.Vector3();
 const names=['鈕扣街坊庭院','荒廢溫室花園','月光遊樂場'];const params=new URLSearchParams(location.search);let debugMap=params.get('map');const mapIndex=()=>{if(debugMap===null)return null;const n=Number(debugMap);if(Number.isInteger(n)&&n>=0&&n<=2)return n;const i=MAPS.findIndex(x=>x.id===debugMap);return i>=0?i:null;};
 // Sound effects (audio.js); unlocked from the first gesture that starts or resumes play.
-const sfx=createAudio({getContextClass:()=>window.AudioContext||window.webkitAudioContext,volume:()=>prefs.volume});
+const sfx=createAudio({getContextClass:()=>window.AudioContext||window.webkitAudioContext,volume:()=>prefs.volume,muted:()=>prefs.muted});
 function clearWorld(){renderSync.clearWorld();}
 function reset(){choiceTimer.clear();renderDirty=true;clearWorld();clearInput();if(map)map.dispose();if(hero)scene.remove(hero);game=new Game({map:mapIndex(),autoEquip:prefs.autoEquip,heroId:prefs.hero});map=buildMap(THREE,scene,game.map);game.obstacles=map.obstacles;game.bounds=map.bounds;Object.assign(game.player,map.spawn);hero=makePlush(THREE,{hero:true,heroId:game.heroId});hero.scale.setScalar(1.1);game.muzzleOffset=hero.userData.getMuzzleOffset();game.player.angle=Math.PI/3;scene.add(hero);$('#mapName').textContent=names[game.map];hud.game.dataset.map=MAPS[game.map]?.id||'courtyard';applyMapLighting(map.lighting,{scene,renderer,hemi,sun,rim,fill});lastStatus='';resetPresentation();hudView.sync(game);if(shouldWarmup(shaderWarmup,renderer.shadowMap.enabled))warmShaders();}
 function resetPresentation(){
@@ -90,7 +90,7 @@ function pause(){game.pause();clearInput();syncOverlay();}
 // The HUD (hud.js): permanent nodes, change-only writes, notices and hit/rescue feedback.
 const hudView=createHud({doc:document,heroNames}),hud=hudView.els,hudOccluders=hudView.occluders;
 const showNotice=hudView.showNotice;
-const inputController=createInput({document,window,canvas,overlay,dialog,stick,keys,taps,pendingTaps,touchFx,hover,pickupState,clearHover,getGame:()=>game,tapClock,reduceMotion,hudOccluders,pause,syncOverlay,resize,setStatsVisible,prefs,hudView,setRenderDirty:()=>{renderDirty=true;},getCamera:()=>camera,getSize:()=>({width:innerWidth,height:innerHeight}),getStyle:el=>getComputedStyle(el)});
+const inputController=createInput({document,window,canvas,overlay,dialog,stick,keys,taps,pendingTaps,touchFx,hover,pickupState,clearHover,getGame:()=>game,tapClock,reduceMotion,hudOccluders,pause,resume,syncOverlay,resize,setStatsVisible,prefs,hudView,setRenderDirty:()=>{renderDirty=true;},getCamera:()=>camera,getSize:()=>({width:innerWidth,height:innerHeight}),getStyle:el=>getComputedStyle(el)});
 function input(){return inputController.input();}
 function syncStats(){hudView.syncStats({fps,game,calls:renderer.info.render.calls,quality:prefs.quality});}
 function setStatsVisible(value,persist=true){prefs.stats=Boolean(value);hud.stats.hidden=!prefs.stats;if(prefs.stats)syncStats();if(persist)settings.save();}
@@ -140,12 +140,9 @@ const tapAxes=pickupController.tapAxes;
 function resolveTaps(){pickupController.resolveTaps();}
 function resolveHover(realDt){pickupController.resolveHover(realDt);}
 function effects(dt){
- const heard=new Set();
+ sfx.playEvents(game.events);
  for(const event of game.events){
-  // A large area rescue can free dozens of friends in the same frame.
-  // Keep every visual burst, but never create dozens of audio voices at once.
-  // Ally beams and bolt hits are frequent and quiet: they get no voice of their own.
-  if(!event.kind.startsWith('ally')&&event.kind!=='hit'&&!heard.has(event.kind)&&heard.size<4){heard.add(event.kind);sfx.play(event.kind);}
+  // Sound selection never removes or reorders visual events.
   if(event.kind==='rescue'){fx.burst(event.x,event.z);hudView.bump();}
   else if(event.kind==='hurt')hudView.hurt();
   else if(event.kind==='boss')showNotice(event.boss==='big'?'大首領「星冠守護者」來襲！':'小首領「補丁隊長」出現了！',event.boss==='big'?'big':'boss',2.8,3);
@@ -178,6 +175,7 @@ function loop(now){
  if(active)resolveTaps();
  resolveHover(realDt);
  updateCamera();
+ sfx.setActive(game.status==='running'&&!document.hidden);
  if(active)effects(dt);else{fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);}
  if(active||renderDirty){syncModels();hudView.sync(game);renderDirty=false;}
  else crowd.sync(null,{dirty:false});

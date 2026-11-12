@@ -32,6 +32,7 @@ function segmented(name,label,choices,current){
 }
 function syncOverlay(){
  const game=getGame();
+ sfx.setActive(game.status==='running'&&!document.hidden);
  // A second pickup can follow the first without leaving the pickup state.
  const statusKey=game.status+':'+(game.pendingPickup?.id??'');
  if(getLastStatus()===statusKey)return;
@@ -45,6 +46,7 @@ function syncOverlay(){
   dialog.innerHTML=`<div class="pause-head"><h2 id="dialogTitle">暫停中</h2><p class="run-line">${formatClock(game.time)} · 救回 ${game.saved} · Lv. ${game.level}</p></div>`
    +`<div class="settings-columns"><section class="settings-group" aria-label="畫面與聲音">`
    +`<label class="setting">音效音量 <input id="volume" type="range" min="0" max="1" step=".05" value="${prefs.volume}"></label>`
+   +`<div class="setting"><span>全部靜音</span><button id="muteAudio" type="button" aria-pressed="${prefs.muted}" aria-label="全部靜音">${prefs.muted?'已靜音':'未靜音'}</button></div>`
    +segmented('quality','畫面品質',QUALITY_CHOICES,prefs.quality)
    +`<label class="setting">觸控特效<input id="touchFxOn" type="checkbox" ${prefs.touchFx?'checked':''}></label>`
    +`<label class="setting" title="電腦也可以按 F3 切換">顯示效能數字<input id="showStats" type="checkbox" ${prefs.stats?'checked':''}></label></section>`
@@ -55,8 +57,9 @@ function syncOverlay(){
    +`<div class="pause-actions"><button id="resume" class="primary">繼續救援 ${iconSvg('i-play')}</button><button id="restart" class="secondary">重新開始 · 隨機世界</button></div>`;
   for(const [value] of HERO_CHOICES)$('#nextHero-'+value).onchange=e=>{prefs.hero=e.target.value==='polar'?'polar':'pudding';settings.save();};
   for(const [value] of QUALITY_CHOICES)$('#quality-'+value).onchange=e=>{setQuality(e.target.value);settings.save();};
-  $('#volume').oninput=e=>{prefs.volume=Number(e.target.value);sfx.unlock();settings.save();};
+  $('#volume').oninput=e=>{prefs.volume=Number(e.target.value);sfx.syncSettings();sfx.unlock();settings.save();};
   $('#volume').onchange=()=>settings.save();
+  $('#muteAudio').onclick=e=>{prefs.muted=!prefs.muted;e.currentTarget.setAttribute('aria-pressed',String(prefs.muted));e.currentTarget.textContent=prefs.muted?'已靜音':'未靜音';sfx.syncSettings();if(!prefs.muted)sfx.unlock();settings.save();};
   $('#autoEquip').onchange=e=>setAutoEquip(e.target.checked);
   $('#autoChoose').onchange=e=>{prefs.autoChoose=Boolean(e.target.checked);settings.save();};
   $('#touchFxOn').onchange=e=>{prefs.touchFx=Boolean(e.target.checked);touchFx.setEnabled(prefs.touchFx);settings.save();};

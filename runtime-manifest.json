@@ -56,8 +56,8 @@
     },
     {
       "path": "audio.js",
-      "bytes": 1375,
-      "sha256": "1a8e4c60dd965881ed4d4733e9f91caec9b40036129051a54c5dc9256ac5e985"
+      "bytes": 5057,
+      "sha256": "b60a38c8a6803b6aa6b2ee043f34915ab018da23ace5889d23233ef9131e2d3a"
     },
     {
       "path": "boss-visuals.js",
@@ -96,8 +96,8 @@
     },
     {
       "path": "dialogs.js",
-      "bytes": 10974,
-      "sha256": "8191db803875846d3555f4ff5a4bee445a4600438f1403e3f277579ce92d74ea"
+      "bytes": 11502,
+      "sha256": "c6e4ad08fa5bf75c0ced0d7cfe450da13a7b05ce2470e1696d08773e1e58ea07"
     },
     {
       "path": "effects.js",
@@ -121,8 +121,8 @@
     },
     {
       "path": "input-controller.js",
-      "bytes": 7307,
-      "sha256": "09b39b8aff7d7a04c0c8eedf6432a2dce051f8a49763596c2754178665a24ab3"
+      "bytes": 7295,
+      "sha256": "a039ceb5282213904e366335ac2323b6616ea7e2d4d2519b60dd2f3816a0c02b"
     },
     {
       "path": "keyboard.js",
@@ -136,8 +136,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 18333,
-      "sha256": "ce50dda3f3b358b0989c3ff55c30526ab6c0adf89bc2743b01bef133c4a58dd4"
+      "bytes": 18113,
+      "sha256": "00daa2ef90897b0e0fdcc4ed5338af07ec2db20ea55db3584413f50f1fbed1c5"
     },
     {
       "path": "maps.js",
@@ -156,8 +156,8 @@
     },
     {
       "path": "settings-store.js",
-      "bytes": 1296,
-      "sha256": "5b5a81795221215fcf3a5575bb8df72628eafbb3cd6653beb84e76cb2051e1ca"
+      "bytes": 1332,
+      "sha256": "1489a83c42290c8bb80d27271cb6c3578ec9e36badad94d1b7936a67e6cb0195"
     },
     {
       "path": "shader-warmup.js",
@@ -181,8 +181,8 @@
     },
     {
       "path": "ui.js",
-      "bytes": 15453,
-      "sha256": "f44a0de4815efc2b99963c0aaaaadba29dbc156ecb8eb33d1f6acff4980bcbc1"
+      "bytes": 15525,
+      "sha256": "7d08dbb85cb8c16539525d418fdf93bbdc21a96d1efa27f4bbc7522071eb4d2a"
     },
     {
       "path": "vendor/THREE-LICENSE.txt",
