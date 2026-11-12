@@ -36,6 +36,7 @@ import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 import {createChromeTelemetry} from './chrome-q2-telemetry.mjs';
+import {validateV3Options,assertV3State,v3Sizes} from './v3-ui-contracts.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const CHROME=process.env.CHROME||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -50,6 +51,8 @@ const storageView=process.argv.includes('--storage-contexts')&&onlyViews?.length
 const requireSwiftShader=process.argv.includes('--require-swiftshader');
 const CHECK_TIMEOUT_MS=Number(process.env.CHECK_TIMEOUT_MS||240000),CDP_TIMEOUT_MS=Number(process.env.CDP_TIMEOUT_MS||60000),SETUP_TIMEOUT_MS=Number(process.env.SETUP_TIMEOUT_MS||15000);
 const selfTest=process.argv.find(a=>a.startsWith('--self-test='))?.slice(12);
+const runV3=process.argv.includes('--v3-audio');
+validateV3Options({enabled:runV3,shots,views:onlyViews,noPickup:!runPickup,dialogs:runDialogs,selfTest});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 if(typeof WebSocket!=='function'){console.error('Needs a global WebSocket: Node 22+, or Node 20 with --experimental-websocket');process.exit(2);}
 if(!fs.existsSync(CHROME)){console.error('Google Chrome not found; set CHROME=/path/to/chrome');process.exit(2);}
@@ -391,7 +394,7 @@ for(const view of runPickup?VIEWS.filter(v=>onlyViews?onlyViews.includes(`${v.wi
   const s=await page.eval("({settings:__T.qa.settings,hero:document.querySelector('#heroSelect').value,auto:localStorage.getItem('plush-rescue:auto-equip'),status:__T.qa.game.status,time:__T.qa.game.time,stats:!document.querySelector('#stats').hidden})");
   // Restore first (what was stored comes back), then the expected values of this viewport's run.
   assert.deepEqual(s.settings,JSON.parse(storedBeforeReload),'reload restores what was stored');
-  assert.deepEqual(s.settings,{quality:'low',volume:.65,hero:'polar',stats:true,autoChoose:false,touchFx:true});assert.equal(s.auto,'true');assert.equal(s.status,'ready');assert.equal(s.time,0);assert.equal(s.stats,true);assert.equal(s.hero,'polar');
+  assert.deepEqual(s.settings,{quality:'low',volume:.65,muted:false,hero:'polar',stats:true,autoChoose:false,touchFx:true});assert.equal(s.auto,'true');assert.equal(s.status,'ready');assert.equal(s.time,0);assert.equal(s.stats,true);assert.equal(s.hero,'polar');
  });
  await page.close();await send('Target.disposeBrowserContext',{browserContextId});
 }
@@ -400,7 +403,7 @@ if(runPickup&&runStorageContexts)await check('a separate browser profile context
  const {browserContextId}=await send('Target.createBrowserContext');let page,failed;
  try{
   page=await openPage({...storageView,context:browserContextId});
-  assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
+  assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,muted:false,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
  }catch(e){failed=e}
  try{await page?.close();}catch(e){failed??=e}
  try{await send('Target.disposeBrowserContext',{browserContextId});}catch(e){failed??=e}
@@ -413,7 +416,7 @@ if(runPickup&&runStorageContexts)await check('blocked localStorage: the game run
   assert.equal(await page.eval("(()=>{try{localStorage;return 'open'}catch{return 'blocked'}})()"),'blocked');
   await begin(page,false);await page.click('#pause');await page.eval("(()=>{document.querySelector('#quality-high').click();})()");
   await page.click('#resume');assert.ok(await tapDrop(page,{mobile:false,where:'labelLeft'}),'taps work without storage');
-  await page.reload();assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
+  await page.reload();assert.deepEqual(await page.eval('__T.qa.settings'),{quality:'balanced',volume:.25,muted:false,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
  }catch(e){failed=e}
  try{await page?.close();}catch(e){failed??=e}
  try{await send('Target.disposeBrowserContext',{browserContextId});}catch(e){failed??=e}
@@ -444,10 +447,16 @@ if(onlyViews){
  const unused=STICKY_VIEWS.filter(v=>!onlyViews.includes(`${v.width}x${v.height}`)).map(v=>v.name);
  if(unused.length)console.error(`SKIP sticky dialog check for ${unused.join(', ')}: not in --views=${onlyViews.join(',')}`);
 }
-for(const view of STICKY_VIEWS.filter(v=>!onlyViews||onlyViews.includes(`${v.width}x${v.height}`))){
+for(const view of runV3?v3Sizes.map(size=>STICKY_VIEWS.find(v=>v.name===size)):STICKY_VIEWS.filter(v=>!onlyViews||onlyViews.includes(`${v.width}x${v.height}`))){
  await check(`${view.name}: start and resume are fully visible on open; every other control stays reachable`,async()=>{
-  const page=await openPage({...view,logInputs:true});
+  const context=runV3?(await send('Target.createBrowserContext')).browserContextId:undefined;
+  let page;
   try{
+   page=await openPage({...view,logInputs:true,...(context?{context}:{})});
+   if(runV3){
+    await page.eval("(async()=>{const ui=await import('/ui.js');ui.writeSettings(localStorage,{...ui.defaultSettings(),volume:0});})()");
+    await page.reload();
+   }
    for(const [state,primary,last] of [['ready','#start','.random-note'],['paused','#resume','#restart']]){
     if(state==='paused'){await page.eval("document.querySelector('#start').click();0");await page.frames(2);await page.eval('__PLUSH_QA__.pause();0');await page.frames(2);}
     lastDiag=await page.eval("({status:__PLUSH_QA__.game.status,time:__PLUSH_QA__.game.time,visibility:document.visibilityState,focused:document.activeElement?.id,inputs:__inputs})");
@@ -458,8 +467,22 @@ for(const view of STICKY_VIEWS.filter(v=>!onlyViews||onlyViews.includes(`${v.wid
     assert.deepEqual(r.underBar,[],`${state}: every setting clear of the sticky button's ring`);
     assert.ok(r.endOnTop,`${state}: ${last} uncovered at the end of the dialog`);
    }
-  }finally{await page.close();}
+   if(runV3){
+    // An isolated, silent fixture; this opt-in path does not change Q2's matrix.
+    // The first ready phase cannot create audio; force volume zero before Start.
+    const readMute=()=>page.eval(`(()=>{const e=document.querySelector('#muteAudio'),r=e.getBoundingClientRect(),top=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return {status:__T.qa.game.status,muted:__T.qa.settings.muted,volume:__T.qa.settings.volume,pressed:e.getAttribute('aria-pressed'),text:e.textContent,visible:r.width>0&&r.height>0&&r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=innerWidth&&(top===e||e.contains(top))};})()`);
+    await page.eval("document.querySelector('#muteAudio').scrollIntoView({block:'center'});0");await page.frames(2);
+    assertV3State(await readMute(),false);
+    await page.shot(`v3-${view.name}-unmuted`);
+    await page.click('#muteAudio');
+    assertV3State(await readMute(),true);
+    await page.shot(`v3-${view.name}-muted`);
+    await page.click('#muteAudio');
+    assertV3State(await readMute(),false);
+   }
+  }finally{try{await page?.close();}finally{if(context)await send('Target.disposeBrowserContext',{browserContextId:context});}}
  });
+ if(runV3&&results.some(r=>!r.ok))throw new Error('V3 stops after the first failed viewport');
 }
 
 // ---- dialog reachability (--dialogs) -----------------------------------------------------
