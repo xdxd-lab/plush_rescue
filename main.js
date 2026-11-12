@@ -22,9 +22,10 @@ import {createPickup} from './pickup.js';
 import {createInput} from './input-controller.js';
 import {createRenderSync} from './render-sync.js';
 import {createWarmupGame,warmupCoverage,finishWarmup,shouldWarmup} from './shader-warmup.js';
+import {showWebGLStartError} from './webgl-recovery.js';
 import {createTapTracker,createHoverTracker,dropHitShape,pickDropAt,readSettings,readRecords} from './ui.js';
 const $=s=>document.querySelector(s),canvas=$('#world'),overlay=$('#overlay'),dialog=$('#dialog');
-let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){dialog.innerHTML='<h2>需要 3D 圖形支援</h2><p>請使用支援 WebGL 的瀏覽器，並開啟硬體加速後再試。</p>';throw e;}
+let renderer;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){showWebGLStartError({dialog,overlay,location});throw e;}
 // three.js reads every shader's compile log synchronously while this is on, which stalls
 // the first frame of each new material; production skips it, ?debug=1 keeps it.
 renderer.debug.checkShaderErrors=new URLSearchParams(location.search).get('debug')==='1';

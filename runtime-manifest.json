@@ -136,8 +136,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 18354,
-      "sha256": "f329d742da1169bd5ab7f6e72ab3cdc26ce785951a3d51c133699d1871a688fd"
+      "bytes": 18330,
+      "sha256": "2a3dc7aea0bb198652187ab3749322b248f293a8d2026dd5e98f8b0314a8fc67"
     },
     {
       "path": "maps.js",
@@ -171,8 +171,8 @@
     },
     {
       "path": "style.css",
-      "bytes": 35208,
-      "sha256": "bf558ba544b80a42a84bc46b7252ab0ce698a212ac78afd39d998d85e8e786c2"
+      "bytes": 35534,
+      "sha256": "eb7ae575c751cef1d3ec2dc45ac3441e87a2e8728a1459a309e2e3e307b34fcb"
     },
     {
       "path": "touch-visuals.js",
@@ -208,6 +208,11 @@
       "path": "weapons.js",
       "bytes": 2066,
       "sha256": "c90d851a097646455317cb5df273914b0b2cde73b0a6c24687ef78b6df25dbef"
+    },
+    {
+      "path": "webgl-recovery.js",
+      "bytes": 1081,
+      "sha256": "ced3ac23719e865b4c4ca6d0892476c2b726489c8663722212d5190ba380f87f"
     }
   ]
 }

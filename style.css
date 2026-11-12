@@ -203,6 +203,8 @@ h2{font-size:27px}
 .intro-actions,.pause-actions{display:contents}
 #start,#resume{--ring:12px;position:sticky;bottom:calc(var(--ring) - var(--pad-b));z-index:2;box-shadow:0 5px 0 var(--d-primary-shadow),0 0 0 var(--ring) var(--d-bg2)}
 #start:active,#resume:active{box-shadow:0 2px 0 var(--d-primary-shadow),0 0 0 var(--ring) var(--d-bg2)}
+.dialog[data-state="webgl-error"] #retryWebGL{--ring:9px;position:sticky;bottom:calc(var(--ring) - var(--pad-b));z-index:2;box-shadow:0 5px 0 var(--d-primary-shadow),0 0 0 var(--ring) var(--d-bg2)}
+.dialog[data-state="webgl-error"] #retryWebGL:active{box-shadow:0 2px 0 var(--d-primary-shadow),0 0 0 var(--ring) var(--d-bg2)}
 .secondary{background:var(--d-secondary);color:var(--d-secondary-text);box-shadow:0 4px 0 #d3c5ad}
 .secondary:hover{background:#e2d6c1}
 .text-button{border:0;background:none;color:var(--d-dim);text-decoration:underline;text-underline-offset:3px;font-size:13px;padding:10px 14px;min-height:44px;margin-top:6px}

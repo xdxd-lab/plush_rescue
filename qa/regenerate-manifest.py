@@ -22,7 +22,7 @@ RUNTIME = [
     'crowd.js', 'dialogs.js', 'effects.js', 'enemy-visuals.js', 'hud.js', 'index.html', 'input-controller.js', 'keyboard.js', 'lighting.js', 'main.js',
     'maps.js', 'pickup.js', 'render-sync.js', 'settings-store.js', 'shader-warmup.js', 'shot-visuals.js', 'style.css', 'touch-visuals.js', 'ui.js',
     'vendor/THREE-LICENSE.txt', 'vendor/three.core.js', 'vendor/three.module.js',
-    'weapon-visuals.js', 'weapons.js',
+    'weapon-visuals.js', 'weapons.js', 'webgl-recovery.js',
 ]
 
 manifest_path = ROOT / 'runtime-manifest.json'
