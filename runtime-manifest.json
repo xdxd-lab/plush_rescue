@@ -1,7 +1,7 @@
 {
   "version": "12.6.1",
   "revision": "v12.6.1-webgl-recovery-r1",
-  "source_commit": "5620c06",
+  "source_commit": "1572971",
   "layout": "Static V12.6.1: accessible WebGL startup reload; bounded QA frame measurement; existing portrait framing and game rules preserved",
   "files": [
     {
@@ -66,8 +66,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 293,
-      "sha256": "4a29c27494eb70e1849d6b93bbb254aa43e80a3c3d760f6da48b8194b6c8d4d7"
+      "bytes": 323,
+      "sha256": "ca17828190c035be0752ecbbc06f3c2985f53c4be63c139effdecf4e74387e24"
     },
     {
       "path": "camera.js",
