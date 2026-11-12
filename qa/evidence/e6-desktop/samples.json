@@ -1,0 +1,7070 @@
+{
+  "schema": "e6-frame-v2",
+  "config": {
+    "viewport": [
+      1280,
+      720
+    ],
+    "dpr": 1,
+    "quality": "balanced",
+    "seed": 20261112,
+    "warmupFrames": 60,
+    "sampleFrames": 180,
+    "runs": 3,
+    "requestedBackend": "hardware",
+    "roundDeadlineMs": 90000
+  },
+  "source": {
+    "node": "v24.22.1",
+    "os": "darwin 27.2.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Max",
+    "chrome": "Google Chrome 157.0.8103.51",
+    "commit": "885afbe1243c10748178c7c0df2ead26e3200394"
+  },
+  "actualBackend": {
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "vendor": "WebKit",
+    "renderer": "WebKit WebGL",
+    "unmaskedAvailable": true,
+    "unmaskedVendor": "Google Inc. (Apple)",
+    "unmaskedRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Max, Unspecified Version)",
+    "buffer": [
+      1280,
+      720
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario": "low-load-running",
+      "run": 1,
+      "fixture": {
+        "enemies": 0,
+        "bosses": 0,
+        "hazards": 0,
+        "allies": 0,
+        "rescued": 0
+      },
+      "projection": {
+        "boss": [],
+        "hazard": [],
+        "ally": []
+      },
+      "models": {
+        "bosses": 0,
+        "hazards": 0,
+        "allies": 0
+      },
+      "style": {
+        "rules": 240,
+        "dialogWidth": "480px"
+      },
+      "warmup": {
+        "ready": true,
+        "error": null,
+        "runs": 1
+      },
+      "actualGL": {
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "unmaskedAvailable": true,
+        "unmaskedVendor": "Google Inc. (Apple)",
+        "unmaskedRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Max, Unspecified Version)",
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "screenshot": "e6-hardware-low-load-running-1.png",
+      "samples": [
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 0.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 0.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 0.8999999761581421,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 3,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.699999988079071,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 3.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 2.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 0.8999999761581421,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.899999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.399999976158142,
+          "renderCpuMs": 0.6000000238418579,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 0.6000000238418579,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 0.6000000238418579,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 0.30000001192092896,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 0.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.6000000238418579,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 0.8999999761581421,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.700000017881393,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 3.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 3.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.100000023841858,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.600000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 3,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.600000023841858,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.899999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 18,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 3.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.600000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.799999982118607,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        }
+      ],
+      "summary": {
+        "rafIntervalMs": {
+          "median": 16.599999994039536,
+          "p95": 17.400000005960464,
+          "p99": 17.700000017881393,
+          "max": 18
+        },
+        "renderCpuMs": {
+          "median": 1.7999999821186066,
+          "p95": 2.9000000059604645,
+          "p99": 3.199999988079071,
+          "max": 3.2999999821186066
+        },
+        "calls": {
+          "median": 212,
+          "p95": 212,
+          "p99": 212,
+          "max": 212
+        },
+        "triangles": {
+          "median": 721332,
+          "p95": 721332,
+          "p99": 721332,
+          "max": 721332
+        }
+      }
+    },
+    {
+      "scenario": "low-load-running",
+      "run": 2,
+      "fixture": {
+        "enemies": 0,
+        "bosses": 0,
+        "hazards": 0,
+        "allies": 0,
+        "rescued": 0
+      },
+      "projection": {
+        "boss": [],
+        "hazard": [],
+        "ally": []
+      },
+      "models": {
+        "bosses": 0,
+        "hazards": 0,
+        "allies": 0
+      },
+      "style": {
+        "rules": 240,
+        "dialogWidth": "480px"
+      },
+      "warmup": {
+        "ready": true,
+        "error": null,
+        "runs": 1
+      },
+      "actualGL": {
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "unmaskedAvailable": true,
+        "unmaskedVendor": "Google Inc. (Apple)",
+        "unmaskedRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Max, Unspecified Version)",
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "screenshot": "e6-hardware-low-load-running-2.png",
+      "samples": [
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 0.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 0.6000000238418579,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.700000017881393,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.80000001192093,
+          "renderCpuMs": 1.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 3.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.699999988079071,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 3.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 6.200000017881393,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 0.8999999761581421,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 1.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.799999982118607,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.200000017881393,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 2.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.699999988079071,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 0.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 2.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.699999988079071,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 0.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 0.6000000238418579,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 0.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 0.6000000238418579,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 0.30000001192092896,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 0.30000001192092896,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 0.29999998211860657,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 0.3999999761581421,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.100000023841858,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.600000023841858,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 3.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.100000023841858,
+          "renderCpuMs": 3,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 0.8999999761581421,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.700000017881393,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.600000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 0.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 3.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.899999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.200000017881393,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.200000017881393,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 3.600000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.699999988079071,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.399999976158142,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.5,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.599999994039536,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 1.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.899999976158142,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 3.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.699999988079071,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        }
+      ],
+      "summary": {
+        "rafIntervalMs": {
+          "median": 16.69999998807907,
+          "p95": 17.400000005960464,
+          "p99": 17.599999994039536,
+          "max": 17.80000001192093
+        },
+        "renderCpuMs": {
+          "median": 1.2999999821186066,
+          "p95": 2.9000000059604645,
+          "p99": 3.600000023841858,
+          "max": 6.200000017881393
+        },
+        "calls": {
+          "median": 212,
+          "p95": 212,
+          "p99": 212,
+          "max": 212
+        },
+        "triangles": {
+          "median": 721332,
+          "p95": 721332,
+          "p99": 721332,
+          "max": 721332
+        }
+      }
+    },
+    {
+      "scenario": "low-load-running",
+      "run": 3,
+      "fixture": {
+        "enemies": 0,
+        "bosses": 0,
+        "hazards": 0,
+        "allies": 0,
+        "rescued": 0
+      },
+      "projection": {
+        "boss": [],
+        "hazard": [],
+        "ally": []
+      },
+      "models": {
+        "bosses": 0,
+        "hazards": 0,
+        "allies": 0
+      },
+      "style": {
+        "rules": 240,
+        "dialogWidth": "480px"
+      },
+      "warmup": {
+        "ready": true,
+        "error": null,
+        "runs": 1
+      },
+      "actualGL": {
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "unmaskedAvailable": true,
+        "unmaskedVendor": "Google Inc. (Apple)",
+        "unmaskedRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Max, Unspecified Version)",
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "screenshot": "e6-hardware-low-load-running-3.png",
+      "samples": [
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 0.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.599999994039536,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 0.6000000238418579,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 0.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.700000017881393,
+          "renderCpuMs": 0.8999999761581421,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.899999976158142,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 0.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.799999982118607,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.200000017881393,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.5,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 18,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.099999994039536,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 0.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.399999976158142,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.600000023841858,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.5,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 18.19999998807907,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.69999998807907,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.300000011920929,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.399999976158142,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.899999976158142,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 0.29999998211860657,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 0.30000001192092896,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 0.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 0.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 0.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 0.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.900000005960464,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 0.8999999761581421,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 3.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.099999994039536,
+          "renderCpuMs": 0.5999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 18.099999994039536,
+          "renderCpuMs": 3.300000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 14.900000005960464,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 0.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 3,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 2.899999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.899999976158142,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.900000005960464,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.700000017881393,
+          "renderCpuMs": 1.7999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.099999994039536,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.799999982118607,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.899999976158142,
+          "renderCpuMs": 1.5,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.7000000178813934,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.700000017881393,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.100000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 1,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.200000017881393,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 2.600000023841858,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 0.699999988079071,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 0.800000011920929,
+          "calls": 212,
+          "triangles": 721332
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 212,
+          "triangles": 721332
+        }
+      ],
+      "summary": {
+        "rafIntervalMs": {
+          "median": 16.69999998807907,
+          "p95": 17.69999998807907,
+          "p99": 18.099999994039536,
+          "max": 18.19999998807907
+        },
+        "renderCpuMs": {
+          "median": 1.5,
+          "p95": 2.699999988079071,
+          "p99": 3.300000011920929,
+          "max": 3.300000011920929
+        },
+        "calls": {
+          "median": 212,
+          "p95": 212,
+          "p99": 212,
+          "max": 212
+        },
+        "triangles": {
+          "median": 721332,
+          "p95": 721332,
+          "p99": 721332,
+          "max": 721332
+        }
+      }
+    },
+    {
+      "scenario": "dense",
+      "run": 1,
+      "fixture": {
+        "enemies": 26,
+        "bosses": 2,
+        "hazards": 2,
+        "allies": 2,
+        "rescued": 8
+      },
+      "projection": {
+        "boss": [
+          {
+            "x": -0.19523196484531716,
+            "y": 0.06008251893804808,
+            "z": 0.9948745633362395,
+            "inViewport": true
+          },
+          {
+            "x": -0.07570112223808839,
+            "y": -0.22747357299818963,
+            "z": 0.9938134510790502,
+            "inViewport": true
+          }
+        ],
+        "hazard": [
+          {
+            "x": -0.19523196484531716,
+            "y": 0.06008251893804808,
+            "z": 0.9948745633362395,
+            "inViewport": true
+          },
+          {
+            "x": -0.07570112223808839,
+            "y": -0.22747357299818963,
+            "z": 0.9938134510790502,
+            "inViewport": true
+          }
+        ],
+        "ally": [
+          {
+            "x": -0.19523196484531716,
+            "y": 0.06008251893804808,
+            "z": 0.9948745633362395,
+            "inViewport": true
+          },
+          {
+            "x": -0.07570112223808839,
+            "y": -0.22747357299818963,
+            "z": 0.9938134510790502,
+            "inViewport": true
+          }
+        ]
+      },
+      "models": {
+        "bosses": 2,
+        "hazards": 2,
+        "allies": 2
+      },
+      "style": {
+        "rules": 240,
+        "dialogWidth": "480px"
+      },
+      "warmup": {
+        "ready": true,
+        "error": null,
+        "runs": 1
+      },
+      "actualGL": {
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "unmaskedAvailable": true,
+        "unmaskedVendor": "Google Inc. (Apple)",
+        "unmaskedRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Max, Unspecified Version)",
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "screenshot": "e6-hardware-dense-1.png",
+      "samples": [
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.600000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 3.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.099999994039536,
+          "renderCpuMs": 3.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.300000011920929,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 3.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 2.7999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 4.200000017881393,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.200000017881393,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.600000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 19.400000005960464,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 14,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 3.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 4.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.19999998807907,
+          "renderCpuMs": 3.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.5,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 1.600000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.799999982118607,
+          "renderCpuMs": 3,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 14.800000011920929,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.400000005960464,
+          "renderCpuMs": 3.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 14.799999982118607,
+          "renderCpuMs": 4.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.599999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.900000005960464,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 14.699999988079071,
+          "renderCpuMs": 2.600000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 3.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.700000017881393,
+          "renderCpuMs": 3.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 14.599999994039536,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 3.7999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 4,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.400000005960464,
+          "renderCpuMs": 3.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.099999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.399999976158142,
+          "renderCpuMs": 3.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.400000005960464,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.899999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.899999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18,
+          "renderCpuMs": 4.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.400000005960464,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 3.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 19.19999998807907,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 14.300000011920929,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.400000005960464,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 14.799999982118607,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 3.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 1.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 4,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 3.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        }
+      ],
+      "summary": {
+        "rafIntervalMs": {
+          "median": 16.69999998807907,
+          "p95": 18.19999998807907,
+          "p99": 19.19999998807907,
+          "max": 19.400000005960464
+        },
+        "renderCpuMs": {
+          "median": 2.300000011920929,
+          "p95": 3.5999999940395355,
+          "p99": 4.300000011920929,
+          "max": 4.300000011920929
+        },
+        "calls": {
+          "median": 495,
+          "p95": 495,
+          "p99": 495,
+          "max": 495
+        },
+        "triangles": {
+          "median": 1422036,
+          "p95": 1422036,
+          "p99": 1422036,
+          "max": 1422036
+        }
+      }
+    },
+    {
+      "scenario": "dense",
+      "run": 2,
+      "fixture": {
+        "enemies": 26,
+        "bosses": 2,
+        "hazards": 2,
+        "allies": 2,
+        "rescued": 8
+      },
+      "projection": {
+        "boss": [
+          {
+            "x": -0.19523196484531716,
+            "y": 0.06008251893804808,
+            "z": 0.9948745633362395,
+            "inViewport": true
+          },
+          {
+            "x": -0.07570112223808839,
+            "y": -0.22747357299818963,
+            "z": 0.9938134510790502,
+            "inViewport": true
+          }
+        ],
+        "hazard": [
+          {
+            "x": -0.19523196484531716,
+            "y": 0.06008251893804808,
+            "z": 0.9948745633362395,
+            "inViewport": true
+          },
+          {
+            "x": -0.07570112223808839,
+            "y": -0.22747357299818963,
+            "z": 0.9938134510790502,
+            "inViewport": true
+          }
+        ],
+        "ally": [
+          {
+            "x": -0.19523196484531716,
+            "y": 0.06008251893804808,
+            "z": 0.9948745633362395,
+            "inViewport": true
+          },
+          {
+            "x": -0.07570112223808839,
+            "y": -0.22747357299818963,
+            "z": 0.9938134510790502,
+            "inViewport": true
+          }
+        ]
+      },
+      "models": {
+        "bosses": 2,
+        "hazards": 2,
+        "allies": 2
+      },
+      "style": {
+        "rules": 240,
+        "dialogWidth": "480px"
+      },
+      "warmup": {
+        "ready": true,
+        "error": null,
+        "runs": 1
+      },
+      "actualGL": {
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "unmaskedAvailable": true,
+        "unmaskedVendor": "Google Inc. (Apple)",
+        "unmaskedRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Max, Unspecified Version)",
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "screenshot": "e6-hardware-dense-2.png",
+      "samples": [
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.100000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 1.7999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.699999988079071,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 1.899999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.69999998807907,
+          "renderCpuMs": 4.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 14.300000011920929,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.7999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.600000023841858,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.69999998807907,
+          "renderCpuMs": 3.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 4.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 4.799999982118607,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 3.600000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 3.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.100000023841858,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 3.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.599999994039536,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.69999998807907,
+          "renderCpuMs": 3.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 3.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.5,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.799999982118607,
+          "renderCpuMs": 4.200000017881393,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.799999982118607,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18,
+          "renderCpuMs": 3.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 3.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.200000017881393,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.100000023841858,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 1.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.899999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 3.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 3.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.700000017881393,
+          "renderCpuMs": 1.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 3.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.799999982118607,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 3.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 3,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18,
+          "renderCpuMs": 3.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 3,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 4,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.200000017881393,
+          "renderCpuMs": 3.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 3.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.200000017881393,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.399999976158142,
+          "renderCpuMs": 4.100000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.600000023841858,
+          "renderCpuMs": 3.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.099999994039536,
+          "renderCpuMs": 3.600000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.5,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 3.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.599999994039536,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.19999998807907,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.300000011920929,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.19999998807907,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 3,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.300000011920929,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.100000023841858,
+          "renderCpuMs": 1.7999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.7999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        }
+      ],
+      "summary": {
+        "rafIntervalMs": {
+          "median": 16.599999994039536,
+          "p95": 17.69999998807907,
+          "p99": 18.399999976158142,
+          "max": 18.69999998807907
+        },
+        "renderCpuMs": {
+          "median": 2,
+          "p95": 3.800000011920929,
+          "p99": 4.5999999940395355,
+          "max": 4.799999982118607
+        },
+        "calls": {
+          "median": 495,
+          "p95": 495,
+          "p99": 495,
+          "max": 495
+        },
+        "triangles": {
+          "median": 1422036,
+          "p95": 1422036,
+          "p99": 1422036,
+          "max": 1422036
+        }
+      }
+    },
+    {
+      "scenario": "dense",
+      "run": 3,
+      "fixture": {
+        "enemies": 26,
+        "bosses": 2,
+        "hazards": 2,
+        "allies": 2,
+        "rescued": 8
+      },
+      "projection": {
+        "boss": [
+          {
+            "x": -0.19523196484531716,
+            "y": 0.06008251893804808,
+            "z": 0.9948745633362395,
+            "inViewport": true
+          },
+          {
+            "x": -0.07570112223808839,
+            "y": -0.22747357299818963,
+            "z": 0.9938134510790502,
+            "inViewport": true
+          }
+        ],
+        "hazard": [
+          {
+            "x": -0.19523196484531716,
+            "y": 0.06008251893804808,
+            "z": 0.9948745633362395,
+            "inViewport": true
+          },
+          {
+            "x": -0.07570112223808839,
+            "y": -0.22747357299818963,
+            "z": 0.9938134510790502,
+            "inViewport": true
+          }
+        ],
+        "ally": [
+          {
+            "x": -0.19523196484531716,
+            "y": 0.06008251893804808,
+            "z": 0.9948745633362395,
+            "inViewport": true
+          },
+          {
+            "x": -0.07570112223808839,
+            "y": -0.22747357299818963,
+            "z": 0.9938134510790502,
+            "inViewport": true
+          }
+        ]
+      },
+      "models": {
+        "bosses": 2,
+        "hazards": 2,
+        "allies": 2
+      },
+      "style": {
+        "rules": 240,
+        "dialogWidth": "480px"
+      },
+      "warmup": {
+        "ready": true,
+        "error": null,
+        "runs": 1
+      },
+      "actualGL": {
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "unmaskedAvailable": true,
+        "unmaskedVendor": "Google Inc. (Apple)",
+        "unmaskedRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Max, Unspecified Version)",
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "screenshot": "e6-hardware-dense-3.png",
+      "samples": [
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 4.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 3.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.099999994039536,
+          "renderCpuMs": 4,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.700000017881393,
+          "renderCpuMs": 3.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.099999994039536,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.099999994039536,
+          "renderCpuMs": 4,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 3,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.900000005960464,
+          "renderCpuMs": 1.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.299999982118607,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.80000001192093,
+          "renderCpuMs": 3.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 3.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 3.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 4.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.400000005960464,
+          "renderCpuMs": 3.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 14.900000005960464,
+          "renderCpuMs": 3,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 3.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.599999994039536,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.599999994039536,
+          "renderCpuMs": 3.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18.600000023841858,
+          "renderCpuMs": 3.899999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.7999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 1.899999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.399999976158142,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 1.899999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.699999988079071,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.099999994039536,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 1.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 1.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 1.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 1.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.399999976158142,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 1.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 1.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 1.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 1.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.899999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.19999998807907,
+          "renderCpuMs": 1.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.200000017881393,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.299999982118607,
+          "renderCpuMs": 2,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.899999976158142,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.80000001192093,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 1.899999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 4,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.699999988079071,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.7000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.600000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.80000001192093,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 18,
+          "renderCpuMs": 3.100000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.600000023841858,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.5,
+          "renderCpuMs": 2.399999976158142,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.69999998807907,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.30000001192093,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.9000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 4.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.900000005960464,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17,
+          "renderCpuMs": 2.7999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.700000017881393,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.600000023841858,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.400000005960464,
+          "renderCpuMs": 2.199999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.899999976158142,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.400000005960464,
+          "renderCpuMs": 2.0999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.5,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.799999982118607,
+          "renderCpuMs": 2.2000000178813934,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 15.800000011920929,
+          "renderCpuMs": 2.4000000059604645,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.5,
+          "renderCpuMs": 2.699999988079071,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.600000023841858,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 17.30000001192093,
+          "renderCpuMs": 3.800000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.099999994039536,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.700000017881393,
+          "renderCpuMs": 2.5,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.2999999821186066,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.599999994039536,
+          "renderCpuMs": 2.5999999940395355,
+          "calls": 495,
+          "triangles": 1422036
+        },
+        {
+          "rafIntervalMs": 16.69999998807907,
+          "renderCpuMs": 2.300000011920929,
+          "calls": 495,
+          "triangles": 1422036
+        }
+      ],
+      "summary": {
+        "rafIntervalMs": {
+          "median": 16.600000023841858,
+          "p95": 17.599999994039536,
+          "p99": 18.400000005960464,
+          "max": 18.600000023841858
+        },
+        "renderCpuMs": {
+          "median": 2.300000011920929,
+          "p95": 3.699999988079071,
+          "p99": 4.0999999940395355,
+          "max": 4.0999999940395355
+        },
+        "calls": {
+          "median": 495,
+          "p95": 495,
+          "p99": 495,
+          "max": 495
+        },
+        "triangles": {
+          "median": 1422036,
+          "p95": 1422036,
+          "p99": 1422036,
+          "max": 1422036
+        }
+      }
+    }
+  ],
+  "limits": {
+    "rafP95Ms": 16.7,
+    "kind": "provisional 60 Hz target; not a hardware acceptance gate"
+  },
+  "hardwareBudget": "observed on this desktop only; thresholds require review",
+  "success": true,
+  "actualBackendClass": "hardware-reported",
+  "public_copy_note": "Only screenshot paths were changed to relative filenames; all 1080 samples and measured values are retained. Budget derivation is separate."
+}

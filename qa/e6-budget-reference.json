@@ -1,0 +1,42 @@
+{
+  "schema": "e6-budget-reference-v1",
+  "status": "provisional-review-only",
+  "basisCommit": "885afbe1243c10748178c7c0df2ead26e3200394",
+  "independentBudgetValidation": false,
+  "ciGate": false,
+  "scope": {
+    "browser": "Chrome 157.0.8103.51 headless",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Max, Unspecified Version)",
+    "viewport": [
+      1280,
+      720
+    ],
+    "dpr": 1,
+    "quality": "balanced",
+    "map": 0,
+    "seed": 20261112,
+    "warmupRenderCount": 60,
+    "samplesPerRun": 180,
+    "runsPerScenario": 3,
+    "simulation": "Game.step frozen; controlled static scene"
+  },
+  "scenarios": {
+    "low-load-running": {
+      "renderStartIntervalP95Ms": 19,
+      "renderCpuP95Ms": 4,
+      "callsPerRender": 235,
+      "trianglesPerRender": 800000
+    },
+    "dense": {
+      "renderStartIntervalP95Ms": 20,
+      "renderCpuP95Ms": 5,
+      "callsPerRender": 545,
+      "trianglesPerRender": 1570000
+    }
+  },
+  "limits": [
+    "Derived from this same six-run dataset; not independent acceptance evidence",
+    "renderCpu is JavaScript submission duration, not GPU time",
+    "Recalibrate for another hardware/browser/scene/quality; no phone or foreground FPS/energy claim"
+  ]
+}

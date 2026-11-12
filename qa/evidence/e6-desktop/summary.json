@@ -1,0 +1,149 @@
+{
+  "schema": "e6-independent-summary-v1",
+  "testedHead": "885afbe1243c10748178c7c0df2ead26e3200394",
+  "baseline": "5e8ebe02ef7fef75098ee30e43bad95721efe43b",
+  "previousCandidate": "a1dc4cfa3b76786c4f651b9ff9b7dd1d8ef38384",
+  "worktreeClean": true,
+  "runtimeBytesIdenticalToPreviousCandidate": true,
+  "runtimeFileCount": 42,
+  "offline": {
+    "nodeTests": {
+      "exit": 0,
+      "passed": 237,
+      "failed": 0,
+      "skipped": 0
+    },
+    "domSmoke": {
+      "exit": 0,
+      "passed": 89,
+      "method": "DOM/API stub; not browser/WebGL"
+    },
+    "verifyExport": {
+      "exit": 0,
+      "runtimeHashes": 42,
+      "nonRootReferences": 84
+    },
+    "diffCheck": {
+      "exit": 0
+    }
+  },
+  "environment": {
+    "release": "12.6.1",
+    "node": "v24.22.1",
+    "nodeSha256": "4f0f73aa8c10cbf8f5caa825488203f1049ee08c76e70067678dde1cdf1160ea",
+    "chrome": "Google Chrome 157.0.8103.51",
+    "host": "darwin 27.2.0 arm64; Apple M4 Max"
+  },
+  "hardware": {
+    "success": true,
+    "runs": 6,
+    "samplesPerRun": 180,
+    "actualBackendClass": "hardware-reported",
+    "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "unmaskedVendor": "Google Inc. (Apple)",
+    "unmaskedRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Max, Unspecified Version)",
+    "scenarios": {
+      "low-load-running": {
+        "runs": [
+          {
+            "rafP95Ms": 17.4,
+            "rafP99Ms": 17.7,
+            "rafMaxMs": 18.0,
+            "above16_7": 73,
+            "above16_7Percent": 40.6,
+            "renderCpuP95Ms": 2.9,
+            "renderCpuP99Ms": 3.2,
+            "renderCpuMaxMs": 3.3,
+            "calls": 212,
+            "triangles": 721332
+          },
+          {
+            "rafP95Ms": 17.4,
+            "rafP99Ms": 17.6,
+            "rafMaxMs": 17.8,
+            "above16_7": 85,
+            "above16_7Percent": 47.2,
+            "renderCpuP95Ms": 2.9,
+            "renderCpuP99Ms": 3.6,
+            "renderCpuMaxMs": 6.2,
+            "calls": 212,
+            "triangles": 721332
+          },
+          {
+            "rafP95Ms": 17.7,
+            "rafP99Ms": 18.1,
+            "rafMaxMs": 18.2,
+            "above16_7": 83,
+            "above16_7Percent": 46.1,
+            "renderCpuP95Ms": 2.7,
+            "renderCpuP99Ms": 3.3,
+            "renderCpuMaxMs": 3.3,
+            "calls": 212,
+            "triangles": 721332
+          }
+        ]
+      },
+      "dense": {
+        "counts": {
+          "enemies": 26,
+          "bosses": 2,
+          "hazards": 2,
+          "allies": 2,
+          "rescued": 8
+        },
+        "runs": [
+          {
+            "rafP95Ms": 18.2,
+            "rafP99Ms": 19.2,
+            "rafMaxMs": 19.4,
+            "above16_7": 72,
+            "above16_7Percent": 40.0,
+            "renderCpuP95Ms": 3.6,
+            "renderCpuP99Ms": 4.3,
+            "renderCpuMaxMs": 4.3,
+            "calls": 495,
+            "triangles": 1422036
+          },
+          {
+            "rafP95Ms": 17.7,
+            "rafP99Ms": 18.4,
+            "rafMaxMs": 18.7,
+            "above16_7": 79,
+            "above16_7Percent": 43.9,
+            "renderCpuP95Ms": 3.8,
+            "renderCpuP99Ms": 4.6,
+            "renderCpuMaxMs": 4.8,
+            "calls": 495,
+            "triangles": 1422036
+          },
+          {
+            "rafP95Ms": 17.6,
+            "rafP99Ms": 18.4,
+            "rafMaxMs": 18.6,
+            "above16_7": 77,
+            "above16_7Percent": 42.8,
+            "renderCpuP95Ms": 3.7,
+            "renderCpuP99Ms": 4.1,
+            "renderCpuMaxMs": 4.1,
+            "calls": 495,
+            "triangles": 1422036
+          }
+        ]
+      }
+    },
+    "performanceScope": "This Mac/headless/DPR1/balanced static QA fixture only; not mobile or foreground FPS/energy evidence."
+  },
+  "cleanupAbort": {
+    "signal": "SIGTERM",
+    "processExit": 1,
+    "measurementSuccess": false,
+    "runsCompleted": 0,
+    "cleanupFailureReported": false,
+    "noE6ProcessOrProfileAfterExit": true,
+    "ephemeralDevToolsPortRefusedInRun": true
+  },
+  "artifacts": {
+    "samples": "samples.json",
+    "pngCount": 6
+  }
+}

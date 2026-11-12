@@ -1,8 +1,8 @@
 # 待辦與議題索引
 
-更新快照：2026-11-12，v12.6.0 發布後的 QA／文件批次。此索引使用固定代號；最新討論與狀態以各 GitHub Issue 為準。
+更新快照：2026-11-12，v12.6.1 候選驗收批次。此索引使用固定代號；最新討論與狀態以各 GitHub Issue 為準。
 
-建立 Issue 是保留需求與決策紀錄，**不代表所有提案都已批准實作**。先前已授權 D1、D2、R1、R2、E5、Q5、Q3、E4、R4、V2；本批追加 Q2、Q6、D4、S3，其他工作另行安排。P1 為優先，括號標記適用時機；P2 為後續改善，P3 為探索。
+建立 Issue 是保留需求與決策紀錄，**不代表所有提案都已批准實作**。先前已授權 D1、D2、R1、R2、E5、Q5、Q3、E4、R4、V2，以及 Q2、Q6、D4、S3；本批已授權 V4、E6、D3、D4、Q3，其他工作另行安排。P1 為優先，括號標記適用時機；P2 為後續改善，P3 為探索。
 
 ## 已轉為議題的項目
 
@@ -12,7 +12,7 @@
 |---|---|---|---|---|
 | E4 | P2 | 繼續拆分 main.js | 已完成／v12.5.1 | [#1](https://github.com/xdxd-lab/plush_rescue/issues/1) |
 | E5 | P2 | Core 整理與決定性測試 | 已完成／v12.5.1 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
-| E6 | P2 | 建立渲染效能預算 | 待量測 | [#3](https://github.com/xdxd-lab/plush_rescue/issues/3) |
+| E6 | P2 | 建立渲染效能預算 | 桌面受控基準與暫定預算首階段已完成；待本版正式交付後結案 | [#3](https://github.com/xdxd-lab/plush_rescue/issues/3) |
 | E7 | P2 | 暫停時的繪製與耗電 | 待量測／提案 | [#4](https://github.com/xdxd-lab/plush_rescue/issues/4) |
 | Q2 | P2 | 瀏覽器測試納入 CI | Linux 單／雙輪診斷及主線單尺寸 Chrome gate／Pages 部署驗收通過；範圍見議題 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
 | Q3 | P1 | 補齊 Safari 與窄視窗跨瀏覽器回歸 | v12.6.0 Firefox 三尺寸完整矩陣通過；Safari 等開啟遠端自動化後驗證 | [#6](https://github.com/xdxd-lab/plush_rescue/issues/6) |
@@ -21,7 +21,7 @@
 | Q6 | P2 | 真人平衡與長局測試 | 可重現 core-only 長局基準與試玩表已備妥；真人驗收未完成 | [#9](https://github.com/xdxd-lab/plush_rescue/issues/9) |
 | V2 | P2 | 粒子與特效素材整合 | 首階段命中 star_09 試點完成／v12.6.0；其餘 17 格未接入 | [#10](https://github.com/xdxd-lab/plush_rescue/issues/10) |
 | V3 | P3 | 背景音樂與音效 | 候選待決定 | [#11](https://github.com/xdxd-lab/plush_rescue/issues/11) |
-| V4 | P2 | WebGL 啟動失敗復原 | 待查／提案 | [#12](https://github.com/xdxd-lab/plush_rescue/issues/12) |
+| V4 | P2 | WebGL 啟動失敗復原 | 已實作，最終候選完整瀏覽器回歸中 | [#12](https://github.com/xdxd-lab/plush_rescue/issues/12) |
 | S2 | P1（商用前） | 專案 LICENSE 與商用 IP 策略 | 待決定 | [#13](https://github.com/xdxd-lab/plush_rescue/issues/13) |
 | S3 | P2 | 品牌原圖與衍生流程保全 | 原圖核對與限定同機副本完成；逐位元重製未驗、離機另由 R1／R2 追蹤 | [#14](https://github.com/xdxd-lab/plush_rescue/issues/14) |
 | R1 | P1（清理前） | 更新專案與環境安全備份 | 非私密專案快照已準備；私密／離機保存方式待選 | [#15](https://github.com/xdxd-lab/plush_rescue/issues/15) |
@@ -29,7 +29,7 @@
 | R4 | P2 | 素材重建路徑可搬移化 | 可攜工具、來源、授權與獨立像素重建完成／v12.6.0 | [#17](https://github.com/xdxd-lab/plush_rescue/issues/17) |
 | D1 | P2 | 補齊可驗證的歷史 Tags 與 Releases | 本輪補建完成，保留紀錄 | [#18](https://github.com/xdxd-lab/plush_rescue/issues/18) |
 | D2 | P2 | 建立固定代號 GitHub 議題追蹤 | 索引與議題移轉完成，保留紀錄 | [#19](https://github.com/xdxd-lab/plush_rescue/issues/19) |
-| D3 | P2 | 雲端舊保存版本與資料保留 | 已盤點保存版本與工具能力；保留／清理決策未完成 | [#20](https://github.com/xdxd-lab/plush_rescue/issues/20) |
+| D3 | P2 | 雲端舊保存版本與資料保留 | 保留當前及全部歷史；清理能力與相應保全待確認 | [#20](https://github.com/xdxd-lab/plush_rescue/issues/20) |
 | D4 | P2 | 持續核對歷史文件文義 | 本批再核對一輪；版本歸屬與後續驗證連結已修正，持續未完成 | [#21](https://github.com/xdxd-lab/plush_rescue/issues/21) |
 
 ## 移轉前已完成的項目
@@ -59,5 +59,7 @@
 - D4依使用者要求保持未完成，本輪做過一次不代表永久完成。
 
 本批 Q2／Q6／D4／S3 的結果與限制見[後續驗證紀錄](quality-audit-2026-11-12.md)。Q2 先前失敗與排隊紀錄保留；主線 Chrome 部署依賴、限定驗證範圍與最終啟用證據見該紀錄及議題。
+
+後續 V4／E6／D3／D4／Q3 批次：桌面限定效能基準見[量測紀錄](render-baseline-2026-11-12.md)，保留方案見[雲端歷史紀錄](retention-review-2026-11-12.md)。Safari 本輪 session 仍被 Allow remote automation 阻擋，未列通過；D4 持續開啟。
 
 D3／D4 本輪限定盤點見[雲端歷史保留與文件核對](retention-review-2026-11-12.md)；兩項仍保持開啟，未刪除保存版本、分支或來源歷史。

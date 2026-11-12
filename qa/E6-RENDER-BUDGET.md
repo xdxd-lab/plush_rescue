@@ -16,3 +16,7 @@ CHROME='/path/to/chrome' node qa/e6-measure.mjs --backend=swiftshader --output=/
 JSON 的逐幀 `rafIntervalMs` 是兩次 render 呼叫開始間隔，包含排程／主執行緒負載，**不是直接的 rAF callback timestamp**；`renderCpuMs` 是 JS `renderer.render` 呼叫耗時，**不是 GPU time**；`calls`／`triangles` 來自 Three.js `renderer.info.render`，按目前預設 `autoReset` 表示該次 render 的計數，不修改 reset 模式。包裝在固定場景 `renderOnce` 之後才安裝，取樣期間只預期主迴圈 render。每欄記 median／p95／p99／max，原始樣本完整保留。QA 包裝本身有額外開銷，headless Chrome 也不等同前景遊戲。以 16.7 ms 作 60 Hz 的暫定參考線，硬體／畫質的正式 p95、draw-call、triangle 預算需依真實 renderer 結果審查後決定；軟體 renderer 只驗工具與回歸，不當手機 FPS、耗電或硬體 GPU 結論。`WEBGL_debug_renderer_info` 缺席或只回傳通用名稱時分類 `unknown`，不能推定硬體。Q4 實體裝置另驗，E7 暫停耗電不包含。
 
 語意依據：[Three.js WebGLRenderer.info](https://threejs.org/docs/pages/WebGLRenderer) 說明 `calls`／`triangles` 與預設自動重設；[MDN requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame) 說明回呼由瀏覽器安排，背景分頁可能暫停。量測器明列各輪原始數據與實際 renderer，供獨立審查。
+
+## 首階段桌面實測
+
+2026-11-12 的六輪 Apple M4 Max／ANGLE Metal 原始數據與方法見[桌面基準](../docs/render-baseline-2026-11-12.md)。[參考預算](e6-budget-reference.json)由同批數據導出，僅供相同環境逐輪人工複查，不是獨立通過證據或 CI gate。量測 JSON 的 hardwareBudget 欄保留工具當時未校準的快照，後續審核參考值另外記錄，不改寫原始量測結論。
