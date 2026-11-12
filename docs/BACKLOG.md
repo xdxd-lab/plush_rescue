@@ -14,7 +14,7 @@
 | E5 | P2 | Core 整理與決定性測試 | 已完成／v12.5.1 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
 | E6 | P2 | 建立渲染效能預算 | 待量測 | [#3](https://github.com/xdxd-lab/plush_rescue/issues/3) |
 | E7 | P2 | 暫停時的繪製與耗電 | 待量測／提案 | [#4](https://github.com/xdxd-lab/plush_rescue/issues/4) |
-| Q2 | P2 | 瀏覽器測試納入 CI | Linux 單／雙輪診斷通過、單尺寸 CI 已接入；主線啟用驗收見議題 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
+| Q2 | P2 | 瀏覽器測試納入 CI | Linux 單／雙輪診斷及主線單尺寸 Chrome gate／Pages 部署驗收通過；範圍見議題 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
 | Q3 | P1 | 補齊 Safari 與窄視窗跨瀏覽器回歸 | v12.6.0 Firefox 三尺寸完整矩陣通過；Safari 等開啟遠端自動化後驗證 | [#6](https://github.com/xdxd-lab/plush_rescue/issues/6) |
 | Q4 | P1 | 手機實機與長時間效能驗證 | 等設備 | [#7](https://github.com/xdxd-lab/plush_rescue/issues/7) |
 | Q5 | P2 | 可讀性、遮擋與減少動態效果 | 桌面限定驗證完成／v12.5.1，遮擋與真機限制見 QA 紀錄 | [#8](https://github.com/xdxd-lab/plush_rescue/issues/8) |
@@ -29,7 +29,7 @@
 | R4 | P2 | 素材重建路徑可搬移化 | 可攜工具、來源、授權與獨立像素重建完成／v12.6.0 | [#17](https://github.com/xdxd-lab/plush_rescue/issues/17) |
 | D1 | P2 | 補齊可驗證的歷史 Tags 與 Releases | 本輪補建完成，保留紀錄 | [#18](https://github.com/xdxd-lab/plush_rescue/issues/18) |
 | D2 | P2 | 建立固定代號 GitHub 議題追蹤 | 索引與議題移轉完成，保留紀錄 | [#19](https://github.com/xdxd-lab/plush_rescue/issues/19) |
-| D3 | P2 | 雲端舊保存版本與資料保留 | 待決定 | [#20](https://github.com/xdxd-lab/plush_rescue/issues/20) |
+| D3 | P2 | 雲端舊保存版本與資料保留 | 已盤點保存版本與工具能力；保留／清理決策未完成 | [#20](https://github.com/xdxd-lab/plush_rescue/issues/20) |
 | D4 | P2 | 持續核對歷史文件文義 | 本批再核對一輪；版本歸屬與後續驗證連結已修正，持續未完成 | [#21](https://github.com/xdxd-lab/plush_rescue/issues/21) |
 
 ## 移轉前已完成的項目
@@ -59,3 +59,5 @@
 - D4依使用者要求保持未完成，本輪做過一次不代表永久完成。
 
 本批 Q2／Q6／D4／S3 的結果與限制見[後續驗證紀錄](quality-audit-2026-11-12.md)。Q2 先前失敗與排隊紀錄保留；主線 Chrome 部署依賴、限定驗證範圍與最終啟用證據見該紀錄及議題。
+
+D3／D4 本輪限定盤點見[雲端歷史保留與文件核對](retention-review-2026-11-12.md)；兩項仍保持開啟，未刪除保存版本、分支或來源歷史。

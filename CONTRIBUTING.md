@@ -2,7 +2,7 @@
 
 本儲存庫是可直接部署到 GitHub Pages 的靜態遊戲，沒有建置步驟。`main` 分支的根目錄就是線上網站。
 
-`.github/workflows/ci-pages.yml` 會對每次推送與指向 `main` 的 PR 自動執行下方的必要檢查，並只在推送到 `main` 且檢查通過時部署。截至 v12.4.1（`3af4239`），本專案 Pages Source 已確認為 **GitHub Actions**，門檻已生效。移植到其他儲存庫時仍須核對設定（見 README「發布到 GitHub Pages」）；推送前也應完成下方檢查。
+`.github/workflows/ci-pages.yml` 會對每次推送與指向 `main` 的 PR 自動執行下方的必要檢查，並只在推送到 `main` 且檢查通過時部署。截至 v12.4.1（`3af4239`），本專案 Pages Source 已確認為 **GitHub Actions**，當時的 Node／DOM／export 門檻已生效；Linux Chrome 子集門檻於 v12.6.0 後的 Q2 批次追加，並在主線完成驗收。移植到其他儲存庫時仍須核對設定（見 README「發布到 GitHub Pages」）；推送前也應完成下方檢查。
 
 ## 語言
 
