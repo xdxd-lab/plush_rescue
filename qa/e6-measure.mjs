@@ -48,7 +48,8 @@ function fixtureScript(scenario){return `(()=>{
  g.step=()=>{};g.status='running';q.renderOnce();q.camera.updateMatrixWorld();
  const projected=list=>list.map(p=>{const v=q.camera.position.clone().set(p.x,.5,p.z).project(q.camera);return {x:v.x,y:v.y,z:v.z,inViewport:Math.abs(v.x)<=1&&Math.abs(v.y)<=1&&v.z>=-1&&v.z<=1}});
  const positions={boss:projected(g.enemies.filter(e=>e.boss)),hazard:projected(g.hazards),ally:projected(g.allies)};
- const models={bosses:q.bossVisuals.stats.bosses,hazards:q.bossVisuals.stats.hazards,allies:q.allyVisuals.stats.models};
+ // main.js exposes bossVisuals as a controller, but allyVisuals as its stats.
+ const models={bosses:q.bossVisuals.stats.bosses,hazards:q.bossVisuals.stats.hazards,allies:q.allyVisuals.models};
  if(${JSON.stringify(scenario)}==='dense'&&(!positions.boss.some(p=>p.inViewport)||!positions.hazard.some(p=>p.inViewport)||!positions.ally.some(p=>p.inViewport)||models.bosses<1||models.hazards<1||models.allies<1))throw Error('dense scene not visibly populated '+JSON.stringify({positions,models}));
  const gl=q.renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');
  const backend={version:gl.getParameter(gl.VERSION),vendor:gl.getParameter(gl.VENDOR),renderer:gl.getParameter(gl.RENDERER),unmaskedAvailable:!!ext,unmaskedVendor:ext?gl.getParameter(ext.UNMASKED_VENDOR_WEBGL):null,unmaskedRenderer:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):null,buffer:[gl.drawingBufferWidth,gl.drawingBufferHeight]};

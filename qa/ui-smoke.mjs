@@ -90,6 +90,17 @@ function key(keyName,target,extra={}){return {key:keyName,target,isComposing:fal
 const checks=[];function check(name,fn){fn();checks.push(name)}
 const h=setup();const {qa,el,run}=h;
 
+check('E6 QA getter contract: boss controller, ally/enemy/crowd stats, renderer and warmup',()=>{
+ assert.equal(typeof qa.bossVisuals.sync,'function');
+ assert.equal(typeof qa.bossVisuals.stats.bosses,'number');
+ assert.equal(typeof qa.bossVisuals.stats.hazards,'number');
+ assert.equal(typeof qa.allyVisuals.models,'number');
+ assert.equal(typeof qa.enemyVisuals.marks,'number');
+ assert.equal(typeof qa.crowd,'object');
+ assert.equal(typeof qa.renderer.render,'function');
+ assert.equal(typeof qa.shaderWarmup.ready,'boolean');
+});
+
 check('revision and build label match build-info.json',()=>{const {revision}=JSON.parse(fs.readFileSync(root+'build-info.json','utf8'));assert.equal(qa.revision,revision);assert.equal(el('game').attrs['data-build'],revision)});
 check('shader warm-up: production skips the synchronous shader log; ?debug=1 keeps it',()=>{
  assert.equal(qa.renderer.debug.checkShaderErrors,false);
