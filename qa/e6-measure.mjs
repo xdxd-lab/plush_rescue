@@ -16,6 +16,7 @@ const requestedBackend=process.argv.find(a=>a.startsWith('--backend='))?.slice(1
 if(!output||!chromePath||!fs.existsSync(chromePath))throw Error('set CHROME and --output=FILE');
 if(!['hardware','swiftshader'].includes(requestedBackend))throw Error('pass --backend=hardware|swiftshader');
 if(typeof WebSocket!=='function')throw Error('Node 22+ global WebSocket required');
+fs.mkdirSync(path.dirname(path.resolve(output)),{recursive:true});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const config={viewport:[1280,720],dpr:1,quality:'balanced',seed:20261112,warmupFrames:60,sampleFrames:180,runs:3,requestedBackend,roundDeadlineMs:90000};
 const scenarios=['low-load-running','dense'];
@@ -120,17 +121,28 @@ async function measure(scenario,run){
  finally{
   clearTimeout(roundTimer);
   abortCurrent=null;abort('cleanup');
-  let cleanupError=null;
+  const cleanupErrors=[];let browserStopped=!chrome?.pid;
   try{
-   if(chrome?.pid){if(!await childExited(chrome,3000)){try{process.kill(-chrome.pid,'SIGKILL');}catch{}if(!await childExited(chrome,2000))throw Error('Chrome did not exit');}
+   if(chrome?.pid){
+    if(!await childExited(chrome,3000)){try{process.kill(-chrome.pid,'SIGKILL');}catch{}if(!await childExited(chrome,2000))cleanupErrors.push('Chrome did not exit');}
     for(let i=0;i<30&&!await groupGone(chrome.pid);i++){try{process.kill(-chrome.pid,'SIGKILL');}catch{}await sleep(100);}
-    if(!await groupGone(chrome.pid))throw Error('owned Chrome process group remains');
+    if(!await groupGone(chrome.pid))cleanupErrors.push('owned Chrome process group remains');
     for(let i=0;i<20&&!await portRefused(port);i++)await sleep(100);
-    if(!await portRefused(port))throw Error('owned DevTools port remains open');}
-   if(server){server.closeAllConnections?.();await new Promise(resolve=>server.close(resolve));}
-   if(profile){fs.rmSync(profile,{recursive:true,force:true});if(fs.existsSync(profile))throw Error('profile remains');}
-  }catch(error){cleanupError=error;}
-  if(cleanupError)throw Error(`cleanup failed: ${cleanupError.message}${roundError?'; original: '+roundError.message:''}`);
+    if(!await portRefused(port))cleanupErrors.push('owned DevTools port remains open');
+    browserStopped=cleanupErrors.length===0;
+   }
+  }catch(error){cleanupErrors.push('browser cleanup: '+error.message);}
+  try{
+   if(server){server.closeAllConnections?.();await new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(Error('HTTP server close timeout')),3000);
+    server.close(error=>{clearTimeout(timer);error?reject(error):resolve();});
+   });}
+  }catch(error){cleanupErrors.push('HTTP cleanup: '+error.message);}
+  try{
+   if(profile&&browserStopped){fs.rmSync(profile,{recursive:true,force:true});if(fs.existsSync(profile))throw Error('profile remains');}
+   else if(profile)cleanupErrors.push('profile retained while Chrome or port may remain: '+profile);
+  }catch(error){cleanupErrors.push('profile cleanup: '+error.message);}
+  if(cleanupErrors.length)throw Error(`cleanup failed: ${cleanupErrors.join('; ')}${roundError?'; original: '+roundError.message:''}`);
  }
 }
 try{
