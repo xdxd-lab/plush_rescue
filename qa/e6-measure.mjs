@@ -55,7 +55,8 @@ async function measure(scenario,run){
  try{
   server=http.createServer((req,res)=>{const rel=decodeURIComponent(new URL(req.url,'http://x').pathname).replace(/^\/+/, '')||'index.html';const file=path.resolve(root,rel);
    if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404);res.end();return;}
-   res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.html')?'text/html':'application/octet-stream');res.setHeader('Cache-Control','no-store');fs.createReadStream(file).pipe(res);});
+   const mime=file.endsWith('.js')?'text/javascript':file.endsWith('.html')?'text/html':file.endsWith('.css')?'text/css':'application/octet-stream';
+   res.setHeader('Content-Type',mime);res.setHeader('Cache-Control','no-store');fs.createReadStream(file).pipe(res);});
   await new Promise(r=>server.listen(0,'127.0.0.1',r));
   profile=fs.mkdtempSync(path.join(os.tmpdir(),'plush-e6-'));
   const args=['--headless=new','--remote-debugging-port=0',`--user-data-dir=${profile}`,'--no-first-run','--no-default-browser-check','about:blank'];
