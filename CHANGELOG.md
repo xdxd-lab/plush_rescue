@@ -8,7 +8,7 @@
 
 | 版本 | `revision` | 發布提交 | `source_commit`（基礎） | 建議 tag |
 |---|---|---|---|---|
-| 12.6.1 | `v12.6.1-webgl-recovery-r1` | `v12.6.1` tag（發布後對應提交） | `1572971` | `v12.6.1` |
+| 12.6.1 | `v12.6.1-webgl-recovery-r1` | `5482305` | `1572971` | `v12.6.1` |
 | 12.6.0 | `v12.6.0-atlas-flash-r1` | `c8bb435` | `9a3431c` | `v12.6.0` |
 | 12.5.1 | `v12.5.1-core-modules-r1` | `949ff05` | `e6b8dd2` | `v12.5.1` |
 | 12.5.0 | `v12.5.0-warmup-contrast-r1` | `8aa4bed` | `daa2374` | `v12.5.0` |
@@ -38,6 +38,7 @@
 - **D3／D4：**盤點 Sites 22 個歷史保存版本與來源，明確保留現行及歷史、未刪除或改寫；可用工具未提供刪版／purge 能力。澄清歷史 CI 門檻與後續 Chrome 子集；D4 按使用者要求持續開啟。
 - **Q3 限制：**本輪 SafariDriver 實測建立 session 被拒，明確要求啟用 Allow remote automation；未更改設定或接管個人分頁。Safari 與實體手機仍未列通過。
 - **建置快照：**`build-info.json` 的 `validation_at_build` 記錄當時已完成的 Node／DOM／export 與 E6 硬體量測；後續固定候選的完整瀏覽器回歸結果在驗證文件與發布紀錄另外登錄，並非沿用舊版測試數。E6 的六輪原始樣本、原圖與暫定預算見[桌面基準](docs/render-baseline-2026-11-12.md)。
+- **最終驗證：**固定 `5482305` 的 Node 237/237、DOM 89、export 42 hashes／84 references／29 modules、完整 Chrome `--dialogs` 68 項及 28 個 dialog 情境通過。Chrome 使用 Node 20.18 + experimental-websocket 作 CDP client，正式 Node 測試為 24.22.1。Firefox 最後一次未埋點原矩陣在 1280／360／390 三尺寸通過；先前 360 frostwand hover 曾逾時，根因未明，原 FAIL 保留，Q3 不關閉或宣稱已修復／穩定。詳[完整範圍與原圖](docs/validation-v12.6.1.md)。
 
 ## V12.6.0：可攜素材來源與命中星光試點
 

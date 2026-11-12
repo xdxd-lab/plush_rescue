@@ -1,0 +1,137 @@
+{
+  "schema": "v12.6.1-browser-evidence-v1",
+  "testedCommit": "548230583f4aaa029f65bf0edd80b704a9cb1053",
+  "version": "12.6.1",
+  "offline": {
+    "node": "24.22.1",
+    "nodePassed": 237,
+    "domPassed": 89,
+    "runtimeHashes": 42,
+    "nonRootReferences": 84,
+    "jsModules": 29
+  },
+  "v4": {
+    "runId": "20261112T060640Z-a3d47aa4",
+    "method": "Real Three.js constructor failure by test-only getContext interception; two failures, trusted click/Enter reload, third navigation creates real WebGL",
+    "navigationChecks": {
+      "exactly_three_docs": true,
+      "first_and_second_error_dialog": true,
+      "no_qa_or_game_loop_on_failure": true,
+      "settings_unchanged_on_failure": true,
+      "settings_unchanged_on_success": true,
+      "trusted_click": true,
+      "trusted_enter": true,
+      "true_webgl_recovered": true,
+      "no_auto_reload_first_2s": true
+    },
+    "views": [
+      "320x568",
+      "360x640",
+      "390x844",
+      "568x320"
+    ],
+    "ownedCleanupVerified": true
+  },
+  "chrome": {
+    "runId": "20261112T061058Z-22a5968e",
+    "browser": "157.0.8103.51",
+    "clientNode": "20.18.0 with --experimental-websocket",
+    "execution": "elevated, isolated headless Chrome; SwiftShader",
+    "passed": 68,
+    "failed": 0,
+    "notRun": 0,
+    "fatal": null,
+    "consoleErrors": [],
+    "dialogRecordCount": 28,
+    "resultRecordCount": 69,
+    "timingEvidenceRecordCount": 1,
+    "ownedCleanupVerified": true
+  },
+  "firefox": {
+    "runId": "20261112T065120Z-e1860c25",
+    "browser": "160.0",
+    "geckodriver": "0.37.1",
+    "method": "Uninstrumented original functional matrix in an owned session with exact same-origin iframe viewports",
+    "ok": true,
+    "views": [
+      {
+        "target": [
+          1280,
+          720
+        ],
+        "observed": [
+          1280,
+          720,
+          1
+        ],
+        "childCanvas": [
+          1280,
+          720
+        ],
+        "trustedEventCount": 77,
+        "negativeControlPassed": true
+      },
+      {
+        "target": [
+          360,
+          640
+        ],
+        "observed": [
+          360,
+          640,
+          1
+        ],
+        "childCanvas": [
+          360,
+          640
+        ],
+        "trustedEventCount": 77,
+        "negativeControlPassed": true
+      },
+      {
+        "target": [
+          390,
+          844
+        ],
+        "observed": [
+          390,
+          844,
+          1
+        ],
+        "childCanvas": [
+          390,
+          844
+        ],
+        "trustedEventCount": 77,
+        "negativeControlPassed": true
+      }
+    ],
+    "ownedCleanupVerified": true
+  },
+  "retainedFailures": [
+    {
+      "runId": "20261112T060756Z-46d2a774",
+      "kind": "Chrome setup without DevTools in sandbox; no game checks started"
+    },
+    {
+      "runId": "20261112T062420Z-503b7466",
+      "kind": "Firefox 1280 passed, 360 frostwand hover pickup timed out, 390 not run; root cause unknown"
+    },
+    {
+      "runId": "20261112T063447Z-c363cc1d",
+      "kind": "Diagnostic tool missing projected z field; failed before target hover diagnosis"
+    }
+  ],
+  "diagnosticRun": {
+    "runId": "20261112T064538Z-0aeb6dd4",
+    "allViewsPassed": true,
+    "instrumented": true,
+    "notReplacementForOriginalMatrix": true
+  },
+  "limits": [
+    "One original Firefox confirmation pass does not erase the preceding timeout or establish stability/fix",
+    "Safari session still requires Allow remote automation; no Safari gameplay pass",
+    "Desktop iframe sizes are not real phone verification",
+    "No player-balance, foreground FPS, phone or energy benefit claim"
+  ]
+}

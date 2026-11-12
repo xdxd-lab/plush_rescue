@@ -364,3 +364,5 @@ sheet is deliberately unfilled until a participant is available:
 ## V12.6.1 recovery and E6 measurement
 
 `qa/webgl-recovery.test.mjs` checks the boot error helper and the pre-initialization failure path; real browser fault injection is required for layout, trusted input and reload recovery. `qa/e6-measure.mjs` is a diagnostic, not a CI performance gate. See [E6 protocol](E6-RENDER-BUDGET.md) for fixed scenes, actual backend classification, per-round deadlines, raw samples and cleanup limits. Build-time focused checks and later independent regression evidence are recorded separately.
+
+The fixed v12.6.1 candidate passed Node 237, DOM 89, export 42/84/29, the complete Chrome matrix (68 checks, Node 20.18 + experimental WebSocket client), and one final uninstrumented Firefox matrix at 1280/360/390. An earlier Firefox 360 frostwand-hover timeout remains unexplained; the later pass and instrumented diagnostic do not establish a fix or stability. Safari still requires remote automation. See the [scoped validation record](../docs/validation-v12.6.1.md) and original failure image; Q3 remains open.
