@@ -2,7 +2,7 @@ import {isInteractiveTarget,routeKeyDown} from './keyboard.js';
 import {eventTime,pointCovered} from './ui.js';
 import {screenToWorldAt} from './camera.js';
 
-export function createInput({document,window,canvas,overlay,dialog,stick,keys,taps,pendingTaps,touchFx,hover,pickupState,clearHover,getGame,tapClock,reduceMotion,hudOccluders,pause,syncOverlay,resize,setStatsVisible,prefs,hudView,setRenderDirty,getCamera,getSize,getStyle}){
+export function createInput({document,window,canvas,overlay,dialog,stick,keys,taps,pendingTaps,touchFx,hover,pickupState,clearHover,getGame,tapClock,reduceMotion,hudOccluders,pause,resume,syncOverlay,resize,setStatsVisible,prefs,hudView,setRenderDirty,getCamera,getSize,getStyle}){
  const $=selector=>document.querySelector(selector);
 function updateStick(){const el=$('#stick');el.style.display=stick.id===null?'none':'block';el.style.left=stick.origin.x+'px';el.style.top=stick.origin.y+'px';$('#knob').style.transform=`translate(${stick.x*34}px,${stick.z*34}px)`;}
 // A gesture can start on any non-interactive part of the game, including HUD
@@ -59,7 +59,7 @@ for(const type of ['pointerup','pointercancel','lostpointercapture'])document.ad
 function endStick(){const id=stick.id;stick.reset();if(id!==null&&canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);updateStick();}
 function clearInput(){touchFx.clear();clearHover();taps.clear();pendingTaps.length=0;endStick();keys.clear();}
 window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('resize',()=>{clearInput();resize();});
-window.addEventListener('keydown',e=>{const game=getGame();const action=routeKeyDown(e,game.status,keys);if(action==='pause')pause();else if(action==='resume'){game.resume();syncOverlay();}else if(action==='stats'){setStatsVisible(!prefs.stats);}else if(action?.startsWith('upgrade:')){dialog.querySelectorAll('[data-upgrade]')[Number(action.slice(8))-1]?.onclick?.();}});
+window.addEventListener('keydown',e=>{const game=getGame();const action=routeKeyDown(e,game.status,keys);if(action==='pause')pause();else if(action==='resume'){resume();}else if(action==='stats'){setStatsVisible(!prefs.stats);}else if(action?.startsWith('upgrade:')){dialog.querySelectorAll('[data-upgrade]')[Number(action.slice(8))-1]?.onclick?.();}});
 window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 // Keep keyboard navigation inside the active menu without changing native
 // checkbox, slider, select, Space, or Escape behavior.

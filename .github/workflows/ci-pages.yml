@@ -1,4 +1,4 @@
-# CI for every push and PR; GitHub Pages deployment only for a push to main whose tests and Chrome smoke pass.
+# CI for every push and PR; Pages only for a push to main after tests, Q2 and V3 pass.
 # As of v12.4.1 (3af4239), Settings → Pages → Source is "GitHub Actions" and this gate is active.
 # Keep that setting: switching back to branch deployment bypasses this workflow gate (see README.md).
 name: CI and Pages
@@ -49,9 +49,50 @@ jobs:
     with:
       matrix_runs: 1
 
-  # Packs the same commit after both independent checks pass.
+  # Independent V3 evidence; Q2's command, budget and result contract are unchanged.
+  v3-ui:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Identify Chrome and install CJK font
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p v3-artifacts
+          chrome="$(command -v google-chrome || command -v google-chrome-stable || true)"
+          test -n "$chrome"
+          echo "CHROME=$chrome" >> "$GITHUB_ENV"
+          "$chrome" --version | tee v3-artifacts/chrome-version.txt
+          node --version | tee v3-artifacts/node-version.txt
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk
+          version="$(dpkg-query -W -f='${Version}' fonts-noto-cjk)"
+          test -n "$version"
+          fc-match -f '%{family}\n%{file}\n' 'Noto Sans CJK TC:lang=zh-tw' > v3-artifacts/font-match.txt
+          printf 'fonts-noto-cjk %s\n' "$version" > v3-artifacts/font-package.txt
+          echo "V3_FONT_STATUS=installed" >> "$GITHUB_ENV"
+          echo "V3_FONT_VERSION=$version" >> "$GITHUB_ENV"
+      - name: Run one bounded V3 UI matrix
+        run: node qa/v3-ci-runner.mjs --output=v3-artifacts/run
+      - name: Upload original V3 evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v3-ui-${{ github.run_id }}-${{ github.run_attempt }}
+          path: v3-artifacts/
+          if-no-files-found: error
+          retention-days: 14
+
+  # Packs the same commit only after all independent checks pass.
   build-pages:
-    needs: [test, chrome-smoke]
+    needs: [test, chrome-smoke, v3-ui]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:

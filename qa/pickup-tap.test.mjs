@@ -298,11 +298,13 @@ test('remembered settings round-trip and validate every field on its own',()=>{
  const store=new Map(),storage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,v)};
  assert.deepEqual(ui.readSettings(storage),ui.defaultSettings());
  assert.ok(ui.writeSettings(storage,{quality:'high',volume:.6,hero:'polar',stats:true}));
- assert.deepEqual(ui.readSettings(storage),{quality:'high',volume:.6,hero:'polar',stats:true,autoChoose:false,touchFx:true});
+ assert.deepEqual(ui.readSettings(storage),{quality:'high',volume:.6,muted:false,hero:'polar',stats:true,autoChoose:false,touchFx:true});
  store.set(ui.SETTINGS_KEY,JSON.stringify({quality:'ultra',volume:7,hero:'dragon',stats:'yes'}));
- assert.deepEqual(ui.readSettings(storage),{quality:'balanced',volume:1,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
+ assert.deepEqual(ui.readSettings(storage),{quality:'balanced',volume:1,muted:false,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
  store.set(ui.SETTINGS_KEY,JSON.stringify({quality:'low',volume:-3,hero:'polar'}));
- assert.deepEqual(ui.readSettings(storage),{quality:'low',volume:0,hero:'polar',stats:false,autoChoose:false,touchFx:true},'valid fields survive invalid neighbours');
+ assert.deepEqual(ui.readSettings(storage),{quality:'low',volume:0,muted:false,hero:'polar',stats:false,autoChoose:false,touchFx:true},'valid fields survive invalid neighbours');
+ store.set(ui.SETTINGS_KEY,JSON.stringify({volume:0,muted:true}));assert.deepEqual(ui.readSettings(storage),{...ui.defaultSettings(),volume:0,muted:true},'legacy volume zero and explicit mute persist');
+ for(const invalid of ['false',1,null]){store.set(ui.SETTINGS_KEY,JSON.stringify({muted:invalid}));assert.equal(ui.readSettings(storage).muted,false,`muted rejects ${String(invalid)}`);}
  store.set(ui.SETTINGS_KEY,JSON.stringify({autoChoose:true}));assert.equal(ui.readSettings(storage).autoChoose,true);
  store.set(ui.SETTINGS_KEY,JSON.stringify({autoChoose:'yes'}));assert.equal(ui.readSettings(storage).autoChoose,false);
  for(const raw of ['{broken','null','42','"text"','[]'])store.set(ui.SETTINGS_KEY,raw),assert.deepEqual(ui.readSettings(storage),ui.defaultSettings(),raw);
@@ -329,25 +331,25 @@ test('writeSettings validates every field before storing and read-back is always
  const store=new Map(),storage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,v)};
  const written=()=>JSON.parse(store.get(ui.SETTINGS_KEY));
  const cases=[
-  [{quality:'ultra',volume:NaN,hero:'x',stats:'yes'},{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true}],
-  [{quality:'high',volume:Infinity,hero:'polar',stats:true},{quality:'high',volume:.25,hero:'polar',stats:true,autoChoose:false,touchFx:true}],
-  [{quality:'low',volume:9,hero:'polar',stats:false},{quality:'low',volume:1,hero:'polar',stats:false,autoChoose:false,touchFx:true}],
-  [{quality:'low',volume:-1},{quality:'low',volume:0,hero:'pudding',stats:false,autoChoose:false,touchFx:true}],
-  [{volume:'.5',extra:'ignored'},{quality:'balanced',volume:.25,hero:'pudding',stats:false,autoChoose:false,touchFx:true}],
+  [{quality:'ultra',volume:NaN,hero:'x',stats:'yes'},{quality:'balanced',volume:.25,muted:false,hero:'pudding',stats:false,autoChoose:false,touchFx:true}],
+  [{quality:'high',volume:Infinity,hero:'polar',stats:true},{quality:'high',volume:.25,muted:false,hero:'polar',stats:true,autoChoose:false,touchFx:true}],
+  [{quality:'low',volume:9,hero:'polar',stats:false},{quality:'low',volume:1,muted:false,hero:'polar',stats:false,autoChoose:false,touchFx:true}],
+  [{quality:'low',volume:-1},{quality:'low',volume:0,muted:false,hero:'pudding',stats:false,autoChoose:false,touchFx:true}],
+  [{volume:'.5',muted:'false',extra:'ignored'},{quality:'balanced',volume:.25,muted:false,hero:'pudding',stats:false,autoChoose:false,touchFx:true}],
   [null,ui.defaultSettings()],[undefined,ui.defaultSettings()],[42,ui.defaultSettings()],
  ];
  for(const [input,expected] of cases){
   assert.equal(ui.writeSettings(storage,input),true);assert.deepEqual(written(),expected,JSON.stringify(input));
   assert.deepEqual(ui.readSettings(storage),expected,'what was written reads back unchanged');
  }
- assert.deepEqual(Object.keys(written()).sort(),['autoChoose','hero','quality','stats','touchFx','volume'],'no stray keys are stored');
+ assert.deepEqual(Object.keys(written()).sort(),['autoChoose','hero','muted','quality','stats','touchFx','volume'],'no stray keys are stored');
 });
 
 test('settings survive a write → read round trip for every valid combination',()=>{
  const store=new Map(),storage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,v)};
- for(const quality of ui.QUALITIES)for(const hero of ui.HEROES)for(const stats of [true,false])for(const autoChoose of [true,false])for(const volume of [0,.05,.25,.6,1]){
-  const settings={quality,volume,hero,stats,autoChoose,touchFx:autoChoose};ui.writeSettings(storage,settings);assert.deepEqual(ui.readSettings(storage),settings);
+ for(const quality of ui.QUALITIES)for(const hero of ui.HEROES)for(const stats of [true,false])for(const autoChoose of [true,false])for(const muted of [true,false])for(const volume of [0,.05,.25,.6,1]){
+  const settings={quality,volume,muted,hero,stats,autoChoose,touchFx:autoChoose};ui.writeSettings(storage,settings);assert.deepEqual(ui.readSettings(storage),settings);
  }
- assert.deepEqual(ui.sanitizeSettings({quality:'low',volume:.5,hero:'polar',stats:true,autoChoose:true}),{quality:'low',volume:.5,hero:'polar',stats:true,autoChoose:true,touchFx:true});
+ assert.deepEqual(ui.sanitizeSettings({quality:'low',volume:.5,muted:true,hero:'polar',stats:true,autoChoose:true}),{quality:'low',volume:.5,muted:true,hero:'polar',stats:true,autoChoose:true,touchFx:true});
  assert.equal(ui.sanitizeSettings({touchFx:false}).touchFx,false);assert.equal(ui.sanitizeSettings({touchFx:'no'}).touchFx,true);
 });

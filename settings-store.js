@@ -10,9 +10,9 @@ export const AUTO_EQUIP_KEY='plush-rescue:auto-equip';
 
 export function createSettingsStore({getStorage}){
  const saved=readSettings(getStorage());
- const prefs={hero:saved.hero,quality:saved.quality,volume:saved.volume,stats:saved.stats,autoChoose:saved.autoChoose,touchFx:saved.touchFx,autoEquip:false};
+ const prefs={hero:saved.hero,quality:saved.quality,volume:saved.volume,muted:saved.muted,stats:saved.stats,autoChoose:saved.autoChoose,touchFx:saved.touchFx,autoEquip:false};
  try{prefs.autoEquip=getStorage().getItem(AUTO_EQUIP_KEY)==='true';}catch{}
- function save(){writeSettings(getStorage(),{quality:prefs.quality,volume:prefs.volume,hero:prefs.hero,stats:prefs.stats,autoChoose:prefs.autoChoose,touchFx:prefs.touchFx});}
+ function save(){writeSettings(getStorage(),{quality:prefs.quality,volume:prefs.volume,muted:prefs.muted,hero:prefs.hero,stats:prefs.stats,autoChoose:prefs.autoChoose,touchFx:prefs.touchFx});}
  function setAutoEquip(value){prefs.autoEquip=Boolean(value);try{getStorage().setItem(AUTO_EQUIP_KEY,String(prefs.autoEquip));}catch{}return prefs.autoEquip;}
  return {prefs,storage:getStorage,save,setAutoEquip};
 }
