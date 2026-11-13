@@ -138,7 +138,7 @@ function send(method,params={},sessionId,timeoutMs=CDP_TIMEOUT_MS){
  });
 }
 
-const errors=[],scrolled=new Set(),webglDiagnostics=[];
+const errors=[],scrolled=new Set(),webglDiagnostics=[],v3Evidence=[];
 async function openPage({width,height,mobile=false,scale=1,context=null,blockStorage=false,logInputs=false}){
  const {targetId}=await send('Target.createTarget',{url:'about:blank',...(context?{browserContextId:context}:{})});
  const {sessionId:s}=await send('Target.attachToTarget',{targetId,flatten:true});
@@ -456,6 +456,10 @@ for(const view of runV3?v3Sizes.map(size=>STICKY_VIEWS.find(v=>v.name===size)):S
    if(runV3){
     await page.eval("(async()=>{const ui=await import('/ui.js');ui.writeSettings(localStorage,{...ui.defaultSettings(),volume:0});})()");
     await page.reload();
+    const info=await page.eval("(()=>{const gl=__T.qa.renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return {renderer:gl.getParameter(ext?.UNMASKED_RENDERER_WEBGL??gl.RENDERER),version:gl.getParameter(gl.VERSION),width:innerWidth,height:innerHeight};})()");
+    assert.equal(info.width,view.width);assert.equal(info.height,view.height);assert.match(info.version,/WebGL/);
+    if(requireSwiftShader)assert.match(info.renderer,/SwiftShader/i,'V3 must observe software WebGL');
+    webglDiagnostics.push({view:view.name,...info});
    }
    for(const [state,primary,last] of [['ready','#start','.random-note'],['paused','#resume','#restart']]){
     if(state==='paused'){await page.eval("document.querySelector('#start').click();0");await page.frames(2);await page.eval('__PLUSH_QA__.pause();0');await page.frames(2);}
@@ -472,13 +476,14 @@ for(const view of runV3?v3Sizes.map(size=>STICKY_VIEWS.find(v=>v.name===size)):S
     // The first ready phase cannot create audio; force volume zero before Start.
     const readMute=()=>page.eval(`(()=>{const e=document.querySelector('#muteAudio'),r=e.getBoundingClientRect(),top=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return {status:__T.qa.game.status,muted:__T.qa.settings.muted,volume:__T.qa.settings.volume,pressed:e.getAttribute('aria-pressed'),text:e.textContent,visible:r.width>0&&r.height>0&&r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=innerWidth&&(top===e||e.contains(top))};})()`);
     await page.eval("document.querySelector('#muteAudio').scrollIntoView({block:'center'});0");await page.frames(2);
-    assertV3State(await readMute(),false);
+    const before=await readMute();assertV3State(before,false);
     await page.shot(`v3-${view.name}-unmuted`);
     await page.click('#muteAudio');
-    assertV3State(await readMute(),true);
+    const muted=await readMute();assertV3State(muted,true);
     await page.shot(`v3-${view.name}-muted`);
     await page.click('#muteAudio');
-    assertV3State(await readMute(),false);
+    const restored=await readMute();assertV3State(restored,false);
+    v3Evidence.push({view:view.name,before,muted,restored});
    }
   }finally{try{await page?.close();}finally{if(context)await send('Target.disposeBrowserContext',{browserContextId:context});}}
  });
@@ -616,5 +621,5 @@ try{await setup();if(selfTest)await runSelfTest();else await runAll();}
 catch(e){fatal=e;console.error(`fatal: ${e?.stack||e}`);fatalTelemetry=emitTelemetry('fatal');}
 finally{await cleanup();}
 const failed=results.filter(r=>!r.ok);
-console.log(JSON.stringify({method:'headless Google Chrome, SwiftShader-requested WebGL, DevTools-protocol input',chrome:CHROME,webglDiagnostics,aborted:run.aborted,fatal:fatal?String(fatal.message||fatal):null,cdpRefusedAfterAbort:run.cdpAfterAbort,selfTest:selfTest?{mode:selfTest,...selfTestReport}:undefined,passed:results.filter(r=>r.ok&&!r.note).length,failed:failed.length,notRun:results.filter(r=>r.notRun).length,consoleErrors:errors,dialogButtonsNeedingScroll:[...scrolled],dialogs,results,telemetry:telemetry.snapshot(),abortTelemetry,fatalTelemetry},null,1));
+console.log(JSON.stringify({method:'headless Google Chrome, SwiftShader-requested WebGL, DevTools-protocol input',chrome:CHROME,...(runV3?{v3Evidence}:{}),webglDiagnostics,aborted:run.aborted,fatal:fatal?String(fatal.message||fatal):null,cdpRefusedAfterAbort:run.cdpAfterAbort,selfTest:selfTest?{mode:selfTest,...selfTestReport}:undefined,passed:results.filter(r=>r.ok&&!r.note).length,failed:failed.length,notRun:results.filter(r=>r.notRun).length,consoleErrors:errors,dialogButtonsNeedingScroll:[...scrolled],dialogs,results,telemetry:telemetry.snapshot(),abortTelemetry,fatalTelemetry},null,1));
 process.exit(fatal||run.aborted||failed.length||errors.length?1:0);
