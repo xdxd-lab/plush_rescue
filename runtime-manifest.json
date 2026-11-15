@@ -136,8 +136,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 18333,
-      "sha256": "ce50dda3f3b358b0989c3ff55c30526ab6c0adf89bc2743b01bef133c4a58dd4"
+      "bytes": 19150,
+      "sha256": "81dcbbb79cd4d2765a4cb7f96ba7df61cb8f7551833c5a4fa11662dffa7be021"
     },
     {
       "path": "maps.js",
@@ -213,6 +213,11 @@
       "path": "webgl-recovery.js",
       "bytes": 1081,
       "sha256": "ced3ac23719e865b4c4ca6d0892476c2b726489c8663722212d5190ba380f87f"
+    },
+    {
+      "path": "paused-render.js",
+      "bytes": 1703,
+      "sha256": "5c77e0aa4edb175b5932b917e2a2524dca919b5a9cca44db9de3b9f92de65a05"
     }
   ]
 }

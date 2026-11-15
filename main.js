@@ -20,6 +20,7 @@ import {createHud} from './hud.js';
 import {createDialogs} from './dialogs.js';
 import {createPickup} from './pickup.js';
 import {createInput} from './input-controller.js';
+import {createPausedRenderGate,bindPausedRenderInvalidation} from './paused-render.js';
 import {createRenderSync} from './render-sync.js';
 import {createWarmupGame,warmupCoverage,finishWarmup,shouldWarmup} from './shader-warmup.js';
 import {showWebGLStartError} from './webgl-recovery.js';
@@ -39,6 +40,9 @@ const fill=new THREE.DirectionalLight('#c7daf1',0);fill.name='Low camera-side mo
 const settings=createSettingsStore({getStorage:()=>{try{return localStorage;}catch{return null;}}}),prefs=settings.prefs;
 const heroNames={pudding:'布丁狗',polar:'北極熊'};
 let game,map,hero,lastStatus='',frameTime=0,frames=0,fps=0,renderDirty=true;
+const pausedRender=createPausedRenderGate();
+bindPausedRenderInvalidation({gate:pausedRender,win:window,doc:document,canvas,overlay,dialog});
+let renderDpr=devicePixelRatio;
 // Auto-equip is stored on its own key; a failed write still applies for this session.
 function setAutoEquip(value){game.autoEquip=settings.setAutoEquip(value);}
 // V12 presentation state. It observes game events and state; it never changes gameplay.
@@ -83,7 +87,7 @@ function trackRun(){
  for(const [id,kind] of runTrack.aliveBosses)if(!next.has(id)){runTrack.bosses++;showNotice(game.bossAllies?(kind==='big'?'大首領':'首領')+`變成小夥伴，陪你戰鬥 ${ALLY.duration} 秒！`:(kind==='big'?'大首領被溫柔救回了！':'首領被溫柔救回了！'),'good',2.4,2);}
  runTrack.nextAlive=runTrack.aliveBosses;runTrack.aliveBosses=next;
 }
-function resize(){let w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio,prefs.quality==='high'?2:prefs.quality==='balanced'?1.6:1));fitGameCamera(camera,w,h);}
+function resize(){renderDirty=true;pausedRender.invalidate();let w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio,prefs.quality==='high'?2:prefs.quality==='balanced'?1.6:1));fitGameCamera(camera,w,h);}
 function setQuality(v){prefs.quality=v;renderer.shadowMap.enabled=v!=='low';renderer.shadowMap.needsUpdate=true;resize();}
 function clearInput(){inputController.clearInput();}
 function pause(){game.pause();clearInput();syncOverlay();}
@@ -168,6 +172,8 @@ for(const card of heroCards)card.onclick=()=>{if(card.dataset.hero===prefs.hero)
 function loop(now){
  requestAnimationFrame(loop);
  const realDt=(now-previous)/1000,dt=Math.min(.05,realDt);previous=now;
+ if(devicePixelRatio!==renderDpr){renderDpr=devicePixelRatio;resize();}
+ let redrawRequested=renderDirty;
  const active=game.status==='running',movement=input();
  if(active){
   hero.userData.animate?.(Math.min(LIMITS.duration,game.time+dt),Math.hypot(movement.x,movement.z)>.1);
@@ -179,11 +185,15 @@ function loop(now){
  resolveHover(realDt);
  updateCamera();
  if(active)effects(dt);else{fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);}
+ redrawRequested=redrawRequested||renderDirty;
  if(active||renderDirty){syncModels();hudView.sync(game);renderDirty=false;}
  else crowd.sync(null,{dirty:false});
- syncOverlay();choiceTimer.advance(realDt);renderer.render(scene,camera);
+ syncOverlay();choiceTimer.advance(realDt);
+ camera.updateMatrixWorld();
+ const renderKey=[innerWidth,innerHeight,devicePixelRatio,prefs.quality,document.visibilityState,...camera.matrixWorld.elements,...camera.projectionMatrix.elements].join(',');
+ if(pausedRender.shouldRender({status:game.status,dirty:redrawRequested||renderDirty,key:renderKey}))renderer.render(scene,camera);
  frameTime+=realDt;frames++;
  if(frameTime>.5){fps=Math.round(frames/frameTime);frameTime=0;frames=0;if(prefs.stats)syncStats();}
 }
 requestAnimationFrame(loop);
-window.__PLUSH_QA__={revision:'v12.6.1-webgl-recovery-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get hud(){return hudView;},get shaderWarmup(){return {...shaderWarmup,programs:renderer.info.programs?.length??0};},get presentation(){return {notice:hud.notice.textContent,noticeTimer:hudView.noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();startGame();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:pickupState.hoverPoint,moved:pickupState.hoverMoved,label:pickupState.hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);hudView.sync(game);syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
+window.__PLUSH_QA__={revision:'v12.6.1-webgl-recovery-r1',get records(){return readRecords(storage());},get settings(){return readSettings(storage());},get autoChoice(){return choiceTimer.state;},get choiceTimer(){return choiceTimer;},get audio(){return sfx;},get hud(){return hudView;},get shaderWarmup(){return {...shaderWarmup,programs:renderer.info.programs?.length??0};},get presentation(){return {notice:hud.notice.textContent,noticeTimer:hudView.noticeTimer,bossesRescued:runTrack.bosses,bossClock:hud.bossClockText.textContent};},get game(){return game;},get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},setMap(index){debugMap=String(index);reset();startGame();syncOverlay();},pause,resume,restart,get weaponVisuals(){return weaponVisuals;},get bossVisuals(){return bossVisuals;},get enemyVisuals(){return enemyVisuals.stats;},get shotVisuals(){return shotVisuals;},get allyVisuals(){return allyVisuals.stats;},quality:setQuality,limits:LIMITS,cameraSpec:CAMERA,screenToWorldInput,screenToWorldAt,get effects(){return {halos:fx.haloCount,particles:fx.particleCount};},previewRescue(){pausedRender.invalidate();fx.burst(game.player.x+1.6,game.player.z);},get crowd(){return crowd.stats;},get settingsStore(){return settings;},get input(){return {stick:{id:stick.id,x:stick.x,z:stick.z},hover:{id:hover.id,point:pickupState.hoverPoint,moved:pickupState.hoverMoved,label:pickupState.hoverLabel},taps:taps.size,keys:keys.size};},renderOnce(){pausedRender.invalidate();syncModels();updateCamera();fx.update(0,camera);weaponVisuals.update(0,[],game,camera,innerHeight);hudView.sync(game);syncOverlay();renderDirty=false;renderer.render(scene,camera);}};
