@@ -1,8 +1,8 @@
 {
-  "version": "12.6.1",
-  "revision": "v12.6.1-webgl-recovery-r1",
-  "source_commit": "1572971",
-  "layout": "Static V12.6.1: accessible WebGL startup reload; bounded QA frame measurement; existing portrait framing and game rules preserved",
+  "version": "12.6.2",
+  "revision": "v12.6.2-paused-render-r1",
+  "source_commit": "85331c8999c207bd14fb8a3fa0cef8f9b3d7d385",
+  "layout": "Static V12.6.2 local candidate: on-demand stable paused WebGL draws; gameplay and non-paused loop preserved; no energy claim",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -66,8 +66,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 323,
-      "sha256": "ca17828190c035be0752ecbbc06f3c2985f53c4be63c139effdecf4e74387e24"
+      "bytes": 424,
+      "sha256": "ce667093dc15b7f9d72812ee3a0a4ce16d18ed2427b362794f516561f4310a8a"
     },
     {
       "path": "camera.js",
@@ -116,8 +116,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13812,
-      "sha256": "782783b8a79dbb1c5c697838f3c43914a1220e2559078de02fcc83bed4935541"
+      "bytes": 13811,
+      "sha256": "ee6d80949016d5bc272ad5e2264b4606b771f7a7ade455626f30bf3634649655"
     },
     {
       "path": "input-controller.js",
@@ -136,13 +136,18 @@
     },
     {
       "path": "main.js",
-      "bytes": 19150,
-      "sha256": "81dcbbb79cd4d2765a4cb7f96ba7df61cb8f7551833c5a4fa11662dffa7be021"
+      "bytes": 19149,
+      "sha256": "6b4eef1a28a79a93fe5892cf90b6aa8cc1cad533d614d5a4f2fb66ca5de4170e"
     },
     {
       "path": "maps.js",
       "bytes": 45663,
       "sha256": "f582d0240116943835003799a867283a0792e37dbb10f737fc003fc72569b6d7"
+    },
+    {
+      "path": "paused-render.js",
+      "bytes": 1703,
+      "sha256": "5c77e0aa4edb175b5932b917e2a2524dca919b5a9cca44db9de3b9f92de65a05"
     },
     {
       "path": "pickup.js",
@@ -213,11 +218,6 @@
       "path": "webgl-recovery.js",
       "bytes": 1081,
       "sha256": "ced3ac23719e865b4c4ca6d0892476c2b726489c8663722212d5190ba380f87f"
-    },
-    {
-      "path": "paused-render.js",
-      "bytes": 1703,
-      "sha256": "5c77e0aa4edb175b5932b917e2a2524dca919b5a9cca44db9de3b9f92de65a05"
     }
   ]
 }

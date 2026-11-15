@@ -11,7 +11,7 @@
 | 方法 | 結果 | 證據邊界 |
 |---|---|---|
 | 完整 Node／DOM | c001 的 Node240/240、DOM90/90 | 離線契約，非實際 WebGL |
-| 匯出 | c001 的43執行檔雜湊、85引用；另有 JavaScript 語法檢查 | 正式 metadata 候選仍另做完整離線驗證 |
+| 匯出 | c001 的43執行檔雜湊、85引用；另有 JavaScript 語法檢查 | 正式 metadata 候選完整離線亦通過Node240、DOM90、43 hashes／85引用／30 JS模組語法 |
 | 同機前後量測 | 兩版本各6輪、每輪3階段，共36張圖。基準暫停每5秒窗300–301次render，候選六窗全0；running/resumed約60次/秒 | Apple M4 Max、ANGLE Metal、Chrome157、1280×720／DPR1、balanced、固定低載／密集場景；Game.step凍結，只量presentation；先基準後候選，非交錯實驗 |
 | 功能轉換 | 9項通過、10張圖：暫停重入、品質、resize、DPR單改、拾取dialog、atlas、context、快速resume及真hidden/visible | 原生事件與計數有紀錄；短暫hidden不是長時間背景驗證；狀態fixture用QA API明示設定 |
 | 完整本機Chrome | c001 的68 passed／0 failed／0 notRun、console errors空，8張title/game原圖 | headless SwiftShader；保留全viewports、storage、dialog測項；QA2看圖，未見明顯黑屏或主要控制裁切 |
@@ -31,4 +31,4 @@
 
 ## 正式候選驗收仍需完成
 
-新metadata提交須與c001受驗程式逐檔核對；main.js只允許revision識別字串替換，index只允許data-build替換，build-info／manifest為版本資料。新候選完整Node／DOM／export另存本機結果；這些不冒稱新SHA已有瀏覽器或正式CI通過。同commit CI、QA2 CI原圖、具體推送／合併／版本與部署授權成立後，才可更新為正式交付紀錄。E7目前保持open，不因本文件建立而結案。
+新metadata提交須與c001受驗程式逐檔核對；main.js只允許revision識別字串替換，index只允許data-build替換，build-info／manifest為版本資料。新候選完整Node240／DOM90／export43-85-30已另存本機結果；這些不冒稱新SHA已有瀏覽器或正式CI通過。建置當時validation_at_build的pending是時間快照，不回寫作事後結果。同commit CI、QA2 CI原圖、具體推送／合併／版本與部署授權成立後，才可更新為正式交付紀錄。E7目前保持open，不因本文件建立而結案。
