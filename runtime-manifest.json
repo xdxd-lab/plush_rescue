@@ -1,8 +1,8 @@
 {
   "version": "12.6.2",
   "revision": "v12.6.2-paused-render-r1",
-  "source_commit": "85331c8999c207bd14fb8a3fa0cef8f9b3d7d385",
-  "layout": "Static V12.6.2 local candidate: on-demand stable paused WebGL draws; gameplay and non-paused loop preserved; no energy claim",
+  "source_commit": "bd791180888d120eb1eadc59cc71d694c938fe6d",
+  "layout": "Static V12.6.2: on-demand stable paused WebGL draws; gameplay and non-paused loop preserved; energy not measured",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -66,8 +66,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 424,
-      "sha256": "ce667093dc15b7f9d72812ee3a0a4ce16d18ed2427b362794f516561f4310a8a"
+      "bytes": 370,
+      "sha256": "0fd6d03a72ee285fca73e4911a1fa601fd7b2d26da5bb9a05d43f1816b812aa9"
     },
     {
       "path": "camera.js",

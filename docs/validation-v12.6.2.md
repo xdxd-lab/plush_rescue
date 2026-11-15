@@ -1,6 +1,6 @@
 # v12.6.2 暫停繪製候選驗證
 
-本文件記錄尚未發布的 12.6.2 候選。受驗產品來源 `c001ce26bcd410272ce5dd9094593c997f30a926`，基準 `9cf2f5ef686d9bf035f1b9dd25e214246e5cbad0`。正式版本只同步識別資訊與 manifest；受驗程式的對應由 blob 映射另行核對。版本、tag、Release、正式 CI 與網站部署尚未完成，不能以本機測試稱已發布。
+本文件分列12.6.2的受驗程式、原正式候選與metadata修正候選。受驗產品來源 `c001ce26bcd410272ce5dd9094593c997f30a926`，基準 `9cf2f5ef686d9bf035f1b9dd25e214246e5cbad0`。原code e9901b2經main merge bd79118已完成CI／Pages部署；其publication欄位缺口與新修正候選另見末節。新metadata候選的CI／部署及版本tag／Release尚未完成，不能把舊main部署或本機測試當成新候選已發布。各階段只同步識別資訊與manifest，受驗程式對應由blob映射核對。
 
 ## 變更與適用範圍
 
@@ -32,3 +32,9 @@
 ## 正式候選驗收仍需完成
 
 新metadata提交須與c001受驗程式逐檔核對；main.js只允許revision識別字串替換，index只允許data-build替換，build-info／manifest為版本資料。新候選完整Node240／DOM90／export43-85-30已另存本機結果；這些不冒稱新SHA已有瀏覽器或正式CI通過。建置當時validation_at_build的pending是時間快照，不回寫作事後結果。同commit CI、QA2 CI原圖、具體推送／合併／版本與部署授權成立後，才可更新為正式交付紀錄。E7目前保持open，不因本文件建立而結案。
+
+## metadata修正候選（尚未對外）
+
+原code e9901b2、main merge bd79118與後續metadata code各自分列。main bd的CI／Pages成功只證該時點部署；原build-info.publication仍寫local-candidate-not-published，且此欄未被規範為建置快照，因此屬誤導狀態的metadata缺口。新提交移除無repo消費者的publication，manifest.layout改中性，版本12.6.2／revision不變，其他42runtime逐位元相同；source_commit為新提交直接父bd79118。新code SHA以本機固定候選紀錄識別，不能將e990或PR合成checkout當成新metadata已受驗。
+
+validation_at_build與built_at保留原建置快照，不回寫當時未知的CI／發布結果。metadata修正不重跑12輪行為量測，但新候選須完整離線、正式CI／實際Pages及線上JSON新bytes核對；舊誤導欄位／原FAIL不抹除，tag／Release改綁新code並須另具體授權。此處不宣稱新metadata已發布。
