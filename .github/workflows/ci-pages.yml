@@ -41,6 +41,11 @@ jobs:
         run: node --test qa/*.test.mjs
       - name: UI smoke
         run: node qa/ui-smoke.mjs
+      - name: Q3 offline diagnostic contracts (no browser)
+        timeout-minutes: 2
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python3 -m unittest discover -s qa/q3-prep4 -p 'test_*.py' -v
 
   # Use the same verified Chrome workflow and dependencies as the branch diagnostic.
   chrome-smoke:
