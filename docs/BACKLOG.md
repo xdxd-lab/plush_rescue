@@ -1,8 +1,8 @@
 # 待辦與議題索引
 
-更新快照：2026-11-15，v12.6.2 本機候選（未發布）與既有待辦。此索引使用固定代號；發布與結案的最新狀態以各 GitHub Issue 為準。
+更新快照：2026-11-16，v12.6.2 GitHub Release／Pages已交付，Sites未更新；E7議題仍open。此索引使用固定代號；發布與結案的最新狀態以各 GitHub Issue 為準。
 
-建立 Issue 是保留需求與決策紀錄，**不代表所有提案都已批准實作**。先前已授權 D1、D2、R1、R2、E5、Q5、Q3、E4、R4、V2，以及 Q2、Q6、D4、S3；前批已授權 V4、E6、D3、D4、Q3；本候選僅E7桌面暫停提交改善，V3不併入。D4改按需評估，歷史議題保留，其他工作另行安排。P1 為優先，括號標記適用時機；P2 為後續改善，P3 為探索。
+建立 Issue 是保留需求與決策紀錄，**不代表所有提案都已批准實作**。先前已授權 D1、D2、R1、R2、E5、Q5、Q3、E4、R4、V2，以及 Q2、Q6、D4、S3；前批已授權 V4、E6、D3、D4、Q3；本版僅E7桌面暫停提交改善，V3不併入。D4改按需評估，歷史議題保留，其他工作另行安排。P1 為優先，括號標記適用時機；P2 為後續改善，P3 為探索。
 
 ## 已轉為議題的項目
 
@@ -13,7 +13,7 @@
 | E4 | P2 | 繼續拆分 main.js | 已完成／v12.5.1 | [#1](https://github.com/xdxd-lab/plush_rescue/issues/1) |
 | E5 | P2 | Core 整理與決定性測試 | 已完成／v12.5.1 | [#2](https://github.com/xdxd-lab/plush_rescue/issues/2) |
 | E6 | P2 | 建立渲染效能預算 | 桌面受控基準與暫定預算首階段驗收完成／v12.6.1；跨環境校準未驗 | [#3](https://github.com/xdxd-lab/plush_rescue/issues/3) |
-| E7 | P2 | 暫停時的繪製與耗電 | 桌面stable-paused按需繪製候選已完成本機量測／回歸；待正式CI與交付，議題仍open；功率／手機／長局未驗 | [#4](https://github.com/xdxd-lab/plush_rescue/issues/4) |
+| E7 | P2 | 暫停時的繪製與耗電 | 桌面stable-paused減少提交已完成本機量測／回歸及12.6.2 GitHub Release／Pages交付；Sites未更新，Issue4仍open；功率／手機／長局未驗 | [#4](https://github.com/xdxd-lab/plush_rescue/issues/4) |
 | Q2 | P2 | 瀏覽器測試納入 CI | Linux 單／雙輪診斷及主線單尺寸 Chrome gate／Pages 部署驗收通過；範圍見議題 | [#5](https://github.com/xdxd-lab/plush_rescue/issues/5) |
 | Q3 | P1 | 補齊 Safari 與窄視窗跨瀏覽器回歸 | v12.6.1 Firefox 最後三尺寸確認通過，但保留360 hover逾時追蹤；Safari等遠端自動化設定 | [#6](https://github.com/xdxd-lab/plush_rescue/issues/6) |
 | Q4 | P1 | 手機實機與長時間效能驗證 | 等設備 | [#7](https://github.com/xdxd-lab/plush_rescue/issues/7) |
