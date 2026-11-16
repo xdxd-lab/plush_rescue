@@ -32,6 +32,8 @@
 
 ## V12.6.2 候選：穩定暫停時按需繪製
 
+metadata修正候選：原code `e9901b2` 經main merge `bd79118` 完成Pages部署後，公開build-info仍含未定義的「本機候選未發布」字串。新metadata提交移除publication，manifest.layout改中性描述；version／revision與其他42個runtime檔不變，source_commit改記直接父main `bd79118`。原FAIL及建置快照保留，不將先前主線成功冒稱新提交已通過CI或已部署。新tag／Release須改綁修正code並另行授權。
+
 - 暫停畫面穩定後略過相同 WebGL 畫面的逐幀提交；設定、視窗／DPR、頁面可見性、材質及context恢復仍觸發重畫。保留原RAF、DOM更新、遊戲規則及非暫停繪製。
 - 固定受驗來源c001的完整Node240／DOM90／Chrome68通過；同機兩組12輪顯示候選六個暫停窗零提交，基準約60次／秒。9項功能轉換及兩張運行補圖已分別取得事件、clock與獨立圖驗證據。
 - 以上為受控桌面樣本，未測整機功率、GPU時間、手機或長局；原啟動與版本探測失敗保留。新metadata候選完整Node240／DOM90／export43-85-30已通過，仍需同commit CI與正式圖驗，未發布、未建立tag／Release、未部署。詳見[候選驗證與限制](docs/validation-v12.6.2.md)。
