@@ -8,7 +8,7 @@
 
 | 版本 | `revision` | 發布提交 | `source_commit`（基礎） | 建議 tag |
 |---|---|---|---|---|
-| 12.6.2（候選） | `v12.6.2-paused-render-r1` | 待正式驗收／未發布 | 見候選build-info父提交 | `v12.6.2`（未建立） |
+| 12.6.2 | `v12.6.2-paused-render-r1` | `3213067b` | `bd79118` | [`v12.6.2`](https://github.com/xdxd-lab/plush_rescue/releases/tag/v12.6.2) |
 | 12.6.1 | `v12.6.1-webgl-recovery-r1` | `5482305` | `1572971` | `v12.6.1` |
 | 12.6.0 | `v12.6.0-atlas-flash-r1` | `c8bb435` | `9a3431c` | `v12.6.0` |
 | 12.5.1 | `v12.5.1-core-modules-r1` | `949ff05` | `e6b8dd2` | `v12.5.1` |
@@ -30,13 +30,13 @@
 
 發布提交之後只改文件或 `qa/`、沒有改執行檔的提交（例如 `4d097de`、`84363c8`、`ef9d208`）不另立版本。
 
-## V12.6.2 候選：穩定暫停時按需繪製
+## V12.6.2：穩定暫停時按需繪製
 
-metadata修正候選：原code `e9901b2` 經main merge `bd79118` 完成Pages部署後，公開build-info仍含未定義的「本機候選未發布」字串。新metadata提交移除publication，manifest.layout改中性描述；version／revision與其他42個runtime檔不變，source_commit改記直接父main `bd79118`。原FAIL及建置快照保留，不將先前主線成功冒稱新提交已通過CI或已部署。新tag／Release須改綁修正code並另行授權。
+正式code `3213067b`，直接父／source `bd79118`；[Release](https://github.com/xdxd-lab/plush_rescue/releases/tag/v12.6.2) 的annotated tag目標為code，不是main merge。原code `e9901b2` 經main `bd79118` 部署後仍供應誤導的publication候選字串；PR25以code321移除該未定義欄位並中性化layout，其他42runtime逐位元不變。修正後main `5536465` 已透過CI run43807290674與實際Pages deployment7816058094交付；線上43個manifest條目（42個runtime檔及build-info）與manifest本身與code/main逐byte一致。原錯誤部署及建置快照保留，不回寫歷史。
 
 - 暫停畫面穩定後略過相同 WebGL 畫面的逐幀提交；設定、視窗／DPR、頁面可見性、材質及context恢復仍觸發重畫。保留原RAF、DOM更新、遊戲規則及非暫停繪製。
 - 固定受驗來源c001的完整Node240／DOM90／Chrome68通過；同機兩組12輪顯示候選六個暫停窗零提交，基準約60次／秒。9項功能轉換及兩張運行補圖已分別取得事件、clock與獨立圖驗證據。
-- 以上為受控桌面樣本，未測整機功率、GPU時間、手機或長局；原啟動與版本探測失敗保留。新metadata候選完整Node240／DOM90／export43-85-30已通過，仍需同commit CI與正式圖驗，未發布、未建立tag／Release、未部署。詳見[候選驗證與限制](docs/validation-v12.6.2.md)。
+- 以上為受控桌面樣本，未測整機功率、GPU時間、手機或長局；原啟動與版本探測失敗保留。修正code完整Node240／DOM90／export43-85-30已通過；正式CI桌面子集17/0/0、4負測及清理有效，QA2同CI桌面兩圖通過，不把CI稱為本機68項。Sites仍未更新且來源存取受阻；Issue4保持open。詳見[驗證與限制](docs/validation-v12.6.2.md)。
 
 ## V12.6.1：WebGL 啟動復原與量測工具
 
