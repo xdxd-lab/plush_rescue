@@ -1,6 +1,6 @@
 # v12.6.2 暫停繪製驗證與交付範圍
 
-本文件分列12.6.2受驗程式c001、原候選e990／mainbd錯誤metadata部署，以及正式修正code `3213067b88e5f8474eb71a9580cb00d45c48a22d`／main `5536465c9b8e0af6947fefcd45ab3fc9122ec19a`。GitHub annotated tag／Release與Pages已交付；Sites仍未更新。受驗基準9cf及各批來源保留，實得範圍與限制如下。
+本文件分列12.6.2受驗程式c001、原候選e990／mainbd錯誤metadata部署，以及正式修正code `3213067b88e5f8474eb71a9580cb00d45c48a22d`／main `5536465c9b8e0af6947fefcd45ab3fc9122ec19a`。GitHub annotated tag／Release、Pages與Sites版本24均已交付。受驗基準9cf及各批來源保留，實得範圍與限制如下。
 
 ## 變更與適用範圍
 
@@ -41,8 +41,8 @@
 
 validation_at_build與built_at保留原建置快照，不回寫後續CI／發布結果。以上交付是後續實得紀錄，不把候選當時的pending改寫成當時已知成功。doc-only文件更新不改43個manifest條目所列檔案或manifest本身，不新增版本，也不移動code tag。
 
-## Sites與議題仍未完成的部分
+## Sites後續交付與E7範圍澄清
 
-Sites仍保留既有舊版，未因GitHub／Pages成功而更新。已從code321重新製作本機43個manifest條目所列檔案／manifest／必要hosting淨包並獨立位元／隱私核驗；後續原生source credential回覆project not found，現行owner／access資訊未能確認，因此source同步停在寫入前，沒有新source commit、保存版本或部署。錯誤不證明站點消失，不新建站或沿用舊憑證繞過。恢復正確owner存取後仍須helper來源／新包與部署各階段實證。
+歷史停止點：最初code321淨包完成後，原生source credential曾回覆project not found，當時owner／access未確認，來源寫入前安全停止，未保存／部署；該錯誤不證明站點消失，也未以新站或舊憑證繞過。後續重新核同站active／public／owner、正常取得短效存取後，helper普通提交／推送Sites source `5bb7d7c663ef754d5b6e04dba82a7da4575d2fe7`。首次helper包因51個AppleDouble檔案未通過衛生檢查，原FAIL保留；從同一來源重包時僅排除這些metadata，46個有效檔案內容不變，經獨立位元／封裝核對後保存版本24並原生部署succeeded。受眾／project未改，並非GitHub推送自動同步Sites。
 
-Issue4保持open：已交付的是桌面穩定暫停render提交減量；不是功率／手機／長局或全部跨平台效能完成。Q3的Safari設定及Firefox360歷史間歇問題、其他未驗限制維持；原FAIL、metadata錯誤部署與後續修正順序全部保留。
+範圍澄清（2026-11-17）：使用者未要求另行量測耗電，除非有實際缺陷。E7以已交付的桌面穩定暫停render提交減量，以及驗證紀錄所列設定預覽、相機、對話框與恢復路徑正確性為有限完成範圍；此前因原提案文字把功率量測列為保持open的前置判斷，已由此澄清取代，歷史紀錄不刪。沒有已證實的耗電缺陷，不新增功率測試或待辦，也不從render減少宣稱省電。功率／手機／長局或其他平台未驗仍是外推限制，非本輪結案前置；[#4](https://github.com/xdxd-lab/plush_rescue/issues/4)實際開關狀態以議題為準，本文件不預報結案操作。Q3的Safari設定及Firefox360歷史間歇問題、原FAIL、metadata錯誤部署與後續修正順序全部保留。
