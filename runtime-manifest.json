@@ -1,8 +1,8 @@
 {
-  "version": "12.8.0",
-  "revision": "v12.8.0-garden-props-r1",
-  "source_commit": "9570584505f252a700f9648c309c7bf0afb9eb88",
-  "layout": "Static V12.8.0: four offline 3DGarden decorations; existing maps, starting positions, obstacle geometry and V12.7 event audio preserved",
+  "version": "12.9.0",
+  "revision": "v12.9.0-loot-field-kit-r1",
+  "source_commit": "9456816d6424f03a087b3fa873d611c122b8cd2c",
+  "layout": "Static V12.9.0: sculpted world pickups, rescue field kit UI, lighter engine and effects; collision and game rules unchanged",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -66,8 +66,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 338,
-      "sha256": "283efce5ad1f3aeb7ed89d2cd46568d055fadbfc66750104d2dbcd0ab1cbdf96"
+      "bytes": 305,
+      "sha256": "a6df15ed599d88ed3ae12f9e608bc90bbbeb836da0e4640db00a6aa205ac7064"
     },
     {
       "path": "camera.js",
@@ -126,8 +126,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 14618,
-      "sha256": "53e0149844b7a3d5098705220c7fbd4cde0aa57761c7b8a16ae09cafc16baeeb"
+      "bytes": 14620,
+      "sha256": "eac6e2ebc4648343a4297ca99d3a08a6553ee1ae3389bc7b5d125a7fb8bbe2c3"
     },
     {
       "path": "input-controller.js",
@@ -151,8 +151,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 19146,
-      "sha256": "9f277ae1a80f78d11d26189bce8e1ec77b71b938c98263fc266607178f9349c6"
+      "bytes": 19148,
+      "sha256": "f409f3b5dce0ea6bb63dc4d416bac9fcaa44e37b4170acedbf717a346f5aeb48"
     },
     {
       "path": "maps.js",
