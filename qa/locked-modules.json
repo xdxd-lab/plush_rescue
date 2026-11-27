@@ -25,10 +25,18 @@
     },
     {
       "path": "maps.js",
-      "sha256": "f582d0240116943835003799a867283a0792e37dbb10f737fc003fc72569b6d7",
+      "sha256": "5abf04ad20665eac1df722cd5c2a3213beb26c4f04051145bba07fd542480832",
       "locked_since": "cbfa10e (V11)",
       "reason": "地圖；V11 凍結，超出 V12 範圍",
-      "approved_changes": []
+      "approved_changes": [
+        {
+          "date": "2026-11-28",
+          "approved_by": "X D",
+          "reason": "依使用者 2026-11-28 指示把下載的 3DGarden 素材換進既有場景；僅非碰撞裝飾。",
+          "old_sha256": "f582d0240116943835003799a867283a0792e37dbb10f737fc003fc72569b6d7",
+          "new_sha256": "5abf04ad20665eac1df722cd5c2a3213beb26c4f04051145bba07fd542480832"
+        }
+      ]
     },
     {
       "path": "weapons.js",

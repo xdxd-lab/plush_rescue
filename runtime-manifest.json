@@ -110,6 +110,16 @@
       "sha256": "c490eaff6df9c111212c5c9c3dfdce60a4382b120203d3eb1c895a3d2d5916f9"
     },
     {
+      "path": "garden-prop-data.js",
+      "bytes": 174821,
+      "sha256": "d3d0d00910388a9fc675425ce58245e7374115259dd1e803494ec5b7c1b893a1"
+    },
+    {
+      "path": "garden-props.js",
+      "bytes": 2951,
+      "sha256": "1905eaf9e36aad7a062eb354b1ccad7f823e00251908bab52ed7c113cdb8f52c"
+    },
+    {
       "path": "hud.js",
       "bytes": 7769,
       "sha256": "3053eae24cd14ed9c1c5cdb400ead3cbe552c00a0d9b5e4c614f28f102fafb61"
@@ -141,8 +151,8 @@
     },
     {
       "path": "maps.js",
-      "bytes": 45663,
-      "sha256": "f582d0240116943835003799a867283a0792e37dbb10f737fc003fc72569b6d7"
+      "bytes": 45625,
+      "sha256": "5abf04ad20665eac1df722cd5c2a3213beb26c4f04051145bba07fd542480832"
     },
     {
       "path": "paused-render.js",
