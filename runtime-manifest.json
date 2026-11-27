@@ -1,8 +1,8 @@
 {
-  "version": "12.6.2",
-  "revision": "v12.6.2-paused-render-r1",
-  "source_commit": "bd791180888d120eb1eadc59cc71d694c938fe6d",
-  "layout": "Static V12.6.2: on-demand stable paused WebGL draws; gameplay and non-paused loop preserved; energy not measured",
+  "version": "12.7.0",
+  "revision": "v12.7.0-event-audio-r1",
+  "source_commit": "ca5602660beb2022261ec445c5ec67fe7a03257f",
+  "layout": "Static V12.7.0: synthesized gameplay events, independently persisted mute and volume; no background audio or downloaded sound assets",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -66,8 +66,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 370,
-      "sha256": "0fd6d03a72ee285fca73e4911a1fa601fd7b2d26da5bb9a05d43f1816b812aa9"
+      "bytes": 335,
+      "sha256": "2b35c6e9e8756f8932e41f7a145d0e8c394ca41ea38e3caf79eff3ed108b829b"
     },
     {
       "path": "camera.js",
@@ -116,8 +116,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13811,
-      "sha256": "ee6d80949016d5bc272ad5e2264b4606b771f7a7ade455626f30bf3634649655"
+      "bytes": 13809,
+      "sha256": "221544939cb777ac1bcacf25c137a65ee8350a3e990c979ec9c5bde200567cc5"
     },
     {
       "path": "input-controller.js",
@@ -136,8 +136,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 18929,
-      "sha256": "b3984994ab426897dfe9c393db1f36efb499242bd52dc4203da77a66b67b7298"
+      "bytes": 18927,
+      "sha256": "4217e250ee16cb3b00007d15eb5faac6942fb476b16e3fd52676ff8abf657920"
     },
     {
       "path": "maps.js",
