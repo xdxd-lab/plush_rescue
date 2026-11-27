@@ -1,3 +1,5 @@
+import { mountGardenProps } from './garden-props.js';
+
 // Warm, weathered toy-town dioramas. Decorative dressing is batched, and only
 // the six substantial interior features collide with the player and enemies.
 export const MAPS = [
@@ -9,6 +11,7 @@ export const MAPS = [
 export function buildMap(THREE, scene, index = 0) {
   index = ((index % 3) + 3) % 3;
   const group = new THREE.Group(); group.name = `map-${MAPS[index].id}`; scene.add(group);
+  const props = [];
   const obstacles = [], materials = new Map(), geometries = new Map(), textures = [], batches = new Map();
   let seed = 871923 + index * 12891;
   const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -182,12 +185,8 @@ export function buildMap(THREE, scene, index = 0) {
     for (let side of [-1, 1]) { P(side * length / 2, .72, .03, .2, 1.45, .22, '#7f6a50'); }
   };
   const lamp = (x, z, s = 1, light = false) => {
-    cyl(x, .10 * s, z, .29 * s, .2 * s, '#a5a594', 'stone'); cyl(x, .24 * s, z, .20 * s, .13 * s, '#6e756b'); cyl(x, 1.32 * s, z, .057 * s, 2.12 * s, p.metal);
-    for (const y of [.42, 2.12]) cyl(x, y * s, z, .094 * s, .07 * s, '#9a926f');
-    cyl(x, 2.26 * s, z, .24 * s, .12 * s, '#73776b');
-    const glass = mat('#ffdb80', '', { emissive: '#ffb43d', emissiveIntensity: 1.8, roughness: .32 }); put(cylG, glass, x, 2.57 * s, z, .15 * s, .50 * s, .15 * s, 0, 0, 0, false);
-    for (let j = 0; j < 4; j++) { const a = Math.PI / 4 + j * Math.PI / 2; rod([x + Math.cos(a) * .18 * s, 2.28 * s, z + Math.sin(a) * .18 * s], [x + Math.cos(a) * .18 * s, 2.83 * s, z + Math.sin(a) * .18 * s], .024 * s, '#7a7b69'); }
-    cyl(x, 2.85 * s, z, .25 * s, .1 * s, '#83806a'); put(coneG, mat('#767869'), x, 2.96 * s, z, .29 * s, .2 * s, .29 * s); ellipsoid(x, 3.1 * s, z, .063 * s, .075 * s, .063 * s, '#a1946e');
+    // Preserve the old light heights and keep the thin prop visual only.
+    props.push(['lamp', x, 0, z, .79 * s, 0]);
     if (light) { const l = new THREE.PointLight('#ffcf72', index === 2 ? 8 : 4.2, index === 2 ? 7 : 5, 2); l.position.set(x, 2.5 * s, z); group.add(l); }
   };
   const tree = (x, z, size = 1, addCollider = true) => {
@@ -273,7 +272,16 @@ export function buildMap(THREE, scene, index = 0) {
     const top = tall ? 1.04 : .83;
     for (const dx of [-1.05, 1.05]) for (const dz of [-.54, .54]) box(x + dx, top / 2, z + dz, .13, top, .13, '#6f7353', 'wood');
     box(x, top, z, 2.38, .15, 1.30, '#a08e62', 'wood'); box(x, .25, z, 2.29, .12, 1.22, '#857752', 'wood');
-    for (let j = 0; j < 4; j++) pot(x -.88 + j * .58, top + .1, z + (j % 2 ? .25 : -.24), .21 + j % 2 * .05, .34, j % 2 ? '#a87e5e' : '#ad9872');
+    for (let j = 0; j < 4; j++) {
+      const px = x -.88 + j * .58, pz = z + (j % 2 ? .25 : -.24);
+      if (!tall || j !== 1) pot(px, top + .1, pz, .21 + j % 2 * .05, .34, j % 2 ? '#a87e5e' : '#ad9872');
+      else {
+        // Each former pot's 12 foliage blades consumed six values, plus a
+        // flower size for every third blade. Preserve the following dressing.
+        for (let draw = 0; draw < 12 * 6 + 4; draw++) rand();
+        props.push(['plant', px, top + .1, pz, .63, Math.PI / 5]);
+      }
+    }
     pot(x + .36, .32, z + .16, .31, .48, '#a67556', false); pot(x -.62, .32, z + .1, .27, .42, '#988668', false);
     for (const dx of [-1.08, 1.08]) rod([x + dx, .2, z -.5], [x + dx, 2.86, z -.5], .055, '#598676');
     for (let y of [1.6, 2.20, 2.8]) rod([x - 1.1, y, z -.5], [x + 1.1, y, z -.5], .028, '#87a696');
@@ -348,7 +356,10 @@ export function buildMap(THREE, scene, index = 0) {
     for(const dx of [-.77,.77]) { put(torusG,mat('#736c7d'),x+dx,.37,z+.59,.35,.35,.35,0,0,0); cyl(x+dx,.37,z+.59,.065,.10,'#b6a37f'); }
     for(const dx of [-.95,.95]) rod([x+dx,1.1,z-.38],[x+dx,2.25,z-.38],.035,'#bcb399');
     for(let j=0;j<7;j++) box(x-1.02+j*.34,2.30,z,.33,.13,1.36,j%2?'#b88f9f':'#d1c0a0','cloth');
-    for(let j=0;j<5;j++){const xx=x-.7+j*.34; rod([xx,1.21,z],[xx,1.62,z],.02,'#cabc9f');ellipsoid(xx,1.77,z,.14,.21,.14,j%2?'#c59fb7':'#bac1d5','cloth');}
+    for(let j=0;j<5;j++){
+      if (j === 2) props.push(['spiral', x + .64, .92, z + .72, 1.54, .95]);
+      else { const xx=x-.7+j*.34; rod([xx,1.21,z],[xx,1.62,z],.02,'#cabc9f');ellipsoid(xx,1.77,z,.14,.21,.14,j%2?'#c59fb7':'#bac1d5','cloth'); }
+    }
     cloth(x+.54,.83,z+.57,.47,.65,'#a6a5b8');moonSign(x,2.76,z-.32,.29);
   };
   const rocketRide = (x,z,r=1.5) => {
@@ -437,6 +448,8 @@ export function buildMap(THREE, scene, index = 0) {
     put(torusG, mat('#a88d9b'), wx, wy, wz, 4.4, 4.4, 4.4);
     for (let j = 0; j < 10; j++) { const a = j * Math.PI * 2 / 10, x = wx + Math.cos(a) * 4.4, y = wy + Math.sin(a) * 4.4; rod([wx, wy, wz], [x, y, wz], .03, '#a69b9e'); box(x, y -.37, wz, .87, .65, .77, j % 2 ? '#b99687' : '#8ea397', 'wood'); box(x, y + .10, wz, .98, .10, .88, '#c5ae98', 'cloth'); }
     shop(-12, -22, 8, 4, 3.6, '#e8e5de', true);
+    // Unmarked skyline decoration, well above the walkable play surface.
+    props.push(['balloon', -9.4, 2.9, -8, .80, .36]);
     for (let side of [-1, 1]) for (let j = 0; j < 5; j++) { const x = side * 19.6, z = -13 + j * 6.7; fence(x, z, 4.6, Math.PI / 2); crate(x + side * .2, z + 2.0, 1.24); yarn(x - side * .55, .49, z + 1.2, .45, j % 2 ? '#bea18e' : '#96a6a3'); foliage(x - side * .7, .09, z - 1.8, .8, 12, true); }
     lamp(7.20, 2.35, .90, true);
     for (let side of [-1, 1]) cyl(side * 19.3, 2.6, -15.5, .1, 5.2, '#8c8174');
@@ -460,6 +473,7 @@ export function buildMap(THREE, scene, index = 0) {
     inst.instanceMatrix.needsUpdate = true; inst.instanceColor.needsUpdate = true;
     inst.castShadow = b.shadow; inst.receiveShadow = true; inst.computeBoundingSphere(); group.add(inst); instanceCount += b.matrices.length;
   }
+  group.userData.gardenProps = mountGardenProps(THREE, group, props);
   group.userData.artVersion = 'weathered-toy-courtyard-v2'; group.userData.artRevision = 'local-modern-facades-r1'; group.userData.instanceCount = instanceCount; group.userData.staticBatches = merged.size;
   return {
     group, obstacles, lighting, bounds: 18, spawn: { x: 0, z: 4 },

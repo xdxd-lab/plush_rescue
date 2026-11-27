@@ -1,8 +1,8 @@
 {
-  "version": "12.7.0",
-  "revision": "v12.7.0-event-audio-r1",
-  "source_commit": "ca5602660beb2022261ec445c5ec67fe7a03257f",
-  "layout": "Static V12.7.0: synthesized gameplay events, independently persisted mute and volume; no background audio or downloaded sound assets",
+  "version": "12.8.0",
+  "revision": "v12.8.0-garden-props-r1",
+  "source_commit": "9570584505f252a700f9648c309c7bf0afb9eb88",
+  "layout": "Static V12.8.0: four offline 3DGarden decorations; existing maps, starting positions, obstacle geometry and V12.7 event audio preserved",
   "files": [
     {
       "path": "assets/polar-portrait.png",
@@ -66,8 +66,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 335,
-      "sha256": "2b35c6e9e8756f8932e41f7a145d0e8c394ca41ea38e3caf79eff3ed108b829b"
+      "bytes": 338,
+      "sha256": "283efce5ad1f3aeb7ed89d2cd46568d055fadbfc66750104d2dbcd0ab1cbdf96"
     },
     {
       "path": "camera.js",
@@ -110,14 +110,24 @@
       "sha256": "c490eaff6df9c111212c5c9c3dfdce60a4382b120203d3eb1c895a3d2d5916f9"
     },
     {
+      "path": "garden-prop-data.js",
+      "bytes": 174821,
+      "sha256": "d3d0d00910388a9fc675425ce58245e7374115259dd1e803494ec5b7c1b893a1"
+    },
+    {
+      "path": "garden-props.js",
+      "bytes": 2951,
+      "sha256": "1905eaf9e36aad7a062eb354b1ccad7f823e00251908bab52ed7c113cdb8f52c"
+    },
+    {
       "path": "hud.js",
       "bytes": 7769,
       "sha256": "3053eae24cd14ed9c1c5cdb400ead3cbe552c00a0d9b5e4c614f28f102fafb61"
     },
     {
       "path": "index.html",
-      "bytes": 13809,
-      "sha256": "221544939cb777ac1bcacf25c137a65ee8350a3e990c979ec9c5bde200567cc5"
+      "bytes": 13810,
+      "sha256": "feecf628e8f39451d8ba9fcd73a57a9d9b782f9132583aeb08c5027b86d592b5"
     },
     {
       "path": "input-controller.js",
@@ -136,13 +146,13 @@
     },
     {
       "path": "main.js",
-      "bytes": 18927,
-      "sha256": "4217e250ee16cb3b00007d15eb5faac6942fb476b16e3fd52676ff8abf657920"
+      "bytes": 18928,
+      "sha256": "a971e7481e865ca8bac0cf323a11596bf5fdbba93e87dca4a78d14ea5a9230bf"
     },
     {
       "path": "maps.js",
-      "bytes": 45663,
-      "sha256": "f582d0240116943835003799a867283a0792e37dbb10f737fc003fc72569b6d7"
+      "bytes": 45625,
+      "sha256": "5abf04ad20665eac1df722cd5c2a3213beb26c4f04051145bba07fd542480832"
     },
     {
       "path": "paused-render.js",
