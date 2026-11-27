@@ -52,8 +52,15 @@ runner 要求完整工具 HEAD、clean worktree，並在建立測試 artifacts/p
 
 ## 離線契約與 CI
 
+以固定產品提交的 runtime 當測試 fixture。在當前 checkout 已包含該提交的本機 Git 完整物件時：
+
 ```sh
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s qa/q3-prep4 -p "test_*.py" -v
+fixture="$(mktemp -d)"
+git archive b53a74e5390ab80a7ddbeefe9bc145e4103ceb06 | tar -x -C "$fixture"
+Q3_TEST_RUNTIME_ROOT="$fixture" PYTHONDONTWRITEBYTECODE=1 \
+  python3 -m unittest discover -s qa/q3-prep4 -p "test_*.py" -v
 ```
 
-原 23 項 ownership／來源／清理 mock 加 10 項可攜設定契約，預期 33 項。只用標準函式庫、mock、repo runtime fixtures 和臨時檔案，不啟 browser／server、不打真 socket／signal、不呼叫真 macOS identity API。Ubuntu test job 以既有 Python 3.12 執行此命令，步驟上限 2 分鐘；既有 Chrome／Pages 路由、部署條件、freshness、concurrency 與 permissions 不變。CI 成功只證其執行的離線契約，不證 Firefox、音訊、OS identity 或實際 cleanup。
+原 23 項 ownership／來源／清理 mock 加 10 項可攜設定契約，預期 33 項。依舊以原本的 SHA256、43 個檔案完整性及版本來源斷言檢查固定 runtime。未設定 `Q3_TEST_RUNTIME_ROOT` 時，測試仍以當前 checkout 作為 fixture；若它已不是固定基準，就應報來源不符。這個變數只供離線 tests，不能讓實際 Firefox 入口接受未固定的 checkout。當前候選版的清單和資產另由 `verify-export.py` 檢查，不使用歷史 fixture。
+
+CI 的 Ubuntu test job 額外 checkout 同一個固定產品提交，再用既有 Python 3.12 跑這 33 項，測試上限仍為 2 分鐘。不啟 browser／server、不打真 socket／signal、不呼叫真 macOS identity API。Chrome／Pages 的部署條件、freshness、concurrency 與 permissions 不放寬；V3 UI 另有獨立 gate。Q3 離線 CI 成功不證 Firefox、音訊、OS identity 或實際 cleanup。

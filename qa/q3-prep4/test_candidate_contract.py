@@ -1,5 +1,6 @@
 """Offline provenance negatives; never invoke a server or browser."""
 import json
+import os
 import pathlib
 import sys
 import tempfile
@@ -16,7 +17,10 @@ class CandidateContractTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = pathlib.Path(self.temp.name)
-        source = HERE.parents[1]
+        # Only the offline fixture source is configurable. The diagnostic
+        # still checks the exact v12.6.2 manifest digest and file provenance.
+        fixture = os.environ.get('Q3_TEST_RUNTIME_ROOT')
+        source = pathlib.Path(fixture).resolve(strict=True) if fixture else HERE.parents[1]
         manifest = (source / 'runtime-manifest.json').read_bytes()
         (self.root / 'runtime-manifest.json').write_bytes(manifest)
         for entry in json.loads(manifest)['files']:
