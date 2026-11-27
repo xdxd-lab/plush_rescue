@@ -448,6 +448,20 @@ check('portrait edge: a drop with every centre off screen but a corner still dra
   assert.equal(g.pendingPickup?.id,d.id,`side ${side}: the visible corner was tapped`);
  }
 });
+check('paused frames skip stable WebGL draws and redraw for resume, quality changes, and renderOnce',()=>{
+ const t=setup();t.el('start').onclick();const draws=[];
+ const render=t.qa.renderer.render.bind(t.qa.renderer);
+ t.qa.renderer.render=(...args)=>{draws.push(args);return render(...args)};
+ frame(t);frame(t);assert.equal(draws.length,2,'running status draws every frame');
+ t.qa.pause();frame(t);assert.equal(draws.length,3,'transition into paused draws once');
+ frame(t);frame(t);assert.equal(draws.length,3,'stable paused frames skip WebGL draws');
+ t.qa.quality('low');frame(t);assert.equal(draws.length,4,'quality resize invalidates paused frame');
+ frame(t);assert.equal(draws.length,4,'quality redraw returns to stable skip');
+ const beforeRenderOnce=draws.length;t.qa.renderOnce();assert.equal(draws.length,beforeRenderOnce+1,'explicit renderOnce draws immediately');
+ frame(t);assert.equal(draws.length,beforeRenderOnce+2,'renderOnce invalidation is drawn by the loop');
+ frame(t);assert.equal(draws.length,beforeRenderOnce+2,'explicit redraw returns to stable skip');
+ t.qa.resume();frame(t);frame(t);assert.equal(draws.length,beforeRenderOnce+4,'resumed status draws every frame');
+});
 check('five rounds of pause, settings changes and resume keep mouse and touch taps working',()=>{
  const t=tapGame({width:360,height:640}),qualities=['high','low','balanced','high','low'];
  for(let round=0;round<5;round++){

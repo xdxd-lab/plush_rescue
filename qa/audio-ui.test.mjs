@@ -51,4 +51,3 @@ test('keyboard Escape resume uses the supplied common callback, not game.resume 
  win.get('keydown')(e);assert.equal(commonResumeCalls,1);assert.equal(game.resumeCalls,0);assert.equal(pauses,0);assert.equal(e.defaultPrevented,true);
  game.status='running';win.get('keydown')({...e,defaultPrevented:false,preventDefault(){this.defaultPrevented=true;}});assert.equal(pauses,1,'pause keyboard route remains intact');
 });
-

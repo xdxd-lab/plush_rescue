@@ -8,6 +8,7 @@
 
 | 版本 | `revision` | 發布提交 | `source_commit`（基礎） | 建議 tag |
 |---|---|---|---|---|
+| 12.6.2 | `v12.6.2-paused-render-r1` | `3213067b` | `bd79118` | [`v12.6.2`](https://github.com/xdxd-lab/plush_rescue/releases/tag/v12.6.2) |
 | 12.6.1 | `v12.6.1-webgl-recovery-r1` | `5482305` | `1572971` | `v12.6.1` |
 | 12.6.0 | `v12.6.0-atlas-flash-r1` | `c8bb435` | `9a3431c` | `v12.6.0` |
 | 12.5.1 | `v12.5.1-core-modules-r1` | `949ff05` | `e6b8dd2` | `v12.5.1` |
@@ -28,6 +29,14 @@
 | 11.0.0 | `v11-boss-rescue-r1` | `cbfa10e` | `8a2c6ac`（更早祖先） | `v11.0.0` |
 
 發布提交之後只改文件或 `qa/`、沒有改執行檔的提交（例如 `4d097de`、`84363c8`、`ef9d208`）不另立版本。
+
+## V12.6.2：穩定暫停時按需繪製
+
+正式code `3213067b`，直接父／source `bd79118`；[Release](https://github.com/xdxd-lab/plush_rescue/releases/tag/v12.6.2) 的annotated tag目標為code，不是main merge。原code `e9901b2` 經main `bd79118` 部署後仍供應誤導的publication候選字串；PR25以code321移除該未定義欄位並中性化layout，其他42runtime逐位元不變。修正後main `5536465` 已透過CI run43807290674與實際Pages deployment7816058094交付；線上43個manifest條目（42個runtime檔及build-info）與manifest本身與code/main逐byte一致。原錯誤部署及建置快照保留，不回寫歷史。
+
+- 暫停畫面穩定後略過相同 WebGL 畫面的逐幀提交；設定、視窗／DPR、頁面可見性、材質及context恢復仍觸發重畫。保留原RAF、DOM更新、遊戲規則及非暫停繪製。
+- 固定受驗來源c001的完整Node240／DOM90／Chrome68通過；同機兩組12輪顯示候選六個暫停窗零提交，基準約60次／秒。9項功能轉換及兩張運行補圖已分別取得事件、clock與獨立圖驗證據。
+- 以上為受控桌面樣本，未測整機功率、GPU時間、手機或長局；原啟動與版本探測失敗保留。修正code完整Node240／DOM90／export43-85-30已通過；正式CI桌面子集17/0/0、4負測及清理有效，QA2同CI桌面兩圖通過，不把CI稱為本機68項。Sites版本24（source `5bb7d7c`）已原生部署成功。E7依使用者澄清，以桌面穩定暫停提交減量及已測功能為有限完成範圍；未量耗電是限制，非目前待辦或結案前置，不宣稱省電。議題實際狀態以[#4](https://github.com/xdxd-lab/plush_rescue/issues/4)為準。詳見[驗證與限制](docs/validation-v12.6.2.md)。
 
 ## V12.6.1：WebGL 啟動復原與量測工具
 

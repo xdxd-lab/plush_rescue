@@ -76,7 +76,7 @@ and current pending phase; the report and abort/fatal stderr include the last
 `--require-swiftshader` is an optional strict diagnostic; the first Linux run
 records the renderer without assuming its exact string. The branch diagnostic itself has no Pages job.
 After the R3 evidence review, `ci-pages.yml` calls this exact shared implementation with
-`matrix_runs: 1` as `chrome-smoke`, after `test`; Pages build requires both. This does not
+`matrix_runs: 1` as `chrome-smoke`, after `test`; Pages build also requires the separately bounded [V3 UI job](V3-CI-PRECHECK.md). This does not
 turn the single run into repeatability evidence or replace the full multi-size suite.
 
 Q2 R3 evidence (2026-11-12, `31b8a25`): the same-SHA single/repeat jobs passed all three

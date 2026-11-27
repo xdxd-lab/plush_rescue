@@ -41,6 +41,21 @@ jobs:
         run: node --test qa/*.test.mjs
       - name: UI smoke
         run: node qa/ui-smoke.mjs
+      # Q3 is a historical diagnostic for one immutable product, not a
+      # claim that this candidate has the released v12.6.2 runtime bytes.
+      - name: Check out the pinned Q3 v12.6.2 runtime fixture
+        timeout-minutes: 2
+        uses: actions/checkout@v7
+        with:
+          ref: b53a74e5390ab80a7ddbeefe9bc145e4103ceb06
+          path: .q3-pinned-runtime
+          persist-credentials: false
+      - name: Q3 offline diagnostic contracts (no browser)
+        timeout-minutes: 2
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          Q3_TEST_RUNTIME_ROOT: ${{ github.workspace }}/.q3-pinned-runtime
+        run: python3 -m unittest discover -s qa/q3-prep4 -p 'test_*.py' -v
 
   # Use the same verified Chrome workflow and dependencies as the branch diagnostic.
   chrome-smoke:

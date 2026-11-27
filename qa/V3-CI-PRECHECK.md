@@ -2,7 +2,7 @@
 
 This opt-in mode is called by an independent V3 CI job. Existing Q2 invocation, budget and result-count contract remain unchanged. Its three exact full-settings expectations now include `muted:false`, as returned by the product settings schema.
 
-Underlying command (not yet browser-validated; CI uses the supervisor below):
+Underlying command (CI uses the supervisor below):
 
 ```sh
 node qa/browser-chrome.mjs --v3-audio --no-pickup --views=1280x720,390x844,360x640 --require-swiftshader --shots=v3-artifacts/screenshots > v3-artifacts/report.json
@@ -28,4 +28,4 @@ The parent `v3-artifacts` directory must exist, but `run` must not exist. No pri
 
 Success requires exit zero, no timeout/interruption/overflow, exactly the three ordered checks and all per-view states, real SwiftShader observations, zero errors/abort/fatal/notRun, exactly six CRC-checked/decompressed PNGs of the expected dimensions, and confirmed runner exit, owned Chrome group absence, both ports refused and bindable, and removed profile. Missing ownership or cleanup evidence fails closed. PNG integrity does not replace QA2 visual review, nor does font installation prove legibility.
 
-The `v3-ui` job depends on `test`, has a 15-minute cap and always attempts artifact upload (including failures). Pages build depends on `test`, `chrome-smoke` and `v3-ui`. Existing push-main conditions, concurrency, permissions and freshness checks remain. The implementation is local only: **no actual CI run or six-image artifact has yet been obtained**. QA1 must verify the fixed commit's CI evidence and QA2 must inspect its six original images before PM may approve later integration. No audible listening or fatigue acceptance is implied.
+The `v3-ui` job depends on `test`, has a 15-minute cap and always attempts artifact upload (including failures). Pages build depends on `test`, `chrome-smoke` and `v3-ui`. Existing push-main conditions, concurrency, permissions and freshness checks remain. At the original precheck this was implementation-only. Hosted `test`, `chrome-smoke` and `v3-ui` subsequently passed for the original PR head `8548f7c` ([run 43339758387](https://github.com/xdxd-lab/plush_rescue/actions/runs/43339758387)), but its six-image artifact is no longer available for visual acceptance. Those checks do not apply to a newer integration commit. QA1 must verify the integration commit's CI evidence and QA2 must inspect its six original images before PM may approve later integration. No keyboard-focus, audible listening, tail/mix, or 15-minute fatigue acceptance is implied.
