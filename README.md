@@ -1,10 +1,12 @@
 <p align="center"><img src="assets/brand/banner.jpg" alt="布偶救援隊 PLUSH RESCUE：布丁狗與北極熊並肩救回布偶朋友" width="1280"></p>
 
-**立即遊玩：**[GitHub Pages](https://xdxd-lab.github.io/plush_rescue/) · [Sites](https://plush-rescue-survivor.b892020xx.chatgpt.site)
+**立即遊玩：**[GitHub Pages](https://xdxd-lab.github.io/plush_rescue/)
 
 # 布偶救援隊 · Plush Rescue V12.8.0
 
 這是一款可直接在瀏覽器遊玩的單人生存救援遊戲，不需要下載或安裝。GitHub Pages 版本是免建置的靜態網站；`index.html`、遊戲模組與素材都放在本儲存庫根目錄。執行遊戲不需要 CDN、`npm install` 或後端服務。
+
+**維護導覽：**[程式架構與目錄](docs/architecture.md) · [參與方式](CONTRIBUTING.md) · [變更紀錄](CHANGELOG.md) · [素材來源](docs/garden-props.md)
 
 ## 給未來維護者與 AI 的語言規範
 

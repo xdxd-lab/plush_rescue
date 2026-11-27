@@ -12,6 +12,24 @@ export function createPausedRenderGate(){
  };
 }
 
+// Three mutates two 4×4 matrices in place. Comparing references misses edits;
+// serializing 32 doubles per RAF creates needless strings during active play.
+// Keep exact (not rounded) scalar snapshots so a tiny optical change redraws.
+export function createPausedViewKey(){
+ const matrices=new Float64Array(32);
+ let w,h,dpr,quality,visibility,key=0;
+ return (nextW,nextH,nextDpr,nextQuality,nextVisibility,world,projection)=>{
+  let changed=nextW!==w||nextH!==h||nextDpr!==dpr||nextQuality!==quality||nextVisibility!==visibility;
+  for(let i=0;i<16;i++){
+   if(matrices[i]!==world[i]||matrices[16+i]!==projection[i]){
+    matrices[i]=world[i];matrices[16+i]=projection[i];changed=true;
+   }
+  }
+  if(changed){w=nextW;h=nextH;dpr=nextDpr;quality=nextQuality;visibility=nextVisibility;key++;}
+  return key;
+ };
+}
+
 export function bindPausedRenderInvalidation({gate,win,doc,canvas,overlay,dialog}){
  const invalidate=()=>gate.invalidate(),removers=[];
  const listen=(target,type)=>{

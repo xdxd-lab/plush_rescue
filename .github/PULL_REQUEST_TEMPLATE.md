@@ -21,6 +21,12 @@
 - [ ] `node qa/browser-chrome.mjs --dialogs`（改到輸入、版面、對話框或 WebGL 時）
 - [ ] 改到執行檔時已執行 `python3 qa/regenerate-manifest.py`
 
+## 素材與發布
+
+- [ ] 新素材的來源、授權與再散布條件已記錄（不適用請註明）
+- [ ] 合併後另行確認該次 main 的檢查、Pages 部署與正式站版本（若適用）
+- [ ] tag 與 GitHub Release 已分別核對（發布版本時；若尚未建立請註明）
+
 ## 尚未驗證
 
 <!-- 例如 Safari、Firefox、實體手機、真實 GPU。請區分 Node 模擬、瀏覽器檢查與實機測試。 -->

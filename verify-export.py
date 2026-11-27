@@ -20,6 +20,8 @@ manifest = json.loads((ROOT / 'runtime-manifest.json').read_text())
 paths = {entry['path'] for entry in manifest['files']}
 references = []
 
+# Check bytes before resolving references: otherwise a valid path could still serve
+# stale or modified content that no longer matches the release manifest.
 for entry in manifest['files']:
     path = ROOT / entry['path']
     data = path.read_bytes()
@@ -46,10 +48,12 @@ for filename in sorted(paths):
         # Application code has two reviewed dynamic resources: hero portrait and atlas.
         # Vendored Three.js includes generic loaders, unused by this game's local geometry.
         if filename == 'shot-visuals.js':
-            assert "url:'assets/particles.png'" in code
+            assert "url:'assets/hit-star.png'" in code
             assert 'new THREE.TextureLoader().load(FLASH_ATLAS.url' in code
-            references.append((filename, 'assets/particles.png'))
+            references.append((filename, 'assets/hit-star.png'))
             code = code.replace('new THREE.TextureLoader().load(FLASH_ATLAS.url', '')
+        # Dynamic loaders require review because regex-based import discovery cannot
+        # prove which URLs they will request (or that those URLs remain local).
         if not filename.startswith('vendor/'):
             assert not re.search(r'\bfetch\s*\(|\.load\s*\(|\bnew\s+URL\s*\(', code), \
                 f'Review additional dynamic resource loader in {filename}'

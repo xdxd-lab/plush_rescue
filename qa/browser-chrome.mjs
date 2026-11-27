@@ -433,7 +433,7 @@ const STICKY_PROBE=(primary,last)=>`(async()=>{const d=document.querySelector('#
  const onTop=e=>{const r=e.getBoundingClientRect(),h=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return !!h&&(h===e||e.contains(h));};
  const inView=e=>{const r=e.getBoundingClientRect(),dr=d.getBoundingClientRect();return r.top>=dr.top-1&&r.bottom<=dr.bottom+1&&r.bottom<=innerHeight+1;};
  d.scrollTop=0;await wait();const b=document.querySelector('${primary}'),open={inView:inView(b),onTop:onTop(b),scrollTop:d.scrollTop};
- const hidden=[];for(const c of [...d.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled):not([tabindex="-1"])')].filter(e=>e.getClientRects().length)){c.focus();await wait();if(!inView(c)||!onTop(c))hidden.push(c.id||c.className);}
+ const hidden=[];for(const c of [...d.querySelectorAll('button:not(:disabled),input:not(:disabled),summary[tabindex="0"],select:not(:disabled):not([tabindex="-1"])')].filter(e=>e.getClientRects().length)){c.focus();await wait();if(!inView(c)||!onTop(c))hidden.push(c.id||c.className);}
  d.scrollTop=d.scrollHeight;await wait();const end=document.querySelector('${last}');
  // With nothing to scroll, no setting may sit under the sticky button or its 9px ring.
  const barTop=b.getBoundingClientRect().top-9,underBar=d.scrollHeight>d.clientHeight?[]:[...d.querySelectorAll('.setting')].filter(e=>e.getBoundingClientRect().bottom>barTop).map(e=>e.textContent.trim());
@@ -555,7 +555,7 @@ for(const view of runDialogs?DIALOG_VIEWS:[]){
    try{
     await openDialogState(page,state);
     // A radio group is one Tab stop, its checked radio; the arrow-key check covers the others.
-    const ids=await page.eval("[...document.querySelector('#dialog').querySelectorAll('button:not(:disabled),input:not(:disabled):not([type=radio]:not(:checked)),select:not(:disabled):not([tabindex=\"-1\"])')].filter(e=>e.getClientRects().length).map(e=>e.id||e.className)");
+    const ids=await page.eval("[...document.querySelector('#dialog').querySelectorAll('button:not(:disabled),input:not(:disabled):not([type=radio]:not(:checked)),summary[tabindex=\"0\"],select:not(:disabled):not([tabindex=\"-1\"])')].filter(e=>e.getClientRects().length).map(e=>e.id||e.className)");
     const seen={};
     for(let i=0;i<ids.length+1;i++){
      await pressKey(page,'Tab');

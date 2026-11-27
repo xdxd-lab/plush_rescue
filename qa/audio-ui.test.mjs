@@ -21,7 +21,7 @@ function audioContextCounter(){
 test('mute control is a semantic button, persists mute, and slider changes do not unmute or overwrite volume on toggle',async()=>{
  const map=new Map([[SETTINGS_KEY,JSON.stringify({volume:.4,muted:false})]]),storage={getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,String(v))};
  const settings=createSettingsStore({getStorage:()=>storage}),prefs=settings.prefs;
- const nodes=new Map(['#overlay','#dialog','#volume','#muteAudio','#nextHero-pudding','#nextHero-polar','#quality-low','#quality-balanced','#quality-high','#touchFxOn','#showStats','#autoEquip','#autoChoose','#resume','#restart','#pause','#stowTwoHanded'].map(k=>[k,element()]));
+ const nodes=new Map(['#overlay','#dialog','#volume','#volumeValue','#muteAudio','#nextHero-pudding','#nextHero-polar','#quality-low','#quality-balanced','#quality-high','#touchFxOn','#showStats','#autoEquip','#autoChoose','#resume','#restart','#pause','#stowTwoHanded'].map(k=>[k,element()]));
  const dialog=nodes.get('#dialog');dialog.querySelector=()=>nodes.get('#resume');dialog.innerHTML='';
  const overlay=nodes.get('#overlay');overlay.classList.toggle=(_name,value)=>{overlay.classList.shown=value;};
  const doc={hidden:false,activeElement:null,querySelector:s=>nodes.get(s)??element()};
@@ -30,9 +30,12 @@ test('mute control is a semantic button, persists mute, and slider changes do no
  const controller=createDialogs({document:doc,overlay,dialog,canvas:element(),getGame:()=>game,getLastStatus:()=>lastStatus,setLastStatus:v=>lastStatus=v,setRenderDirty(){},prefs,settings,choiceTimer:{clear(){},start(){}},clearInput(){},hudView:{clearHurt(){}},runTrack:{bosses:0},storage:()=>storage,heroNames:{pudding:'布丁狗',polar:'北極熊'},names:['庭院'],setQuality(){},sfx,setAutoEquip(){},touchFx:{setEnabled(){}},setStatsVisible(){},restart(){},resume(){}});
  controller.syncOverlay();
  assert.match(dialog.innerHTML,/<button id="muteAudio" type="button" aria-pressed="false" aria-label="全部靜音">未靜音<\/button>/);
+ assert.match(dialog.innerHTML,/<label for="volume">音效音量<\/label>/);
+ assert.match(dialog.innerHTML,/aria-valuetext="40%"/);
  const mute=nodes.get('#muteAudio');mute.onclick({currentTarget:mute});
  assert.equal(prefs.muted,true);assert.equal(prefs.volume,.4);assert.equal(mute.attrs.get('aria-pressed'),'true');assert.equal(mute.textContent,'已靜音');assert.equal(counter.count(),0);
  nodes.get('#volume').oninput({target:{value:'0.7'}});
+ assert.equal(nodes.get('#volumeValue').textContent,'70%');assert.equal(nodes.get('#volume').attrs.get('aria-valuetext'),'70%');
  assert.equal(prefs.muted,true,'slider does not toggle mute');assert.equal(prefs.volume,.7);assert.equal(counter.count(),0,'muted slider change does not create a context');
  assert.deepEqual(JSON.parse(map.get(SETTINGS_KEY)),{quality:'balanced',volume:.7,muted:true,hero:'pudding',stats:false,autoChoose:false,touchFx:true});
  mute.onclick({currentTarget:mute});await Promise.resolve();

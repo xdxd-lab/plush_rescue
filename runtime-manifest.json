@@ -15,9 +15,9 @@
       "sha256": "53783999ad814f84d9655a792514a4ebffe3c1fe10a1a91619d984f18fbfc5eb"
     },
     {
-      "path": "assets/particles.png",
-      "bytes": 506138,
-      "sha256": "ca39797b59dd36bb3f7fac4a49d44ce119849ed129f9bb8a3734c034e9addf07"
+      "path": "assets/hit-star.png",
+      "bytes": 31108,
+      "sha256": "f35b1d2fa0a5faf6e3dee854df6c87e219532de339d73c2b2dd94c10011bcf8a"
     },
     {
       "path": "assets/brand/apple-touch-icon.png",
@@ -96,8 +96,8 @@
     },
     {
       "path": "dialogs.js",
-      "bytes": 11502,
-      "sha256": "c6e4ad08fa5bf75c0ced0d7cfe450da13a7b05ce2470e1696d08773e1e58ea07"
+      "bytes": 12228,
+      "sha256": "175a903de95b63f18b7c4e6945ff73076fe5d638a5005d682c6b26e5da1872bd"
     },
     {
       "path": "effects.js",
@@ -126,8 +126,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13810,
-      "sha256": "feecf628e8f39451d8ba9fcd73a57a9d9b782f9132583aeb08c5027b86d592b5"
+      "bytes": 14618,
+      "sha256": "53e0149844b7a3d5098705220c7fbd4cde0aa57761c7b8a16ae09cafc16baeeb"
     },
     {
       "path": "input-controller.js",
@@ -145,9 +145,14 @@
       "sha256": "65e3a24751674769fa358a1971a912c5b6d81cdb390183e88a4ec76d4b116f5f"
     },
     {
+      "path": "loot-art.js",
+      "bytes": 13060,
+      "sha256": "e4167986c5b791139118f3a4b396e2b8d502785669e55c60760db2a334edf88b"
+    },
+    {
       "path": "main.js",
-      "bytes": 18928,
-      "sha256": "a971e7481e865ca8bac0cf323a11596bf5fdbba93e87dca4a78d14ea5a9230bf"
+      "bytes": 19146,
+      "sha256": "9f277ae1a80f78d11d26189bce8e1ec77b71b938c98263fc266607178f9349c6"
     },
     {
       "path": "maps.js",
@@ -156,8 +161,8 @@
     },
     {
       "path": "paused-render.js",
-      "bytes": 1703,
-      "sha256": "5c77e0aa4edb175b5932b917e2a2524dca919b5a9cca44db9de3b9f92de65a05"
+      "bytes": 2519,
+      "sha256": "f4e3f3d102b38896d5d6ff4c7d22ad918663be693f25cdf3fc1096add7b5c8a2"
     },
     {
       "path": "pickup.js",
@@ -181,13 +186,13 @@
     },
     {
       "path": "shot-visuals.js",
-      "bytes": 10253,
-      "sha256": "49a9028b1380161793d25f3e1eedfe35a3097de3e3016d1b4c9f2b75e30516be"
+      "bytes": 10672,
+      "sha256": "9ea2e7fec04c87f9324f99108b50606333541dd7782e12c6f1c3388f13d61a52"
     },
     {
       "path": "style.css",
-      "bytes": 35534,
-      "sha256": "eb7ae575c751cef1d3ec2dc45ac3441e87a2e8728a1459a309e2e3e307b34fcb"
+      "bytes": 40609,
+      "sha256": "425f66e41a53f4e5bd2dc425db0c3817dc82430d6b7095cd0d64064a82b0631e"
     },
     {
       "path": "touch-visuals.js",
@@ -206,18 +211,18 @@
     },
     {
       "path": "vendor/three.core.js",
-      "bytes": 1458113,
-      "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+      "bytes": 545974,
+      "sha256": "5034916328083482d01cea9e058cd9ee125459fc1502d653a3d88616de8d5dec"
     },
     {
       "path": "vendor/three.module.js",
-      "bytes": 662772,
-      "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+      "bytes": 508193,
+      "sha256": "dcc2085615efdd23187e412e5867d4bc1ed2e835539abfafb25e5729a6330564"
     },
     {
       "path": "weapon-visuals.js",
-      "bytes": 39847,
-      "sha256": "f2323ca2cc3261bf961913dbc0222e9e17ee5b600c2cd8f340fd4c5506a4b570"
+      "bytes": 40086,
+      "sha256": "95a9d6914e595d1f51328c9213bbefbf31d32d83f85c3fcf76a3b31d8178ce4b"
     },
     {
       "path": "weapons.js",

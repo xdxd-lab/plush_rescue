@@ -69,14 +69,26 @@
 <section id="overlay" class="shown" aria-hidden="false">
  <div class="dialog" id="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle" data-state="ready">
   <div class="intro-copy">
-   <div class="eyebrow"><img class="brand-mark" src="assets/brand/brand-mark.png" alt="" width="20" height="20" decoding="async">PLUSH RESCUE</div><h1 id="dialogTitle">布偶救援隊</h1><p class="lead">把失去顏色的朋友，一個一個帶回溫暖。</p>
-   <ul class="how-to">
-    <li><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-pulse"></use></svg><span>在畫面上按鈕以外的地方按住拖曳就能移動，武器會自動瞄準射擊。</span></li>
-    <li><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-burst"></use></svg><span>靠近道具會自動撿起，畫面上看得到的道具也能點一下撿取（手機可用另一指）；撿到武器會立刻升級，再決定要不要換上。</span></li>
-    <li><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-crown"></use></svg><span>每分鐘有首領現身，每 3 分鐘迎戰大首領。</span></li>
-    <li><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clock"></use></svg><span>撐過 20 分鐘，就能迎來天亮。</span></li>
-   </ul>
-   <p class="key-note">電腦：WASD／方向鍵移動 · Esc 暫停 · 升級時按 1–4 快速選擇</p>
+   <header class="mission-cover">
+    <div class="eyebrow"><img class="brand-mark" src="assets/brand/brand-mark.png" alt="" width="20" height="20" decoding="async">PLUSH RESCUE</div>
+    <h1 id="dialogTitle">布偶救援隊</h1><p class="lead">把失去顏色的朋友，一個一個帶回溫暖。</p>
+    <svg class="night-patch" viewBox="0 0 112 96" aria-hidden="true" focusable="false">
+     <rect x="3" y="3" width="106" height="90" rx="13" fill="#173f43" stroke="#e5ca90" stroke-width="2"/>
+     <rect x="7" y="7" width="98" height="82" rx="10" fill="none" stroke="#b6bf9f" stroke-dasharray="3 3"/>
+     <circle cx="75" cy="30" r="11" fill="#f9c37a"/><path d="m20 36 2-4 2 4 4 1-4 2-2 4-2-4-4-2zm23-14 1-3 2 3 3 1-3 1-2 3-1-3-3-1z" fill="#ffdf96"/>
+     <path d="m13 63 22-18 13 7 13-11 36 22v18H13z" fill="#477e75"/><path d="m13 70 24-10 25 3 18-8 17 6v20H13z" fill="#82ab8b"/>
+     <path d="m54 82-7-8 16-6 5-10" fill="none" stroke="#fff0c7" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 4"/>
+     <path d="M67 56V43l11 3-11 5" fill="#f09d7f" stroke="#f8e3b3" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+   </header>
+   <details class="field-guide"><summary id="fieldGuideToggle" tabindex="0"><span><b>行動手冊</b><small>拖曳移動 · 自動射擊</small></span><i aria-hidden="true"></i></summary>
+    <ul class="how-to">
+     <li><svg class="icon" aria-hidden="true"><use href="#i-pulse"></use></svg><span>按住空白處拖曳移動，武器會自動瞄準。電腦也可以用 WASD 或方向鍵。</span></li>
+     <li><svg class="icon" aria-hidden="true"><use href="#i-burst"></use></svg><span>靠近或點一下道具就能撿取。武器先升級，再由你決定要不要換上。</span></li>
+     <li><svg class="icon" aria-hidden="true"><use href="#i-crown"></use></svg><span>每分鐘出現一位首領，每 3 分鐘迎戰大首領；撐過 20 分鐘，等天亮。</span></li>
+    </ul>
+    <p class="key-note">Esc 暫停 · 升級時按 1–4 選擇</p>
+   </details>
   </div>
   <div class="intro-actions">
    <div class="hero-picker" role="group" aria-labelledby="heroPickerLabel">
@@ -90,7 +102,7 @@
    </div>
    <button id="start" class="primary">出發救援 <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-play"></use></svg></button>
    <p id="bestLine" class="best-line" hidden></p>
-   <small class="random-note">三個小世界，每局隨機抵達其中一個</small>
+   <small class="random-note">每次出發，隨機抵達三座小世界之一</small>
   </div>
  </div>
 </section>

@@ -14,12 +14,14 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
+# Explicit allowlist: regeneration updates hashes for known runtime files; it does not
+# discover new imports. Add each intentionally shipped dependency before regenerating.
 RUNTIME = [
-    'assets/polar-portrait.png', 'assets/pudding-portrait.png', 'assets/particles.png',
+    'assets/polar-portrait.png', 'assets/pudding-portrait.png', 'assets/hit-star.png',
     'assets/brand/apple-touch-icon.png', 'assets/brand/brand-mark.png', 'assets/brand/icon-16.png',
     'assets/brand/icon-192.png', 'assets/brand/icon-32.png', 'assets/brand/og-image.jpg',
     'ally-visuals.js', 'audio.js', 'boss-visuals.js', 'build-info.json', 'camera.js', 'characters.js', 'choice-timer.js', 'core.js',
-    'crowd.js', 'dialogs.js', 'effects.js', 'enemy-visuals.js', 'garden-prop-data.js', 'garden-props.js', 'hud.js', 'index.html', 'input-controller.js', 'keyboard.js', 'lighting.js', 'main.js',
+    'crowd.js', 'dialogs.js', 'effects.js', 'enemy-visuals.js', 'garden-prop-data.js', 'garden-props.js', 'hud.js', 'index.html', 'input-controller.js', 'keyboard.js', 'lighting.js', 'loot-art.js', 'main.js',
     'maps.js', 'paused-render.js', 'pickup.js', 'render-sync.js', 'settings-store.js', 'shader-warmup.js', 'shot-visuals.js', 'style.css', 'touch-visuals.js', 'ui.js',
     'vendor/THREE-LICENSE.txt', 'vendor/three.core.js', 'vendor/three.module.js',
     'weapon-visuals.js', 'weapons.js', 'webgl-recovery.js',

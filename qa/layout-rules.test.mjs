@@ -28,6 +28,7 @@ function conditionMatches(condition,vp){
   case 'orientation':return raw===(vp.w>vp.h?'landscape':'portrait');
   case 'hover':return raw===(vp.touch?'none':'hover');
   case 'pointer':return raw===(vp.touch?'coarse':'fine');
+  case 'forced-colors':return Boolean(vp.forced)&&raw==='active';
   case 'prefers-reduced-motion':return Boolean(vp.reduce)&&raw==='reduce';
   default:throw new Error('Unrecognized media condition: '+condition);
  }
@@ -209,4 +210,14 @@ test('dialogs stay reachable when taller than the window: scroll container, no i
  // (a browser scrolls a tabbed-to control into view).
  assert.ok(dialogs.includes("(prefs.autoChoose&&autoTarget?autoTarget:dialog.querySelector('#keepWeapon,#resume,.choice,#again,#start'))?.focus("),'recommended target focused only when auto-choice is enabled');
  assert.ok(main.includes("if(e.key!=='Tab'||game.status==='running')return;"),'focus trap for Tab');
+});
+
+test('field guide is a native keyboard-reachable disclosure; mute and range are full-size touch targets',()=>{
+ assert.match(html,/<details class="field-guide"><summary id="fieldGuideToggle" tabindex="0">/);
+ for(const vp of VIEWPORTS){
+  assert.ok(px(declarationsAt('.field-guide summary',vp)['min-height'])>=44,vp.name);
+  assert.ok(px(declarationsAt('#muteAudio',vp)['min-height'])>=44,vp.name);
+  assert.ok(px(declarationsAt('.setting input[type=range]',vp).height)>=44,vp.name);
+  assert.equal(declarationsAt('.setting input[type=checkbox]',{...vp,forced:true}).appearance,'auto',vp.name);
+ }
 });

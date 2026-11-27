@@ -135,3 +135,27 @@ test('detach removes event and media listeners and disconnects the mutation obse
   f.media.dispatch('change');
   assert.equal(f.steadyDraw(), false, 'detached invalidation sources no longer request frames');
 });
+
+test('paused viewport key observes in-place matrix and viewport changes without false dirtiness', async () => {
+  const {createPausedViewKey} = await import('../paused-render.js');
+  const signature = createPausedViewKey();
+  const world = new Float64Array(16), projection = new Float64Array(16);
+  const props = [375, 667, 2, 'balanced', 'visible'];
+  const key = () => signature(...props, world, projection);
+  let old = key();
+  assert.equal(key(), old);
+  const changed = update => {
+    update();
+    assert.notEqual(key(), old);
+    old = key();
+    assert.equal(key(), old);
+  };
+  for (const matrix of [world, projection]) {
+    for (let i=0; i<16; i++) changed(() => { matrix[i] = 1 + i + Number.EPSILON; });
+    changed(() => { matrix[0] += Number.EPSILON; });
+  }
+  for (const [i, value] of [[0, 667], [1, 375], [2, 2.5], [3, 'low'], [4, 'hidden']])
+    changed(() => { props[i] = value; });
+  assert.equal(signature(...props, world.slice(), projection.slice()), old,
+    'equal values in different backing arrays are still the same view');
+});

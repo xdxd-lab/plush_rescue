@@ -43,22 +43,30 @@ function syncOverlay(){
  clearInput();hudView.clearHurt();
  let autoTarget=null,autoLabel='',autoResolve=null;
  if(game.status==='paused'){
+  // Keep the group captions visual only: the sections already name themselves to screen readers.
+  // The number mirrors the native range; muting is independent and never overwrites it.
+  const volumeText=()=>Math.round(prefs.volume*100)+'%';
   dialog.innerHTML=`<div class="pause-head"><h2 id="dialogTitle">暫停中</h2><p class="run-line">${formatClock(game.time)} · 救回 ${game.saved} · Lv. ${game.level}</p></div>`
-   +`<div class="settings-columns"><section class="settings-group" aria-label="畫面與聲音">`
-   +`<label class="setting">音效音量 <input id="volume" type="range" min="0" max="1" step=".05" value="${prefs.volume}"></label>`
+   +`<div class="settings-columns"><section class="settings-group" aria-label="畫面與聲音"><div class="group-caption" aria-hidden="true">${iconSvg('i-gear')} 畫面與聲音</div>`
+   +`<div class="setting"><label for="volume">音效音量</label><span class="volume-control"><span id="volumeValue" aria-hidden="true">${volumeText()}</span><input id="volume" type="range" min="0" max="1" step=".05" value="${prefs.volume}" aria-valuetext="${volumeText()}"></span></div>`
    +`<div class="setting"><span>全部靜音</span><button id="muteAudio" type="button" aria-pressed="${prefs.muted}" aria-label="全部靜音">${prefs.muted?'已靜音':'未靜音'}</button></div>`
    +segmented('quality','畫面品質',QUALITY_CHOICES,prefs.quality)
    +`<label class="setting">觸控特效<input id="touchFxOn" type="checkbox" ${prefs.touchFx?'checked':''}></label>`
    +`<label class="setting" title="電腦也可以按 F3 切換">顯示效能數字<input id="showStats" type="checkbox" ${prefs.stats?'checked':''}></label></section>`
-   +`<section class="settings-group" aria-label="遊戲">`
+   +`<section class="settings-group" aria-label="遊戲"><div class="group-caption" aria-hidden="true">${iconSvg('i-star')} 遊戲</div>`
    +`<label class="setting">撿到武器自動換上<input id="autoEquip" type="checkbox" ${prefs.autoEquip?'checked':''}></label>`
    +`<label class="setting">10 秒自動選擇<input id="autoChoose" type="checkbox" ${prefs.autoChoose?'checked':''}></label>`
    +segmented('nextHero','下一局隊員',HERO_CHOICES,prefs.hero)+`</section></div>`
    +`<div class="pause-actions"><button id="resume" class="primary">繼續救援 ${iconSvg('i-play')}</button><button id="restart" class="secondary">重新開始 · 隨機世界</button></div>`;
   for(const [value] of HERO_CHOICES)$('#nextHero-'+value).onchange=e=>{prefs.hero=e.target.value==='polar'?'polar':'pudding';settings.save();};
   for(const [value] of QUALITY_CHOICES)$('#quality-'+value).onchange=e=>{setQuality(e.target.value);settings.save();};
-  $('#volume').oninput=e=>{prefs.volume=Number(e.target.value);sfx.syncSettings();sfx.unlock();settings.save();};
-  $('#volume').onchange=()=>settings.save();
+  const volume=$('#volume'),readout=$('#volumeValue');
+  volume.oninput=e=>{
+   prefs.volume=Number(e.target.value);
+   const percent=volumeText();readout.textContent=percent;volume.setAttribute('aria-valuetext',percent);
+   sfx.syncSettings();sfx.unlock();settings.save();
+  };
+  volume.onchange=()=>settings.save();
   $('#muteAudio').onclick=e=>{prefs.muted=!prefs.muted;e.currentTarget.setAttribute('aria-pressed',String(prefs.muted));e.currentTarget.textContent=prefs.muted?'已靜音':'未靜音';sfx.syncSettings();if(!prefs.muted)sfx.unlock();settings.save();};
   $('#autoEquip').onchange=e=>setAutoEquip(e.target.checked);
   $('#autoChoose').onchange=e=>{prefs.autoChoose=Boolean(e.target.checked);settings.save();};
