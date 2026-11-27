@@ -1,0 +1,3 @@
+# Vendored, reproducible upstream build outputs; review the source pins in tools/vendor/.
+vendor/three.core.js linguist-generated=true
+vendor/three.module.js linguist-generated=true

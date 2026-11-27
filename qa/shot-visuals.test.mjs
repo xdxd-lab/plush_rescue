@@ -77,15 +77,15 @@ test('star_09 atlas UV switches only after successful load, retaining full fallb
  const scene=new THREE.Scene(),v=createShotVisuals(THREE,scene,{loadAtlas:(url,ok)=>callbacks.push(ok)}),uv=v.flashGeometry.attributes.uv;
  const extents=()=>{const us=[],vs=[];for(let i=0;i<uv.count;i++){us.push(uv.getX(i));vs.push(uv.getY(i));}return [Math.min(...us),Math.max(...us),Math.min(...vs),Math.max(...vs)];};
  assert.deepEqual(extents(),[0,1,0,1],'pending canvas fallback samples the full texture');
- const atlas=new THREE.Texture();atlas.image={width:2048,height:1024};callbacks[0](atlas);
- const [a,b,c,d]=extents();assert.ok(Math.abs(a-1042/2048)<1e-6);assert.ok(Math.abs(b-1298/2048)<1e-6);
- assert.ok(Math.abs(c-(1-518/1024))<1e-6);assert.ok(Math.abs(d-(1-262/1024))<1e-6);
+ const atlas=new THREE.Texture();atlas.image={width:260,height:260};callbacks[0](atlas);
+ const [a,b,c,d]=extents();assert.ok(Math.abs(a-2/260)<1e-6);assert.ok(Math.abs(b-258/260)<1e-6);
+ assert.ok(Math.abs(c-(1-258/260))<1e-6);assert.ok(Math.abs(d-(1-2/260))<1e-6);
  v.reloadAtlas();assert.deepEqual(extents(),[0,1,0,1],'reload restores full fallback UV');
 });
 
 test('pending, failed and invalid atlas loads retain the original flash fallback',()=>{
  const callbacks=[];let ready=0;
- const scene=new THREE.Scene(),v=createShotVisuals(THREE,scene,{onAtlasReady:()=>ready++,loadAtlas:(url,ok,fail)=>{assert.equal(url,'assets/particles.png');callbacks.push({ok,fail});}});
+ const scene=new THREE.Scene(),v=createShotVisuals(THREE,scene,{onAtlasReady:()=>ready++,loadAtlas:(url,ok,fail)=>{assert.equal(url,'assets/hit-star.png');callbacks.push({ok,fail});}});
  const fallback=v.flashMaterial.map;
  assert.equal(v.atlasState,'pending');assert.equal(v.flashMaterial.map,fallback);
  v.hit({weaponId:'pulse',x:0,z:0},{quality:'low',reduceMotion:true});v.update(0);
@@ -100,16 +100,16 @@ test('valid atlas load changes only flash map; stale and disposed callbacks are 
  const scene=new THREE.Scene(),v=createShotVisuals(THREE,scene,{onAtlasReady:()=>ready++,loadAtlas:(url,ok,fail)=>callbacks.push({ok,fail})});
  const fallback=v.flashMaterial.map;
  v.clear();v.reloadAtlas();
- const stale=new THREE.Texture();stale.image={width:2048,height:1024};callbacks[0].ok(stale);
+ const stale=new THREE.Texture();stale.image={width:260,height:260};callbacks[0].ok(stale);
  assert.equal(v.flashMaterial.map,fallback);assert.equal(v.atlasState,'pending');
- const atlas=new THREE.Texture();atlas.image={width:2048,height:1024};callbacks[1].ok(atlas);
+ const atlas=new THREE.Texture();atlas.image={width:260,height:260};callbacks[1].ok(atlas);
  assert.equal(v.atlasState,'ready');assert.equal(ready,1);assert.equal(v.flashMaterial.map,atlas);
  assert.equal(atlas.flipY,true);assert.equal(atlas.colorSpace,THREE.SRGBColorSpace);
  assert.equal(atlas.generateMipmaps,false);assert.equal(atlas.minFilter,THREE.LinearFilter);
  assert.equal(v.flashMaterial.blending,THREE.AdditiveBlending);assert.equal(v.flashMaterial.depthWrite,false);
  v.hit({weaponId:'pulse',x:0,z:0});v.update(0);assert.equal(v.stats.flashes,1);assert.equal(v.stats.puffs,S.puffsPerHit);
  v.reloadAtlas();assert.equal(v.flashMaterial.map,fallback);
- v.dispose();const after=new THREE.Texture();after.image={width:2048,height:1024};callbacks[2].ok(after);
+ v.dispose();const after=new THREE.Texture();after.image={width:260,height:260};callbacks[2].ok(after);
  assert.equal(ready,1);assert.equal(v.flashMaterial.map,fallback);
 });
 
@@ -128,4 +128,22 @@ test('CanvasTexture fallback keeps its full original image while atlas is pendin
   fail();assert.equal(v.flashMaterial.map,fallback);assert.equal(v.atlasState,'fallback');
   v.dispose();
  }finally{globalThis.document=previous;}
+});
+
+test('repeated pre-render updates queue only the latest live matrix/color prefix, including reset',()=>{
+ const {v,batch}=setup();
+ const trails=batch('Main weapon bolt trails'),flashes=batch('Main weapon hit flashes'),puffs=batch('Main weapon hit cotton puffs');
+ const check=(mesh,n,colors=true)=>{
+   assert.equal(mesh.count,n);assert.equal(mesh.visible,n>0);
+   const ranges=(attr,size)=>assert.deepEqual(attr.updateRanges,n?[{start:0,count:n*size}]:[]);
+   ranges(mesh.instanceMatrix,16);if(colors)ranges(mesh.instanceColor,3);
+ };
+ const bullets=Array.from({length:18},(_,i)=>({...bolt(i+1,i*.1,.7),life:PROJECTILE.life-.2}));
+ v.sync(bullets);check(trails,18);
+ v.sync(bullets.slice(0,1));check(trails,1);
+ v.hit({x:0,z:0,weaponId:'pulse'});v.update(.01);check(flashes,1);check(puffs,S.puffsPerHit,false);
+ v.hit({x:1,z:1,weaponId:'pulse'});v.update(0);check(flashes,2);check(puffs,2*S.puffsPerHit,false);
+ v.clear();check(trails,0);check(flashes,0);check(puffs,0,false);
+ v.sync(bullets);check(trails,18);
+ v.update(1);check(flashes,0);check(puffs,0,false);
 });

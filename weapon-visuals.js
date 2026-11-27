@@ -1,14 +1,17 @@
 import {WEAPONS} from './weapons.js';
+import {UPGRADES} from './core.js';
+import {lootGeometry,bakeToy,lootLabels,lootRelief,LABEL_MASTER} from './loot-art.js';
 
 // All new art lives here: the handmade V3 character and its muzzle remain intact.
 // A manager owns bounded pools, shared geometry and immutable material palettes.
 const MAX_DROPS = 16, MAX_BOMBS = 12, MAX_EFFECTS = 24, MAX_BURNING = 12;
-const SKILLS = {
-  power: {name:'暖心光束', icon:'✦', color:'#ffc967'},
-  rate: {name:'星光連發', icon:'ϟ', color:'#fff19a'},
-  speed: {name:'輕盈腳步', icon:'➜', color:'#a9f0c2'},
-  heart: {name:'柔軟守護', icon:'♡', color:'#ff9abd'},
+// Names/icons come from the same catalog that selects a real drop; presentation
+// adds only its palette and the embossed silhouette.
+const skillLook={
+  power:['#ffc967','star'],rate:['#fff19a','bolt'],speed:['#a9f0c2','arrow'],heart:['#ff9abd','heart'],
+  magnet:['#ff9aac','magnet'],crit:['#ffdb73','crit'],reach:['#c1b0ff','reach'],guard:['#96dcea','guard']
 };
+const SKILLS=Object.fromEntries(UPGRADES.map(skill=>[skill.id,{...skill,color:skillLook[skill.id][0],glyph:skillLook[skill.id][1]}]));
 const FALLBACK = {name:'救援光束', icon:'✦', color:'#73e4f5', slot:'main'};
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 // V12.1.1: the one source of truth for a drop's on-screen stack. Rendering below
@@ -39,9 +42,8 @@ export const DROP_GEOMETRY = Object.freeze({
 // slideRelease stop a label flickering at those two limits while the hero moves.
 export const LABEL_POLICY = Object.freeze({portrait: 3, landscape: 5, short: 3, shortHeight: 480, heroClear: 1.3, keep: .6, gap: .02, minHeight: 30,
   heroHalfWidth: 1.12, heroHeight: 1.6, slideKeep: .15, slideRelease: .06});
-// Text sizes on the 384x112 label canvas. On screen a label's title is 45/112 of
-// its height, so a label's height sets how readable it is.
-export const LABEL_FONT = Object.freeze({canvasHeight: 112, title: 45, subtitle: 36});
+// Keep the physical title height and hit area, quadruple the actual raster.
+export const LABEL_FONT=Object.freeze({canvasHeight:LABEL_MASTER.height,title:LABEL_MASTER.title,subtitle:LABEL_MASTER.subtitle});
 // The last 30% of a mine's fuse: the blast ring turns bright gold-white. Mines
 // only hurt enemies, so this stays clear of the boss attack's red.
 export const BOMB_VISUAL = Object.freeze({imminent: .3, ringColor: '#fff2c0'});
@@ -58,7 +60,7 @@ export function dropLabelBox(scale=1, shift=0) {
 export function createWeaponVisuals(THREE, scene) {
   const root = new THREE.Group();
   root.name = 'V4 weapon pickups, bomb warnings and magic';
-  const geometries = new Set(), materials = new Set(), textures = new Set();
+  const geometries = new Set(), materials = new Set();
   const geometry = value => (geometries.add(value), value);
   const material = value => (materials.add(value), value);
   const g = {
@@ -138,7 +140,18 @@ export function createWeaponVisuals(THREE, scene) {
   const gold = material(new THREE.MeshBasicMaterial({color:'#ffe6a4',side:THREE.DoubleSide}));
   const bombImminent = material(new THREE.MeshBasicMaterial({color:BOMB_VISUAL.ringColor,side:THREE.DoubleSide}));
   const skillMaterials = new Map(Object.entries(SKILLS).map(([id,skill]) => [id, material(new THREE.MeshBasicMaterial({color:skill.color, side:THREE.DoubleSide}))]));
-  const labelMaterials = new Map();
+  // Give the cut crown its own satin response; the ground marker keeps the
+  // high-contrast flat skill colour and stays legible on all three grounds.
+  const groundRelief=lootRelief(THREE);
+  const skillGems=new Map(Object.entries(SKILLS).map(([id,skill])=>[id,material(new THREE.MeshStandardMaterial({
+    color:skill.color,roughness:.31,metalness:.12,bumpMap:groundRelief,bumpScale:.0025,emissive:skill.color,emissiveIntensity:.14
+  }))]));
+  const labels=lootLabels(THREE,material);
+  const detail=lootGeometry(THREE,geometry), catalogToys=new Map();
+  const groundMats=[
+    material(new THREE.MeshStandardMaterial({vertexColors:true,bumpMap:groundRelief,bumpScale:.007,roughness:.65})),
+    material(new THREE.MeshStandardMaterial({vertexColors:true,bumpMap:groundRelief,bumpScale:.0035,roughness:.29,metalness:.12,emissive:0x807765,emissiveIntensity:.13,side:THREE.DoubleSide}))
+  ];
   let now = 0, currentHero = null, originalGun = null, originalGunVisible = true, labelCamera = null, labelViewHeight = 0;
   let heldMain = null, heldOffhand = null, mainId = '', offhandId = '', evolved = false;
   const heldModels = new Map(), charmModels = new Map(), carriedModels = new Map();
@@ -240,33 +253,13 @@ export function createWeaponVisuals(THREE, scene) {
     return group;
   }
 
-  // A small, fixed label atlas is cached by catalog key. No canvas is redrawn
-  // during a frame; tests without a DOM simply retain the descriptive names.
-  function labelMaterial(key, title, subtitle, color='#a7e5ed') {
-    if (labelMaterials.has(key)) return labelMaterials.get(key);
-    let map = null;
-    if (typeof document!=='undefined' && document.createElement) {
-      try {
-        const canvas=document.createElement('canvas'); canvas.width=384; canvas.height=112;
-        const ctx=canvas.getContext('2d');
-        if (ctx) {
-          ctx.fillStyle='rgba(24,34,46,.96)'; ctx.fillRect(3,3,378,106);
-          ctx.strokeStyle=new THREE.Color(color).getStyle(); ctx.lineWidth=4; ctx.strokeRect(3,3,378,106);
-          ctx.textAlign='center'; ctx.textBaseline='middle';
-          ctx.fillStyle='#fff7df'; ctx.font=`bold ${LABEL_FONT.title}px sans-serif`;
-          ctx.fillText(title,192,subtitle?37:56,356);
-          ctx.fillStyle=new THREE.Color(color).getStyle(); ctx.font=`bold ${LABEL_FONT.subtitle}px sans-serif`;
-          if (subtitle) ctx.fillText(subtitle,192,83,356);
-          map=new THREE.CanvasTexture(canvas); map.colorSpace=THREE.SRGBColorSpace; textures.add(map);
-        }
-      } catch { /* Headless rendering and missing 2D canvas are supported. */ }
-    }
-    const result=material(new THREE.SpriteMaterial({map,color:map?0xffffff:color,transparent:true,depthWrite:false,fog:false,opacity:map?1:.85}));
-    labelMaterials.set(key,result); return result;
+  function labelFor(view) {
+    // During shader staging there is no drawn viewport: compile the identical
+    // sprite program without rasterizing an unseen catalog of large labels.
+    if(!labelCamera)return labels.fallback;
+    const {key,headline,subtitle,color}=view.spec;
+    return labels.get(key,headline,subtitle,color);
   }
-  for (const [id,w] of Object.entries(WEAPONS)) labelMaterial(`weapon:${id}`,`${w.icon || '✦'} ${w.name}`,w.slot==='offhand'?'副手魔法':w.slot==='twohand'?'雙手魔能砲':'主武器',w.color);
-  for (const [id,s] of Object.entries(SKILLS)) labelMaterial(`skill:${id}`,`${s.icon} ${s.name}`,'技能強化',s.color);
-  labelMaterial('skill:unknown','✦ 技能強化','','#f9d593');
 
   function attachRoot() { if (!root.parent) scene.add(root); }
   function detachHero() {
@@ -329,11 +322,11 @@ export function createWeaponVisuals(THREE, scene) {
   function makeDrop() {
     const group=new THREE.Group(), float=new THREE.Group();
     group.name='Hovering weapon or skill pickup'; group.add(float);
-    const D=DROP_GEOMETRY, ring=part(group,'Pickup ground marker',g.ring,white,[0,D.ringY,0],[D.ringScale,D.ringScale,D.ringScale]);
+    const D=DROP_GEOMETRY, ring=part(group,'Pickup ground marker',detail.ring,white,[0,D.ringY,0],[D.ringScale,D.ringScale,D.ringScale]);
     ring.rotation.x=-Math.PI/2;
-    const beacon=part(float,'Pickup glowing center',g.crystal,white,[0,0,0],[.24,.31,.24]);
-    const glyph=part(float,'Skill symbol',g.star,white,[0,.05,.29],[.21,.21,.025]);
-    const label=new THREE.Sprite(labelMaterials.get('skill:unknown'));
+    const beacon=part(float,'Pickup glowing center',detail.crystal,white,[0,0,0],[.24,.31,.24]);
+    const glyph=part(float,'Skill symbol',detail.star,white,[0,.05,.29],[.21,.21,.025]);
+    const label=new THREE.Sprite(labels.fallback);
     label.name='Pickup label'; label.position.y=D.labelY; label.scale.set(D.labelWidth,D.labelHeight,1); label.visible=false; group.add(label);
     group.visible=false;
     return {group,float,ring,beacon,glyph,label,labelScale:1,labelShift:0,model:null,kind:'',key:'',id:null,phase:dropPool.length*.77};
@@ -341,39 +334,44 @@ export function createWeaponVisuals(THREE, scene) {
   function dropSpec(drop) {
     if (drop.kind==='weapon' && WEAPONS[drop.weaponId]) {
       const w=WEAPONS[drop.weaponId];
-      return {key:`weapon:${drop.weaponId}`,name:w.name,weaponId:drop.weaponId,slot:w.slot,color:w.color};
+      return {key:`weapon:${drop.weaponId}`,name:w.name,weaponId:drop.weaponId,slot:w.slot,color:w.color,
+        headline:`${w.icon} ${w.name}`,subtitle:w.slot==='offhand'?'副手魔法':w.slot==='twohand'?'雙手魔能砲':'主武器'};
     }
     const id=SKILLS[drop.upgradeId] ? drop.upgradeId : 'unknown', skill=SKILLS[id];
-    return {key:`skill:${id}`,name:skill?.name || '技能強化',upgradeId:id,color:skill?.color || '#f9d593'};
+    return {key:`skill:${id}`,name:skill?.name || '技能強化',upgradeId:id,color:skill?.color || '#f9d593',
+      headline:skill?`${skill.icon} ${skill.name}`:'✦ 技能強化',subtitle:skill?'技能強化':''};
   }
   function configureDrop(view, drop) {
-    const spec=dropSpec(drop);
-    if (view.key===spec.key) return;
+    if(view.spec && view.kind===drop.kind && view.itemId===(drop.weaponId ?? drop.upgradeId))return;
+    const spec=dropSpec(drop);view.spec=spec;view.kind=drop.kind;view.itemId=drop.weaponId ?? drop.upgradeId;
     view.key=spec.key; view.group.name=`${spec.name} · ${drop.kind==='weapon'?'weapon':'skill'} pickup`;
     view.group.userData={kind:drop.kind,weaponId:drop.weaponId,upgradeId:drop.upgradeId,label:spec.name};
-    // Each pool slot keeps one model per catalog entry at most, avoiding
-    // repeated allocations when a slot alternates between different drops.
-    view.models ??= new Map();
-    view.model?.removeFromParent(); view.model=null;
+    // Build a detailed rigid template once per weapon, not per drop. Each live
+    // slot only repoints its two mesh handles at the shared catalog buffers.
     const isWeapon=!!spec.weaponId;
-    view.ring.geometry=isWeapon?g.ring:g.diamondRing;
+    view.ring.geometry=isWeapon?detail.ring:detail.diamondRing;
     view.ring.material=isWeapon?colors(spec.weaponId).light:(skillMaterials.get(spec.upgradeId)||gold);
-    view.beacon.visible=!isWeapon; view.glyph.visible=!isWeapon;
-    if (isWeapon) {
-      if (!view.models.has(spec.weaponId)) view.models.set(spec.weaponId,spec.slot==='offhand'?charmModel(spec.weaponId):gunModel(spec.weaponId));
-      view.model=view.models.get(spec.weaponId); view.float.add(view.model);
-      view.model.scale.setScalar(spec.slot==='offhand'?1.45:1.5); view.model.position.set(0,0,-.10);
-    } else {
-      view.beacon.material=skillMaterials.get(spec.upgradeId)||gold;
-      view.glyph.material=white;
-      view.glyph.geometry=g[{power:'star',rate:'bolt',speed:'arrow',heart:'heart'}[spec.upgradeId] || 'star'];
+    view.beacon.visible=!isWeapon;view.glyph.visible=!isWeapon;
+    if(isWeapon){
+      if(!catalogToys.has(spec.weaponId)){
+        const toy=spec.slot==='offhand'?charmModel(spec.weaponId):gunModel(spec.weaponId);
+        catalogToys.set(spec.weaponId,bakeToy(THREE,toy,detail,g,groundMats,geometry));
+      }
+      const template=catalogToys.get(spec.weaponId);
+      if(!view.model){view.model=template.clone();view.float.add(view.model);}
+      else template.children.forEach((mesh,i)=>{view.model.children[i].geometry=mesh.geometry;});
+      view.model.visible=true;
+      view.model.scale.setScalar(spec.slot==='offhand'?1.45:1.5);view.model.position.set(0,0,-.10);
+    }else{
+      if(view.model)view.model.visible=false;
+      view.beacon.material=skillGems.get(spec.upgradeId)||gold;
+      view.glyph.geometry=detail[SKILLS[spec.upgradeId]?.glyph || 'star'];
     }
-    view.label.material=labelMaterials.get(spec.key)||labelMaterials.get('skill:unknown');
   }
   function syncDrops(game) {
     const entities=(game.drops || []).slice(0,MAX_DROPS), live=new Set(entities.map(drop=>drop.id));
     for (const [id,view] of drops) if (!live.has(id)) {
-      view.group.removeFromParent(); view.group.visible=false; view.label.visible=false; view.id=null; drops.delete(id);
+      view.group.removeFromParent(); view.group.visible=false; view.label.visible=false; view.label.material=labels.fallback; view.id=null; drops.delete(id);
     }
     for (const drop of entities) {
       let view=drops.get(drop.id);
@@ -435,7 +433,7 @@ export function createWeaponVisuals(THREE, scene) {
     const camera=labelCamera,candidates=[];
     for(const drop of entities) {
       const view=drops.get(drop.id),d=Math.hypot(drop.x-p.x,drop.z-p.z),was=view.label.visible;
-      view.label.visible=false;
+      view.label.visible=false;view.label.material=labels.fallback;
       if(!view.group.visible||d>=DROP_GEOMETRY.labelDistance||(camera&&d<LABEL_POLICY.heroClear)) continue;
       candidates.push({drop,view,was,rank:d-(was?LABEL_POLICY.keep:0)});
     }
@@ -453,7 +451,7 @@ export function createWeaponVisuals(THREE, scene) {
       const slide=heroSlide(r,hero,gap,c.was&&c.view.labelShift?L.slideRelease:gap,c.was?1+L.slideKeep:1);if(slide===null) continue;
       const toWorld=box.halfWidth*2/(r.right-r.left);r.left+=slide;r.right+=slide;
       if(shownRects.some(o=>r.left<o.right+gap&&r.right>o.left-gap&&r.bottom<o.top+gap&&r.top>o.bottom-gap)) continue;
-      shownRects.push(r);c.view.label.visible=true;placeLabel(c.view,scale,slide*toWorld);
+      shownRects.push(r);c.view.label.visible=true;c.view.label.material=labelFor(c.view);placeLabel(c.view,scale,slide*toWorld);
     }
   }
 
@@ -650,7 +648,7 @@ export function createWeaponVisuals(THREE, scene) {
   }
   function clear() {
     detachHero();drops.clear();bombs.clear();
-    for(const view of dropPool) {view.id=null;view.group.removeFromParent();view.group.visible=false;view.label.visible=false;}
+    for(const view of dropPool) {view.id=null;view.group.removeFromParent();view.group.visible=false;view.label.visible=false;view.label.material=labels.fallback;}
     for(const view of bombPool) {view.id=null;view.group.removeFromParent();}
     for(const effect of effectPool) {effect.life=0;effect.group.removeFromParent();}
     root.removeFromParent();root.clear();burnFlames.count=burnCores.count=0;lastBurnKey='';now=0;effectCursor=0;labelCamera=null;labelViewHeight=0;
@@ -672,6 +670,6 @@ export function createWeaponVisuals(THREE, scene) {
     return out;
   }
   return {sync,update,styleBullet,clear,drawnDrops,
-    get stats(){return {drops:drops.size,bombs:bombs.size,burning:burnFlames.count,effects:effectPool.filter(item=>item.life>0).length,dropPool:dropPool.length,bombPool:bombPool.length,effectPool:effectPool.length,geometries:geometries.size,materials:materials.size,textures:textures.size};},
+    get stats(){return {drops:drops.size,bombs:bombs.size,burning:burnFlames.count,effects:effectPool.filter(item=>item.life>0).length,dropPool:dropPool.length,bombPool:bombPool.length,effectPool:effectPool.length,geometries:geometries.size,materials:materials.size+labels.size,textures:2+labels.size};},
   };
 }
