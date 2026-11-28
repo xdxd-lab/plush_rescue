@@ -1,7 +1,7 @@
 {
-  "version": "12.9.0",
-  "revision": "v12.9.0-loot-field-kit-r1",
-  "source_commit": "9456816d6424f03a087b3fa873d611c122b8cd2c",
+  "version": "12.10.0",
+  "revision": "v12.10.0-rescue-workshop-r1",
+  "source_commit": "a0264942d6fa66764f3b9617fdf14b5711a074e4",
   "layout": "Static V12.9.0: sculpted world pickups, rescue field kit UI, lighter engine and effects; collision and game rules unchanged",
   "files": [
     {
@@ -66,8 +66,8 @@
     },
     {
       "path": "build-info.json",
-      "bytes": 305,
-      "sha256": "a6df15ed599d88ed3ae12f9e608bc90bbbeb836da0e4640db00a6aa205ac7064"
+      "bytes": 285,
+      "sha256": "133ad356fe60e3c22626028aee3f77eff46c67fd5ee175540574edd3002a434f"
     },
     {
       "path": "camera.js",
@@ -126,8 +126,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 14620,
-      "sha256": "eac6e2ebc4648343a4297ca99d3a08a6553ee1ae3389bc7b5d125a7fb8bbe2c3"
+      "bytes": 14622,
+      "sha256": "72534740941cb60da615f39d8eccce3cd87df9251038820ef0df8af47ac8d9dc"
     },
     {
       "path": "input-controller.js",
@@ -161,8 +161,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 19148,
-      "sha256": "f409f3b5dce0ea6bb63dc4d416bac9fcaa44e37b4170acedbf717a346f5aeb48"
+      "bytes": 19150,
+      "sha256": "6efbf260e41e4576fd4726040d5146fb5a4c99cf029cd5ad4e93ae4d6b3bde50"
     },
     {
       "path": "maps.js",
