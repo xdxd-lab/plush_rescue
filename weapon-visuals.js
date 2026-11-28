@@ -1,6 +1,8 @@
+import {buildRewardDetail} from './loot-reward-detail.js';
 import {WEAPONS} from './weapons.js';
 import {UPGRADES} from './core.js';
 import {lootGeometry,bakeToy,lootLabels,lootRelief,LABEL_MASTER} from './loot-art.js';
+import {groundWeaponParts} from './loot-weapon-detail.js';
 
 // All new art lives here: the handmade V3 character and its muzzle remain intact.
 // A manager owns bounded pools, shared geometry and immutable material palettes.
@@ -140,12 +142,8 @@ export function createWeaponVisuals(THREE, scene) {
   const gold = material(new THREE.MeshBasicMaterial({color:'#ffe6a4',side:THREE.DoubleSide}));
   const bombImminent = material(new THREE.MeshBasicMaterial({color:BOMB_VISUAL.ringColor,side:THREE.DoubleSide}));
   const skillMaterials = new Map(Object.entries(SKILLS).map(([id,skill]) => [id, material(new THREE.MeshBasicMaterial({color:skill.color, side:THREE.DoubleSide}))]));
-  // Give the cut crown its own satin response; the ground marker keeps the
-  // high-contrast flat skill colour and stays legible on all three grounds.
   const groundRelief=lootRelief(THREE);
-  const skillGems=new Map(Object.entries(SKILLS).map(([id,skill])=>[id,material(new THREE.MeshStandardMaterial({
-    color:skill.color,roughness:.31,metalness:.12,bumpMap:groundRelief,bumpScale:.0025,emissive:skill.color,emissiveIntensity:.14
-  }))]));
+  const rewardTemplates=new Map();
   const labels=lootLabels(THREE,material);
   const detail=lootGeometry(THREE,geometry), catalogToys=new Map();
   const groundMats=[
@@ -354,8 +352,8 @@ export function createWeaponVisuals(THREE, scene) {
     view.beacon.visible=!isWeapon;view.glyph.visible=!isWeapon;
     if(isWeapon){
       if(!catalogToys.has(spec.weaponId)){
-        const toy=spec.slot==='offhand'?charmModel(spec.weaponId):gunModel(spec.weaponId);
-        catalogToys.set(spec.weaponId,bakeToy(THREE,toy,detail,g,groundMats,geometry));
+        const toy=groundWeaponParts(THREE,spec.weaponId);
+        catalogToys.set(spec.weaponId,bakeToy(THREE,toy,{},g,groundMats,geometry));
       }
       const template=catalogToys.get(spec.weaponId);
       if(!view.model){view.model=template.clone();view.float.add(view.model);}
@@ -364,8 +362,18 @@ export function createWeaponVisuals(THREE, scene) {
       view.model.scale.setScalar(spec.slot==='offhand'?1.45:1.5);view.model.position.set(0,0,-.10);
     }else{
       if(view.model)view.model.visible=false;
-      view.beacon.material=skillGems.get(spec.upgradeId)||gold;
-      view.glyph.geometry=detail[SKILLS[spec.upgradeId]?.glyph || 'star'];
+      if(SKILLS[spec.upgradeId]){
+        if(!rewardTemplates.has(spec.upgradeId))rewardTemplates.set(spec.upgradeId,buildRewardDetail(THREE,spec.upgradeId,geometry));
+        const halves=rewardTemplates.get(spec.upgradeId);
+        [view.beacon,view.glyph].forEach((mesh,i)=>{
+          mesh.geometry=halves[i];mesh.material=groundMats[i];
+          mesh.position.set(0,0,0);mesh.scale.setScalar(1);mesh.quaternion.identity();
+        });
+      }else{
+        view.beacon.geometry=detail.crystal;view.beacon.material=gold;view.beacon.scale.set(.24,.31,.24);
+        view.glyph.geometry=detail.star;view.glyph.material=white;
+        view.glyph.position.set(0,.05,.29);view.glyph.scale.set(.21,.21,.025);view.glyph.quaternion.identity();
+      }
     }
   }
   function syncDrops(game) {
@@ -633,11 +641,15 @@ export function createWeaponVisuals(THREE, scene) {
     for(const event of events || []) if(event.kind==='magic'||event.kind==='explosion'||event.kind==='burn') spawnEffect(event);
     for(const view of drops.values()) {
       view.float.position.y=DROP_GEOMETRY.floatY+Math.sin(now*2.7+view.phase)*DROP_GEOMETRY.floatBob;
-      view.float.rotation.y=now*.72+view.phase;
       view.ring.rotation.z=now*.22+view.phase;
-      if(camera && view.glyph.visible) {
-        // Compensate for the rotating display so a skill symbol faces camera.
-        view.glyph.quaternion.copy(view.float.quaternion).invert().multiply(camera.quaternion);
+      if(view.glyph.visible && SKILLS[view.spec?.upgradeId]){
+        // Keep both halves of a rigid reward together. Present its main face to
+        // the game camera but rock it slightly so rims, straps and folds read.
+        if(camera)view.float.quaternion.copy(camera.quaternion);else view.float.quaternion.identity();
+        view.float.rotateY(.26*Math.sin(now*.72+view.phase));
+      }else{
+        view.float.rotation.set(0,now*.72+view.phase,0);
+        if(camera && view.glyph.visible)view.glyph.quaternion.copy(view.float.quaternion).invert().multiply(camera.quaternion);
       }
     }
     for(const view of bombs.values()) {view.fuse.rotation.z=now*3.5;view.body.scale.setScalar(.21+Math.sin(now*12)*.011);}

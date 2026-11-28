@@ -150,6 +150,16 @@
       "sha256": "e4167986c5b791139118f3a4b396e2b8d502785669e55c60760db2a334edf88b"
     },
     {
+      "path": "loot-reward-detail.js",
+      "bytes": 12841,
+      "sha256": "5397d0c8da12d629004348e940c2be79223c3979659966fe75601f3114db951f"
+    },
+    {
+      "path": "loot-weapon-detail.js",
+      "bytes": 15865,
+      "sha256": "765393116fcead82b7f4541da250b2723222c2b275d69ac90d650a6659517ff3"
+    },
+    {
       "path": "main.js",
       "bytes": 19148,
       "sha256": "f409f3b5dce0ea6bb63dc4d416bac9fcaa44e37b4170acedbf717a346f5aeb48"
@@ -221,8 +231,8 @@
     },
     {
       "path": "weapon-visuals.js",
-      "bytes": 40086,
-      "sha256": "95a9d6914e595d1f51328c9213bbefbf31d32d83f85c3fcf76a3b31d8178ce4b"
+      "bytes": 40726,
+      "sha256": "cd6816e84de22c5163e745ad1ecbb8c284bac017b4e13c79b82f58d488b8f58c"
     },
     {
       "path": "weapons.js",
